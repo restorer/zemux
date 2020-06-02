@@ -28,7 +28,7 @@ public:
     }
 
     // To handle contended memory with original ULA.
-    virtual void onZ80AddressOnBus(uint16_t address) {
+    virtual void onZ80AddressOnBus(uint16_t /* address */) {
     }
 };
 
@@ -178,6 +178,7 @@ struct Z80CpuRegs {
     int IM = 0;
 };
 
+class Z80Cpu;
 using Z80CpuOpcode = void (Z80Cpu::*)();
 
 class Z80Cpu final : private NonCopyable {
@@ -411,28 +412,28 @@ private:
         regs.A = value;
     }
 
-    ZEMUX_FORCE_INLINE op_CPL() {
+    ZEMUX_FORCE_INLINE void op_CPL() {
         regs.A ^= 0xFF;
         regs.F = (regs.F & (FLAG_C | FLAG_PV | FLAG_Z | FLAG_S)) | (regs.A & (FLAG_3 | FLAG_5)) | (FLAG_N | FLAG_H);
     }
 
-    ZEMUX_FORCE_INLINE op_CCF() {
+    ZEMUX_FORCE_INLINE void op_CCF() {
         regs.F = (regs.F & (FLAG_PV | FLAG_Z | FLAG_S))
             | ((regs.F & FLAG_C) << FLAG_C_TO_H)
             | ((regs.F & FLAG_C) ^ FLAG_C)
             | (regs.A & (FLAG_3 | FLAG_5));
     }
 
-    ZEMUX_FORCE_INLINE op_SCF() {
+    ZEMUX_FORCE_INLINE void op_SCF() {
         regs.F = (regs.F & (FLAG_PV | FLAG_Z | FLAG_S)) | (regs.A & (FLAG_5 | FLAG_3)) | FLAG_C;
     }
 
-    ZEMUX_FORCE_INLINE op_DI() {
+    ZEMUX_FORCE_INLINE void op_DI() {
         regs.IFF1 = false;
         regs.IFF2 = false;
     }
 
-    ZEMUX_FORCE_INLINE op_EI() {
+    ZEMUX_FORCE_INLINE void op_EI() {
         regs.IFF1 = true;
         regs.IFF2 = true;
 
@@ -512,7 +513,7 @@ private:
     // Instructions (7 cycles)
 
     ZEMUX_FORCE_INLINE void op_LD_R_N(uint8_t* r) {
-        *r = memoryRead();
+        *r = fetchByte();
     }
 
     template< typename F >
@@ -524,7 +525,7 @@ private:
         *r = memoryRead(rp);
     }
 
-    ZEMUX_FORCE_INLINE op_LD_MRP_R(uint16_t rp, uint8_t r) {
+    ZEMUX_FORCE_INLINE void op_LD_MRP_R(uint16_t rp, uint8_t r) {
         memoryWrite(rp, r);
     }
 
@@ -540,7 +541,7 @@ private:
     }
 
     template< typename F >
-    ZEMUX_FORCE_INLINE op_DO_A_MHL(F block) {
+    ZEMUX_FORCE_INLINE void op_DO_A_MHL(F block) {
         block(&regs.A, memoryRead(regs.HL));
     }
 
@@ -641,7 +642,7 @@ private:
     }
 
     ZEMUX_FORCE_INLINE void op_LD_MHL_N() {
-        memoryWrite(regs.HL, memoryRead());
+        memoryWrite(regs.HL, fetchByte());
     }
 
     ZEMUX_FORCE_INLINE void op_POP_RP(uint16_t* rp) {
@@ -655,7 +656,7 @@ private:
     // Instructions (11 cycles)
 
     ZEMUX_FORCE_INLINE void op_ADD_RP_RP(uint16_t* rp1, uint16_t rp2) {
-        do_ADD_16(&rp1, rp2);
+        do_ADD_16(rp1, rp2);
         Unroll<7>::loop([&] { putAddressOnBus(regs.IR); });
     }
 
@@ -680,7 +681,7 @@ private:
         do_PUSH(rp);
     }
 
-    ZEMUX_FORCE_INLINE op_RST(uint16_t address) {
+    ZEMUX_FORCE_INLINE void op_RST(uint16_t address) {
         putAddressOnBus(regs.IR);
         do_PUSH(regs.PC);
         regs.PC = address;
@@ -700,7 +701,7 @@ private:
     // Instructions (12 cycles)
 
     ZEMUX_FORCE_INLINE void op_BIT_MHL(int bit) {
-        do_BIT(memoryRead(regs.HL), BIT);
+        do_BIT(memoryRead(regs.HL), bit);
         putAddressOnBus(regs.HL);
     }
 
@@ -745,7 +746,7 @@ private:
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_IN_F_BC_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_IN_F_BC_P00() {
         uint8_t value = ioRead(regs.BC);
         regs.MP = regs.BC + 1;
 
@@ -830,14 +831,14 @@ private:
 
     // Instructions (16 cycles)
 
-    ZEMUX_FORCE_INLINE op_PREF_XX_CB(Z80CpuOpcode* withOptable) {
+    ZEMUX_FORCE_INLINE void op_PREF_XX_CB(Z80CpuOpcode* withOptable) {
         lastOffset = static_cast<int8_t>(fetchByte());
 
         uint16_t address = regs.PC;
         uint8_t opcode = fetchByte();
         Unroll<2>::loop([&] { putAddressOnBus(address); });
 
-        withOptable[opcode]();
+        (this->*withOptable[opcode])();
     }
 
     ZEMUX_FORCE_INLINE void op_LD_RP_MNN(uint8_t* rl, uint8_t* rh) {
@@ -866,36 +867,36 @@ private:
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_CPI_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_CPI_P00() {
         do_REP_CP();
         do_REP_CP_INC();
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_CPD_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_CPD_P00() {
         do_REP_CP();
         do_REP_CP_DEC();
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_INI_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_INI_P00() {
         do_REP_INI();
         ++regs.HL;
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_IND_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_IND_P00() {
         do_REP_IND();
         --regs.HL;
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_OUTI_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_OUTI_P00() {
         do_REP_OUTI();
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_OUTD_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_OUTD_P00() {
         do_REP_OUTD();
         do_PREF_00();
     }
@@ -1029,37 +1030,37 @@ private:
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_CPIR_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_CPIR_P00() {
         do_REP_CP();
         do_REP_CP_INCR();
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_CPDR_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_CPDR_P00() {
         do_REP_CP();
         do_REP_CP_DECR();
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_INIR_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_INIR_P00() {
         do_REP_INI();
         do_REP_IN_INCR();
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_INDR_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_INDR_P00() {
         do_REP_IND();
         do_REP_IN_DECR();
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_OTIR_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_OTIR_P00() {
         do_REP_OUTI();
         do_REP_OUT_INCR_DECR();
         do_PREF_00();
     }
 
-    ZEMUX_FORCE_INLINE void op_OTDR_P00(FN) {
+    ZEMUX_FORCE_INLINE void op_OTDR_P00() {
         do_REP_OUTD();
         do_REP_OUT_INCR_DECR();
         do_PREF_00();
@@ -1076,7 +1077,7 @@ private:
         uint8_t value = block(memoryRead(valueAddress));
         putAddressOnBus(valueAddress);
 
-        memoryWrite(address, value);
+        memoryWrite(valueAddress, value);
     }
 
     ZEMUX_FORCE_INLINE void op_SET_PORP_P00(int bit, uint16_t rp) {
@@ -1279,7 +1280,7 @@ private:
     ZEMUX_FORCE_INLINE void do_CP_8(uint8_t* x, uint8_t y) {
         uint16_t result = (*x) - y;
         uint8_t halfResult = ((*x) & 0x0F) - (y & 0x0F);
-        int16_t signedResult = static_cast<int8_t>(*x) - static_cast<int8_t>y;
+        int16_t signedResult = static_cast<int8_t>(*x) - static_cast<int8_t>(y);
 
         regs.F = ((result & FLAG_C_M8) >> FLAG_C_S8)
             | FLAG_N
@@ -1361,7 +1362,7 @@ private:
     ZEMUX_FORCE_INLINE void do_ADC_16(uint16_t* x, uint16_t y) {
         uint32_t result = (*x) + y + (regs.F & FLAG_C);
         uint16_t halfResult = ((*x) & 0x0FFF) + (y & 0x0FFF) + (regs.F & FLAG_C);
-        int32_t signedResult static_cast<int16_t>(*x) + static_cast<int16_t>(y) + static_cast<int32_t>(regs.F & FLAG_C);
+        int32_t signedResult = static_cast<int16_t>(*x) + static_cast<int16_t>(y) + static_cast<int32_t>(regs.F & FLAG_C);
 
         regs.MP = (*x) + 1;
         *x = result;
@@ -1424,7 +1425,7 @@ private:
 
     ZEMUX_FORCE_INLINE uint16_t do_POP() {
         uint8_t value = memoryRead(regs.SP++);
-        return value | static_cast<uint16_t>(memoryRead(regs.SP++))
+        return value | static_cast<uint16_t>(memoryRead(regs.SP++));
     }
 
     ZEMUX_FORCE_INLINE void do_RET() {
@@ -1607,7 +1608,7 @@ private:
         --regs.HL;
         uint16_t wordValue = byteValue + regs.L;
 
-        regs.F = ((tmp_byte >> FLAG_S_TO_N) & FLAG_N)
+        regs.F = ((byteValue >> FLAG_S_TO_N) & FLAG_N)
             | (regs.B & (FLAG_S | FLAG_5 | FLAG_3))
             | (regs.B ? 0 : FLAG_Z)
             | parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ regs.B]
@@ -1621,5 +1622,7 @@ private:
         }
     }
 };
+
+}
 
 #endif

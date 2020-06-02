@@ -8,11 +8,6 @@ static std::mutex initSharedDataMutex;
 
 uint8_t Z80Cpu::parityLookup[0x100];
 
-Z80Cpu::Z80Cpu(Z80CpuCallback* cb) : cb { cb } {
-    initSharedData();
-    reset();
-}
-
 void Z80Cpu::initSharedData() {
     std::lock_guard _ { initSharedDataMutex };
 
@@ -34,6 +29,11 @@ void Z80Cpu::initSharedData() {
     }
 
     isSharedDataInitialized = true;
+}
+
+Z80Cpu::Z80Cpu(Z80CpuCallback* cb) : cb { cb } {
+    initSharedData();
+    reset();
 }
 
 void Z80Cpu::reset() {
@@ -171,7 +171,7 @@ unsigned int Z80Cpu::getTicks() {
     return ticks + tstate;
 }
 
-void Z80Cpu::consumeTicks(int consumedTicks) {
+void Z80Cpu::consumeTicks(unsigned int consumedTicks) {
     if (clockRatio < -1) {
         ticks += tstate * (-clockRatio);
         tstate = 0;
