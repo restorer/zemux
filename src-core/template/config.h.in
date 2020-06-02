@@ -1,0 +1,6 @@
+#ifndef ZEMUX_CORE__CONFIG
+#define ZEMUX_CORE__CONFIG
+
+#cmakedefine ZEMUX_BIG_ENDIAN
+
+#endif
