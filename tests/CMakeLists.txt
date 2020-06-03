@@ -51,6 +51,16 @@ add_subdirectory (../src-z80 "${CMAKE_BINARY_DIR}/src-z80")
 link_directories ("${CMAKE_BINARY_DIR}/src-z80")
 
 ##
+## Zame Z80
+##
+
+set (ZAME_SRC_OUTPUT_DIR "${CMAKE_BINARY_DIR}/src-zame-z80-processed")
+include_directories (${ZAME_SRC_OUTPUT_DIR})
+
+add_subdirectory (src-zame-z80 "${CMAKE_BINARY_DIR}/src-zame-z80")
+link_directories ("${CMAKE_BINARY_DIR}/src-zame-z80")
+
+##
 ## ZemuX-Tests
 ##
 
@@ -62,6 +72,7 @@ add_executable (test_suite WIN32
 target_link_libraries (test_suite PRIVATE
     zemux_core
     zemux_z80
+    z80ex_wrapper
 )
 
 target_include_directories (test_suite PRIVATE src)
