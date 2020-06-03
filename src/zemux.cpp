@@ -7,22 +7,18 @@ namespace zemux {
 class ZemuX : public Z80CpuCallback, private NonCopyable {
 public:
 
-    uint8_t onZ80Read(uint16_t /* address */, bool /* isM1 */) {
+    uint8_t onZ80MreqRd(uint16_t /* address */, bool /* isM1 */) {
         return 0;
     }
 
-    void onZ80Write(uint16_t /* address */, uint8_t /* value */) {
+    void onZ80MreqWr(uint16_t /* address */, uint8_t /* value */) {
     }
 
-    uint8_t onZ80In(uint16_t /* port */) {
+    uint8_t onZ80IorqRd(uint16_t /* port */) {
         return 0;
     }
 
-    void onZ80Out(uint16_t /* port */, uint8_t /* value */) {
-    }
-
-    uint8_t onZ80ReadInt() {
-        return 0;
+    void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) {
     }
 };
 

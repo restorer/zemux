@@ -1,5 +1,30 @@
+/*
+ * MIT License (http://www.opensource.org/licenses/mit-license.php)
+ *
+ * Copyright (c) 2020, Viachaslau Tratsiak (aka restorer)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include <mutex>
-#include <zemux_z80/z80cpu.h>
+#include "z80cpu.h"
+#include "z80cpu_core.h"
 
 namespace zemux {
 
@@ -55,8 +80,16 @@ void Z80Cpu::reset() {
     isProcessingInstruction = false;
     pcIncrement = 1;
 
-    // optable = optable_00;
+    optable = z80CpuOptable_00;
     prefix = 0;
+}
+
+void Z80Cpu::step() {
+    shouldResetPv = false;
+
+    isProcessingInstruction = true;
+    optable[fetchOpcode()](this);
+    isProcessingInstruction = false;
 }
 
 void Z80Cpu::doInt() {
@@ -90,7 +123,7 @@ void Z80Cpu::doInt() {
             // to these read sequences).
 
             pcIncrement = 0;
-            (this->*optable[intVec])();
+            optable[intVec](this);
             pcIncrement = 1;
 
             break;
@@ -102,7 +135,7 @@ void Z80Cpu::doInt() {
             // Note that when doing programmed I/O the CPU will ignore any data put onto
             // the data bus during the interrupt acknowledge cycle.
 
-            // (this->*optable_00[0xFF])(); // RST #38
+            z80CpuOptable_00[0xFF](this); // RST #38
             break;
         }
 
@@ -159,18 +192,6 @@ void Z80Cpu::doNmi() {
     isProcessingInstruction = false;
 }
 
-unsigned int Z80Cpu::getTicks() {
-    if (clockRatio < -1) {
-        return ticks + tstate * (-clockRatio);
-    }
-
-    if (clockRatio > 1) {
-        return ticks + (tstate + clockRatio - 1) / clockRatio;
-    }
-
-    return ticks + tstate;
-}
-
 void Z80Cpu::consumeTicks(unsigned int consumedTicks) {
     if (clockRatio < -1) {
         ticks += tstate * (-clockRatio);
@@ -200,12 +221,16 @@ void Z80Cpu::setClockRatio(int newClockRatio) {
     clockRatio = newClockRatio;
 }
 
-void Z80Cpu::step() {
-    shouldResetPv = false;
+unsigned int Z80Cpu::convertCyclesToTicks(unsigned int cycles) {
+    if (clockRatio < -1) {
+        return cycles * (-clockRatio);
+    }
 
-    isProcessingInstruction = true;
-    (this->*optable[fetchOpcode()])();
-    isProcessingInstruction = false;
+    if (clockRatio > 1) {
+        return (cycles + clockRatio - 1) / clockRatio;
+    }
+
+    return cycles;
 }
 
 }
