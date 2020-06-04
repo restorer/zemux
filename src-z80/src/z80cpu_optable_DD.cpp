@@ -357,12 +357,12 @@ static void op_DD_33(Z80Cpu* cpu) {
 
 // INC (IX+N)
 static void op_DD_34(Z80Cpu* cpu) {
-    Z80CpuCore::op_DO_ORP(cpu, Z80CpuCore::do_INC_8, cpu->regs.IX);
+    Z80CpuCore::op_DO_ORP_P00(cpu, Z80CpuCore::do_INC_8, cpu->regs.IX);
 }
 
 // DEC (IX+N)
 static void op_DD_35(Z80Cpu* cpu) {
-    Z80CpuCore::op_DO_ORP(cpu, Z80CpuCore::do_DEC_8, cpu->regs.IX);
+    Z80CpuCore::op_DO_ORP_P00(cpu, Z80CpuCore::do_DEC_8, cpu->regs.IX);
 }
 
 // LD (IX+N),N

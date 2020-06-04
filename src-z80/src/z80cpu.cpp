@@ -58,43 +58,63 @@ void Z80Cpu::initSharedData() {
 
 Z80Cpu::Z80Cpu(Z80CpuCallback* cb) : cb { cb } {
     initSharedData();
+
+    regs.BC = 0xFFFF;
+    regs.DE = 0xFFFF;
+    regs.HL = 0xFFFF;
+    regs.AF = 0xFFFF;
+    regs.IX = 0xFFFF;
+    regs.IY = 0xFFFF;
+    regs.SP = 0xFFFF;
+    regs.BC_ = 0xFFFF;
+    regs.DE_ = 0xFFFF;
+    regs.HL_ = 0xFFFF;
+    regs.AF_ = 0xFFFF;
+
     reset();
 }
 
 void Z80Cpu::reset() {
-    regs.AF = 0xFFFF;
-    regs.SP = 0xFFFF;
+    // From "Z80 CPU User Manual":
+    //
+    // Reset (input, active Low). RESET initializes the CPU as follows: it resets the
+    // interrupt enable flip-flop, clears the Program Counter and registers I and R, and sets the
+    // interrupt status to Mode 0.
+    //
+    // So all other registers may have any value.
+
     regs.PC = 0x0000;
     regs.MP = 0x0000;
-
-    regs.I = 0x00;
-    regs.R = 0x00;
+    regs.IR = 0x0000;
     regs.IFF1 = false;
     regs.IFF2 = false;
     regs.IM = 0;
 
-    // all others registers may has any value
-
+    optable = z80CpuOptable_00;
     isHalted = false;
     shouldResetPv = false;
     isProcessingInstruction = false;
     pcIncrement = 1;
-
-    optable = z80CpuOptable_00;
     prefix = 0;
+    tstate = 0;
 }
 
-void Z80Cpu::step() {
+unsigned int Z80Cpu::step() {
+    tstate = 0;
     shouldResetPv = false;
 
     isProcessingInstruction = true;
     optable[fetchOpcode()](this);
     isProcessingInstruction = false;
+
+    return tstate;
 }
 
-void Z80Cpu::doInt() {
+unsigned int Z80Cpu::doInt() {
+    tstate = 0;
+
     if (!regs.IFF1 || isProcessingInstruction || prefix) {
-        return;
+        return tstate;
     }
 
     if (isHalted) {
@@ -157,11 +177,14 @@ void Z80Cpu::doInt() {
     }
 
     isProcessingInstruction = false;
+    return tstate;
 }
 
-void Z80Cpu::doNmi() {
+unsigned int Z80Cpu::doNmi() {
+    tstate = 0;
+
     if (isProcessingInstruction || prefix) {
-        return;
+        return tstate;
     }
 
     if (isHalted) {
@@ -190,47 +213,7 @@ void Z80Cpu::doNmi() {
     regs.MP = regs.PC;
 
     isProcessingInstruction = false;
-}
-
-void Z80Cpu::consumeTicks(unsigned int consumedTicks) {
-    if (clockRatio < -1) {
-        ticks += tstate * (-clockRatio);
-        tstate = 0;
-    } else if (clockRatio > 1) {
-        unsigned int consumed = (tstate + clockRatio - 1) / clockRatio;
-        ticks += consumed;
-        tstate -= consumed * clockRatio;
-    } else {
-        ticks += tstate;
-        tstate = 0;
-    }
-
-    ticks -= consumedTicks;
-}
-
-void Z80Cpu::setClockRatio(int newClockRatio) {
-    if (clockRatio < -1) {
-        ticks += tstate * (-clockRatio);
-    } else if (clockRatio > 1) {
-        ticks += (tstate + clockRatio - 1) / clockRatio;
-    } else {
-        ticks += tstate;
-    }
-
-    tstate = 0;
-    clockRatio = newClockRatio;
-}
-
-unsigned int Z80Cpu::convertCyclesToTicks(unsigned int cycles) {
-    if (clockRatio < -1) {
-        return cycles * (-clockRatio);
-    }
-
-    if (clockRatio > 1) {
-        return (cycles + clockRatio - 1) / clockRatio;
-    }
-
-    return cycles;
+    return tstate;
 }
 
 }

@@ -788,7 +788,7 @@ public:
     // Instructions (23 cycles)
 
     template< typename F >
-    ZEMUX_FORCE_INLINE static void op_DO_ORP(Z80Cpu* cpu, F block, uint16_t rp) {
+    ZEMUX_FORCE_INLINE static void op_DO_ORP_P00(Z80Cpu* cpu, F block, uint16_t rp) {
         uint16_t offsetAddress = cpu->regs.PC;
         uint16_t valueAddress = rp + cpu->fetchOffsetMp(rp);
         cpu->putAddressOnBus(offsetAddress, 5);
@@ -798,6 +798,7 @@ public:
         cpu->putAddressOnBus(valueAddress, 1);
 
         cpu->memoryWrite(valueAddress, value);
+        do_PREF_00(cpu);
     }
 
     ZEMUX_FORCE_INLINE static void op_SET_PORP_P00(Z80Cpu* cpu, int bit, uint16_t rp) {
@@ -1136,7 +1137,7 @@ public:
             | ((halfResult & Z80Cpu::FLAG_H_M16) >> Z80Cpu::FLAG_H_S16)
             | ((signedResult < -32768 || signedResult > 32767) ? Z80Cpu::FLAG_PV : 0)
             | ((result >> 8) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+            | (static_cast<uint16_t>(result) ? 0 : Z80Cpu::FLAG_Z);
     }
 
     ZEMUX_FORCE_INLINE static void do_SBC_16(Z80Cpu* cpu, uint16_t* x, uint16_t y) {
@@ -1149,7 +1150,7 @@ public:
             | ((halfResult & Z80Cpu::FLAG_H_M16) >> Z80Cpu::FLAG_H_S16)
             | ((signedResult < -32768 || signedResult > 32767) ? Z80Cpu::FLAG_PV : 0)
             | ((result >> 8) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+            | (static_cast<uint16_t>(result) ? 0 : Z80Cpu::FLAG_Z);
 
         cpu->regs.MP = (*x) + 1;
         *x = result;
@@ -1189,8 +1190,8 @@ public:
     // Actions (affecting T-state)
 
     ZEMUX_FORCE_INLINE static uint16_t do_POP(Z80Cpu* cpu) {
-        uint8_t value = cpu->memoryRead(cpu->regs.SP++);
-        return value | static_cast<uint16_t>(cpu->memoryRead(cpu->regs.SP++));
+        uint8_t value = cpu->memoryRead((cpu->regs.SP)++);
+        return value | (static_cast<uint16_t>(cpu->memoryRead((cpu->regs.SP)++)) << 8);
     }
 
     ZEMUX_FORCE_INLINE static void do_RET(Z80Cpu* cpu) {

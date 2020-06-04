@@ -52,7 +52,7 @@ public:
     }
 
     // To handle contended memory with original ULA.
-    virtual void onZ80PutAddress(uint16_t /* address */, unsigned int /* ticks */) {
+    virtual void onZ80PutAddress(uint16_t /* address */, unsigned int /* cycles */) {
     }
 };
 
@@ -223,6 +223,10 @@ public:
 
     Z80CpuRegs regs;
 
+    ZEMUX_FORCE_INLINE uint8_t getOpcodePrefix() {
+        return prefix;
+    }
+
     ZEMUX_FORCE_INLINE bool isIntPossible() {
         return regs.IFF1 && !isProcessingInstruction && !prefix;
     }
@@ -231,24 +235,18 @@ public:
         return !isProcessingInstruction && !prefix;
     }
 
-    ZEMUX_FORCE_INLINE unsigned int getTicks() {
-        return ticks + convertCyclesToTicks(tstate);
+    ZEMUX_FORCE_INLINE unsigned int getTstate() {
+        return tstate;
     }
 
-    ZEMUX_FORCE_INLINE void waitTicks(unsigned int ticksToWait) {
-        ticks += ticksToWait;
-    }
-
-    ZEMUX_FORCE_INLINE int getClockRatio() {
-        return clockRatio;
+    ZEMUX_FORCE_INLINE void wait(unsigned int cycles) {
+        tstate += cycles;
     }
 
     void reset();
-    void step();
-    void doInt();
-    void doNmi();
-    void consumeTicks(unsigned int consumedTicks);
-    void setClockRatio(int newClockRatio);
+    unsigned int step();
+    unsigned int doInt();
+    unsigned int doNmi();
 
 private:
 
@@ -278,19 +276,15 @@ private:
     bool isProcessingInstruction;
     uint16_t pcIncrement = 1;
     uint8_t prefix;
-    int8_t cbOffset;
+    int8_t cbOffset = 0;
     unsigned int tstate = 0;
-    unsigned int ticks = 0;
-    int clockRatio = 0;
-
-    unsigned int convertCyclesToTicks(unsigned int cycles);
 
     ZEMUX_FORCE_INLINE void incR() {
         regs.R = (regs.R & 0x80) | ((regs.R + 1) & 0x7F);
     }
 
     ZEMUX_FORCE_INLINE void putAddressOnBus(uint16_t address, unsigned int cycles) {
-        cb->onZ80PutAddress(address, std::max(1U, convertCyclesToTicks(cycles)));
+        cb->onZ80PutAddress(address, cycles);
         tstate += cycles;
     }
 
