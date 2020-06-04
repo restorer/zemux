@@ -65,7 +65,8 @@ include_directories ("${ZAME_SRC_OUTPUT_DIR}")
 
 add_executable (test_suite WIN32
     src/test_suite.cpp
-    src/z80_test.cpp
+    src/z80_correctness_test.cpp
+    src/z80_speed_test.cpp
 )
 
 target_link_libraries (test_suite PRIVATE

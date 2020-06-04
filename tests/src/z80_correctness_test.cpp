@@ -2,9 +2,12 @@
 #include <iomanip>
 #include <fstream>
 #include <cstring>
-#include "z80_test.h"
+#include "z80_correctness_test.h"
 
 // #define DUMP_EXECUTION
+
+static const char* ZEXALL_PATH = "extras/zexall.com";
+static const char* ZEXDOC_PATH = "extras/zexdoc.com";
 
 static constexpr int MAX_BDOS_STRING_LEN = 128;
 
@@ -12,26 +15,26 @@ static const char* ERROR_PHRASE = "ERROR";
 static constexpr int ERROR_PHRASE_LEN = 5;
 
 static uint8_t onEthalonReadProxy(uint16_t addr, bool m1, void* data) {
-    return static_cast<Z80Test*>(data)->onEthalonRead(addr, m1);
+    return static_cast<Z80CorrectnessTest*>(data)->onEthalonRead(addr, m1);
 }
 
 static void onEthalonWriteProxy(uint16_t addr, uint8_t val, void* data) {
-    static_cast<Z80Test*>(data)->onEthalonWrite(addr, val);
+    static_cast<Z80CorrectnessTest*>(data)->onEthalonWrite(addr, val);
 }
 
 static uint8_t onEthalonInProxy(uint16_t port, void* data) {
-    return static_cast<Z80Test*>(data)->onEthalonIn(port);
+    return static_cast<Z80CorrectnessTest*>(data)->onEthalonIn(port);
 }
 
 static void onEthalonOutProxy(uint16_t port, uint8_t val, void* data) {
-    static_cast<Z80Test*>(data)->onEthalonOut(port, val);
+    static_cast<Z80CorrectnessTest*>(data)->onEthalonOut(port, val);
 }
 
 static uint8_t onEthalonReadIntProxy(void* data) {
-    return static_cast<Z80Test*>(data)->onEthalonReadInt();
+    return static_cast<Z80CorrectnessTest*>(data)->onEthalonReadInt();
 }
 
-Z80Test::Z80Test() : testCpu { this } {
+Z80CorrectnessTest::Z80CorrectnessTest() : testCpu { this } {
     ethalonCpu = __ns_Cpu__new(
         onEthalonReadProxy, this,
         onEthalonWriteProxy, this,
@@ -41,56 +44,60 @@ Z80Test::Z80Test() : testCpu { this } {
     );
 }
 
-Z80Test::~Z80Test() {
+Z80CorrectnessTest::~Z80CorrectnessTest() {
     __ns_Cpu__free(ethalonCpu);
 }
 
-bool Z80Test::run() {
-    return execute("extras/zexdoc.com") && execute("extras/zexall.com");
+const char* Z80CorrectnessTest::name() {
+    return "Z80 Correctness";
 }
 
-uint8_t Z80Test::onZ80MreqRd(uint16_t address, bool /* isM1 */) {
+bool Z80CorrectnessTest::run() {
+    return execute(ZEXALL_PATH) && execute(ZEXDOC_PATH);
+}
+
+uint8_t Z80CorrectnessTest::onZ80MreqRd(uint16_t address, bool /* isM1 */) {
     return testMemory[address];
 }
 
-void Z80Test::onZ80MreqWr(uint16_t address, uint8_t value) {
+void Z80CorrectnessTest::onZ80MreqWr(uint16_t address, uint8_t value) {
     testMemory[address] = value;
 }
 
-uint8_t Z80Test::onZ80IorqRd(uint16_t /* port */) {
+uint8_t Z80CorrectnessTest::onZ80IorqRd(uint16_t /* port */) {
     return 0x00;
 }
 
-void Z80Test::onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) {
+void Z80CorrectnessTest::onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) {
 }
 
-uint8_t Z80Test::onEthalonRead(uint16_t addr, bool /* m1 */) {
+uint8_t Z80CorrectnessTest::onEthalonRead(uint16_t addr, bool /* m1 */) {
     return ethalonMemory[addr];
 }
 
-void Z80Test::onEthalonWrite(uint16_t addr, uint8_t val) {
+void Z80CorrectnessTest::onEthalonWrite(uint16_t addr, uint8_t val) {
     ethalonMemory[addr] = val;
 }
 
-uint8_t Z80Test::onEthalonIn(uint16_t /* port */) {
+uint8_t Z80CorrectnessTest::onEthalonIn(uint16_t /* port */) {
     return 0x00;
 }
 
-void Z80Test::onEthalonOut(uint16_t /* port */, uint8_t /* val */) {
+void Z80CorrectnessTest::onEthalonOut(uint16_t /* port */, uint8_t /* val */) {
 }
 
-uint8_t Z80Test::onEthalonReadInt() {
+uint8_t Z80CorrectnessTest::onEthalonReadInt() {
     return 0xFF;
 }
 
-bool Z80Test::execute(const char* path) {
-    std::cout << "[ Z80 ] Executing \"" << path << "\"...\n";
+bool Z80CorrectnessTest::execute(const char* path) {
+    std::cout << "Executing \"" << path << "\"...\n";
 
     std::ifstream ifs;
     ifs.open(path, std::ifstream::in | std::ifstream::binary);
 
     if (ifs.fail()) {
-        std::cout << "[ Z80 ] Failed to open file\n";
+        std::cout << "Failed to open file\n";
         return false;
     }
 
@@ -182,36 +189,36 @@ bool Z80Test::execute(const char* path) {
                         }
 
                         if (isMatched) {
-                            std::cout << "\n[ Z80 ] \"" << ERROR_PHRASE << "\" matched\n";
+                            std::cout << "\n\"" << ERROR_PHRASE << "\" matched\n";
                             return false;
                         }
                     }
                 }
             }
 
-            uint16_t testRetAddress = testMemory[testSP]
+            uint16_t testRetAddr = testMemory[testSP]
                 | (static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testSP + 1)]) << 8);
 
-            uint16_t ethalonRetAddress = ethalonMemory[ethalonSP]
+            uint16_t ethalonRetAddr = ethalonMemory[ethalonSP]
                 | (static_cast<uint16_t>(ethalonMemory[static_cast<uint16_t>(ethalonSP + 1)]) << 8);
 
-            if (testRetAddress != ethalonRetAddress) {
+            if (testRetAddr != ethalonRetAddr) {
                 std::cout << std::hex << std::uppercase
-                    << "\n[ Z80 ] testRetAddress "
-                    << std::setw(4) << testRetAddress
-                    << " != ethalonRetAddress "
-                    << std::setw(4) << ethalonRetAddress
+                    << "\ntestRetAddr "
+                    << std::setw(4) << testRetAddr
+                    << " != ethalonRetAddr "
+                    << std::setw(4) << ethalonRetAddr
                     << "\n";
 
                 return false;
             }
 
-            testCpu.regs.PC = testRetAddress;
-            testCpu.regs.MP = testRetAddress;
+            testCpu.regs.PC = testRetAddr;
+            testCpu.regs.MP = testRetAddr;
             testCpu.regs.SP += 2;
 
-            __ns_Cpu__set_reg(ethalonCpu, CPU_PC, ethalonRetAddress);
-            __ns_Cpu__set_reg(ethalonCpu, CPU_MP, ethalonRetAddress);
+            __ns_Cpu__set_reg(ethalonCpu, CPU_PC, ethalonRetAddr);
+            __ns_Cpu__set_reg(ethalonCpu, CPU_MP, ethalonRetAddr);
             __ns_Cpu__set_reg(ethalonCpu, CPU_SP, ethalonSP + 2);
         }
 
@@ -223,7 +230,7 @@ bool Z80Test::execute(const char* path) {
         }
 
         if (testTicks != ethalonTicks) {
-            std::cout << "\n[ Z80 ] testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
+            std::cout << "\ntestTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
             return false;
         }
     }
@@ -247,7 +254,7 @@ bool Z80Test::execute(const char* path) {
         }
 
         if (testTicks != ethalonTicks) {
-            std::cout << "\n[ Z80 ] IM " << im << ", DI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
+            std::cout << "\nIM " << im << ", DI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
             return false;
         }
 
@@ -267,7 +274,7 @@ bool Z80Test::execute(const char* path) {
         }
 
         if (testTicks != ethalonTicks) {
-            std::cout << "\n[ Z80 ] IM " << im << ", EI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
+            std::cout << "\nIM " << im << ", EI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
             return false;
         }
     }
@@ -289,7 +296,7 @@ bool Z80Test::execute(const char* path) {
         }
 
         if (testTicks != ethalonTicks) {
-            std::cout << "\n[ Z80 ] NMI, DI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
+            std::cout << "\nNMI, DI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
             return false;
         }
 
@@ -309,7 +316,7 @@ bool Z80Test::execute(const char* path) {
         }
 
         if (testTicks != ethalonTicks) {
-            std::cout << "\n[ Z80 ] NMI, EI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
+            std::cout << "\nNMI, EI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
             return false;
         }
     }
@@ -318,7 +325,7 @@ bool Z80Test::execute(const char* path) {
     return true;
 }
 
-bool Z80Test::performCheck() {
+bool Z80CorrectnessTest::performCheck() {
     uint16_t testBC = testCpu.regs.BC;
     uint16_t testDE = testCpu.regs.DE;
     uint16_t testHL = testCpu.regs.HL;
@@ -366,7 +373,7 @@ bool Z80Test::performCheck() {
     #ifdef DUMP_EXECUTION
 
     std::cout << std::hex << std::uppercase
-        << "[ Z80 ] AF=" << std::setw(4) << testAF
+        << "AF=" << std::setw(4) << testAF
         << " BC=" << std::setw(4) << testBC
         << " DE=" << std::setw(4) << testDE
         << " HL=" << std::setw(4) << testHL
@@ -376,7 +383,7 @@ bool Z80Test::performCheck() {
         << " BC'=" << std::setw(4) << testBC_
         << " DE'=" << std::setw(4) << testDE_
         << " HL'=" << std::setw(4) << testHL_
-        << "\n[ Z80 ] PC=" << std::setw(4) << testPC
+        << "\nPC=" << std::setw(4) << testPC
         << " SP=" << std::setw(4) << testSP
         << " MP=" << std::setw(4) << testMP
         << " I=" << std::setw(2) << testI
@@ -389,7 +396,7 @@ bool Z80Test::performCheck() {
         << " NMI?=" << testIsNmiPossible
         << std::hex
         << " PREF=" << std::setw(2) << testPrefix
-        << "\n[ Z80 ] @PC " << std::setw(2) << testMemory[testPC]
+        << "\n@PC " << std::setw(2) << testMemory[testPC]
         << " " << std::setw(2) << testMemory[static_cast<uint16_t>(testPC + 1)]
         << " " << std::setw(2) << testMemory[static_cast<uint16_t>(testPC + 2)]
         << " " << std::setw(2) << testMemory[static_cast<uint16_t>(testPC + 3)]
@@ -451,24 +458,24 @@ bool Z80Test::performCheck() {
     return true;
 }
 
-void Z80Test::compareAndOutputB(const char* regName, uint8_t testReg, uint8_t ethalonReg) {
+void Z80CorrectnessTest::compareAndOutputB(const char* regName, uint8_t testReg, uint8_t ethalonReg) {
     std::cout << std::hex << std::uppercase
-        << "[ Z80 ] test " << regName << " " << std::setw(2) << testReg
+        << "test " << regName << " " << std::setw(2) << testReg
         << (testReg == ethalonReg ? " == " : " != ")
         << "ethalon " << regName << " " << std::setw(2) << ethalonReg
         << "\n";
 }
 
-void Z80Test::compareAndOutputW(const char* regName, uint16_t testReg, uint16_t ethalonReg) {
+void Z80CorrectnessTest::compareAndOutputW(const char* regName, uint16_t testReg, uint16_t ethalonReg) {
     std::cout << std::hex << std::uppercase
-        << "[ Z80 ] test " << regName << " " << std::setw(4) << testReg
+        << "test " << regName << " " << std::setw(4) << testReg
         << (testReg == ethalonReg ? " == " : " != ")
         << "ethalon " << regName << " " << std::setw(4) << ethalonReg
         << "\n";
 }
 
-void Z80Test::compareAndOutputI(const char* regName, int testReg, int ethalonReg) {
-    std::cout << "[ Z80 ] test " << regName << " " << testReg
+void Z80CorrectnessTest::compareAndOutputI(const char* regName, int testReg, int ethalonReg) {
+    std::cout << "test " << regName << " " << testReg
         << (testReg == ethalonReg ? " == " : " != ")
         << "ethalon " << regName << " " << ethalonReg
         << "\n";

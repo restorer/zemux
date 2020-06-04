@@ -1,5 +1,5 @@
-#ifndef TEST_SUITE__Z80_TEST
-#define TEST_SUITE__Z80_TEST
+#ifndef TEST_SUITE__Z80_CORRECTNESS_TEST
+#define TEST_SUITE__Z80_CORRECTNESS_TEST
 
 #include <cstdint>
 #include <zemux_z80/z80cpu.h>
@@ -9,12 +9,13 @@ extern "C" {
     #include <lib_z80/cpu.h>
 }
 
-class Z80Test : public Test, public zemux::Z80CpuCallback {
+class Z80CorrectnessTest : public Test, public zemux::Z80CpuCallback {
 public:
 
-    Z80Test();
-    ~Z80Test();
+    Z80CorrectnessTest();
+    ~Z80CorrectnessTest();
 
+    const char* name();
     bool run();
 
     uint8_t onZ80MreqRd(uint16_t address, bool /* isM1 */);

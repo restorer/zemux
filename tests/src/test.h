@@ -7,6 +7,8 @@ class Test : private zemux::NonCopyable {
 public:
 
     virtual ~Test() {}
+
+    virtual const char* name() = 0;
     virtual bool run() = 0;
 };
 
