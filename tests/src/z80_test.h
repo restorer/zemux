@@ -1,8 +1,6 @@
 #ifndef TEST_SUITE__Z80_TEST
 #define TEST_SUITE__Z80_TEST
 
-// #define ZEMUX__Z80__ALL_PUBLIC
-
 #include <cstdint>
 #include <zemux_z80/z80cpu.h>
 #include "test.h"
@@ -38,6 +36,10 @@ private:
     uint8_t ethalonMemory[0x10000];
 
     bool execute(const char* path);
+    bool performCheck();
+    void compareAndOutputB(const char* regName, uint8_t testReg, uint8_t ethalonReg);
+    void compareAndOutputW(const char* regName, uint16_t testReg, uint16_t ethalonReg);
+    void compareAndOutputI(const char* regName, int testReg, int ethalonReg);
 };
 
 
