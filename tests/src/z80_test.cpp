@@ -178,8 +178,8 @@ bool Z80Test::execute(const char* path) {
         );
 
         printf(
-            "[ Z80 ] PC=%04X SP=%04X MP=%04X I=%02X R=%02X IFF1=%d IFF2=%d IM=%d INT?=%d NMI?=%d\n",
-            testPC, testSP, testMP, testI, testR, testIFF1, testIFF2, testIM, testIsIntPossible, testIsNmiPossible
+            "[ Z80 ] PC=%04X SP=%04X MP=%04X I=%02X R=%02X IFF1=%d IFF2=%d IM=%d INT?=%d NMI?=%d PREF=%02X\n",
+            testPC, testSP, testMP, testI, testR, testIFF1, testIFF2, testIM, testIsIntPossible, testIsNmiPossible, testPrefix
         );
 
         printf(

@@ -153,7 +153,7 @@ public:
         // The enable interrupt instruction (EI) will set both IFF1 and IFF2 to a logic 'one'
         // allowing recognition of any maskable interrupt at the completion of the instruction
         // following the EI instruction.
-        cpu->isProcessingInstruction = true;
+        cpu->shouldSkipNextInterrupt = true;
     }
 
     ZEMUX_FORCE_INLINE static void op_RLA(Z80Cpu* cpu) {

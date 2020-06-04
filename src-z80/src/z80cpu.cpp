@@ -100,8 +100,9 @@ void Z80Cpu::reset() {
 }
 
 unsigned int Z80Cpu::step() {
-    tstate = 0;
     shouldResetPv = false;
+    shouldSkipNextInterrupt = false;
+    tstate = 0;
 
     isProcessingInstruction = true;
     optable[fetchOpcode()](this);
@@ -113,7 +114,7 @@ unsigned int Z80Cpu::step() {
 unsigned int Z80Cpu::doInt() {
     tstate = 0;
 
-    if (!regs.IFF1 || isProcessingInstruction || prefix) {
+    if (!regs.IFF1 || isProcessingInstruction || prefix || shouldSkipNextInterrupt) {
         return tstate;
     }
 
@@ -183,7 +184,7 @@ unsigned int Z80Cpu::doInt() {
 unsigned int Z80Cpu::doNmi() {
     tstate = 0;
 
-    if (isProcessingInstruction || prefix) {
+    if (isProcessingInstruction || prefix || shouldSkipNextInterrupt) {
         return tstate;
     }
 

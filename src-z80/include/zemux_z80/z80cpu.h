@@ -228,11 +228,11 @@ public:
     }
 
     ZEMUX_FORCE_INLINE bool isIntPossible() {
-        return regs.IFF1 && !isProcessingInstruction && !prefix;
+        return regs.IFF1 && !isProcessingInstruction && !prefix && !shouldSkipNextInterrupt;
     }
 
     ZEMUX_FORCE_INLINE bool isNmiPossible() {
-        return !isProcessingInstruction && !prefix;
+        return !isProcessingInstruction && !prefix && !shouldSkipNextInterrupt;
     }
 
     ZEMUX_FORCE_INLINE unsigned int getTstate() {
@@ -248,7 +248,9 @@ public:
     unsigned int doInt();
     unsigned int doNmi();
 
+#ifndef ZEMUX__Z80__ALL_PUBLIC
 private:
+#endif
 
     static constexpr unsigned int FLAG_C_M16 = 0x10000;
     static constexpr unsigned int FLAG_C_S16 = 0x10;
@@ -274,6 +276,7 @@ private:
     bool isHalted;
     bool shouldResetPv;
     bool isProcessingInstruction;
+    bool shouldSkipNextInterrupt;
     uint16_t pcIncrement = 1;
     uint8_t prefix;
     int8_t cbOffset = 0;

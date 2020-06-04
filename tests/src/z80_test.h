@@ -1,6 +1,8 @@
 #ifndef TEST_SUITE__Z80_TEST
 #define TEST_SUITE__Z80_TEST
 
+// #define ZEMUX__Z80__ALL_PUBLIC
+
 #include <cstdint>
 #include <zemux_z80/z80cpu.h>
 #include "test.h"
