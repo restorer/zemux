@@ -8,39 +8,38 @@
 
 static const char* ZEXALL_PATH = "extras/zexall.com";
 static const char* ZEXDOC_PATH = "extras/zexdoc.com";
-
 static constexpr int MAX_BDOS_STRING_LEN = 128;
-
 static const char* ERROR_PHRASE = "ERROR";
 static constexpr int ERROR_PHRASE_LEN = 5;
+static uint8_t testMemory[0x10000];
+static uint8_t ethalonMemory[0x10000];
 
-static uint8_t onEthalonReadProxy(uint16_t addr, bool m1, void* data) {
-    return static_cast<Z80CorrectnessTest*>(data)->onEthalonRead(addr, m1);
+static uint8_t onEthalonRead(uint16_t addr, bool /* m1 */, void* /* data */) {
+    return ethalonMemory[addr];
 }
 
-static void onEthalonWriteProxy(uint16_t addr, uint8_t val, void* data) {
-    static_cast<Z80CorrectnessTest*>(data)->onEthalonWrite(addr, val);
+static void onEthalonWrite(uint16_t addr, uint8_t val, void* /* data */) {
+    ethalonMemory[addr] = val;
 }
 
-static uint8_t onEthalonInProxy(uint16_t port, void* data) {
-    return static_cast<Z80CorrectnessTest*>(data)->onEthalonIn(port);
+static uint8_t onEthalonIn(uint16_t /* port */, void* /* data */) {
+    return 0x00;
 }
 
-static void onEthalonOutProxy(uint16_t port, uint8_t val, void* data) {
-    static_cast<Z80CorrectnessTest*>(data)->onEthalonOut(port, val);
+static void onEthalonOut(uint16_t /* port */, uint8_t /* val */, void* /* data */) {
 }
 
-static uint8_t onEthalonReadIntProxy(void* data) {
-    return static_cast<Z80CorrectnessTest*>(data)->onEthalonReadInt();
+static uint8_t onEthalonReadInt(void* /* data */) {
+    return 0xFF;
 }
 
 Z80CorrectnessTest::Z80CorrectnessTest() : testCpu { this } {
     ethalonCpu = __ns_Cpu__new(
-        onEthalonReadProxy, this,
-        onEthalonWriteProxy, this,
-        onEthalonInProxy, this,
-        onEthalonOutProxy, this,
-        onEthalonReadIntProxy, this
+        onEthalonRead, nullptr,
+        onEthalonWrite, nullptr,
+        onEthalonIn, nullptr,
+        onEthalonOut, nullptr,
+        onEthalonReadInt, nullptr
     );
 }
 
@@ -69,25 +68,6 @@ uint8_t Z80CorrectnessTest::onZ80IorqRd(uint16_t /* port */) {
 }
 
 void Z80CorrectnessTest::onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) {
-}
-
-uint8_t Z80CorrectnessTest::onEthalonRead(uint16_t addr, bool /* m1 */) {
-    return ethalonMemory[addr];
-}
-
-void Z80CorrectnessTest::onEthalonWrite(uint16_t addr, uint8_t val) {
-    ethalonMemory[addr] = val;
-}
-
-uint8_t Z80CorrectnessTest::onEthalonIn(uint16_t /* port */) {
-    return 0x00;
-}
-
-void Z80CorrectnessTest::onEthalonOut(uint16_t /* port */, uint8_t /* val */) {
-}
-
-uint8_t Z80CorrectnessTest::onEthalonReadInt() {
-    return 0xFF;
 }
 
 bool Z80CorrectnessTest::execute(const char* path) {

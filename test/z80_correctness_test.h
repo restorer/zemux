@@ -23,18 +23,10 @@ public:
     uint8_t onZ80IorqRd(uint16_t /* port */);
     void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */);
 
-    uint8_t onEthalonRead(uint16_t addr, bool /* m1 */);
-    void onEthalonWrite(uint16_t addr, uint8_t val);
-    uint8_t onEthalonIn(uint16_t /* port */);
-    void onEthalonOut(uint16_t /* port */, uint8_t /* val */);
-    uint8_t onEthalonReadInt();
-
 private:
 
     zemux::Z80Cpu testCpu;
     s_Cpu* ethalonCpu;
-    uint8_t testMemory[0x10000];
-    uint8_t ethalonMemory[0x10000];
 
     bool execute(const char* path);
     bool performCheck();

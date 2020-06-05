@@ -6,7 +6,6 @@
 #include "z80_speed_test.h"
 
 static const char* ZEXALL_PATH = "extras/zexall.com";
-
 static constexpr int MAX_BDOS_STRING_LEN = 128;
 static uint8_t memory[0x10000];
 
@@ -36,11 +35,11 @@ static int64_t steadyClockNowMillis() {
 
 Z80SpeedTest::Z80SpeedTest() : testCpu { this } {
     ethalonCpu = __ns_Cpu__new(
-        onEthalonRead, this,
-        onEthalonWrite, this,
-        onEthalonIn, this,
-        onEthalonOut, this,
-        onEthalonReadInt, this
+        onEthalonRead, nullptr,
+        onEthalonWrite, nullptr,
+        onEthalonIn, nullptr,
+        onEthalonOut, nullptr,
+        onEthalonReadInt, nullptr
     );
 }
 

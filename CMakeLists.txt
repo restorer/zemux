@@ -24,6 +24,7 @@
 
 cmake_minimum_required (VERSION 3.10)
 project (ZemuX)
+enable_testing ()
 
 ##
 ## Config
@@ -64,6 +65,13 @@ add_subdirectory (src-z80 "${CMAKE_BINARY_DIR}/src-z80")
 link_directories ("${CMAKE_BINARY_DIR}/src-z80")
 
 ##
+## Guest
+##
+
+add_subdirectory (src-guest "${CMAKE_BINARY_DIR}/src-guest")
+link_directories ("${CMAKE_BINARY_DIR}/src-guest")
+
+##
 ## ZemuX
 ##
 
@@ -74,6 +82,7 @@ add_executable (zemux WIN32
 target_link_libraries (zemux PRIVATE
     zemux_core
     zemux_z80
+    zemux_guest
 )
 
 target_include_directories (zemux PRIVATE src)
@@ -87,6 +96,52 @@ target_compile_options (zemux PRIVATE
     "$<$<NOT:$<CONFIG:RELEASE>>:-fstack-protector>"
     "$<$<CONFIG:RELEASE>:-Ofast>"
 )
+
+##
+## Test Zame Z80
+##
+
+set (ZAME_SRC_OUTPUT_DIR "${CMAKE_BINARY_DIR}/test-zame-z80__processed")
+add_subdirectory (test-zame-z80 "${CMAKE_BINARY_DIR}/test-zame-z80")
+link_directories ("${CMAKE_BINARY_DIR}/test-zame-z80")
+include_directories ("${ZAME_SRC_OUTPUT_DIR}")
+
+##
+## Test
+##
+
+find_package (Boost COMPONENTS unit_test_framework REQUIRED)
+include_directories (${Boost_INCLUDE_DIR})
+
+add_executable (zemux_test WIN32
+    test/example_test.cpp
+)
+
+target_link_libraries (zemux_test PRIVATE
+    zemux_core
+    zemux_z80
+    zemux_guest
+    z80ex_wrapper
+    ${Boost_LIBRARIES}
+)
+
+target_include_directories (zemux_test PRIVATE test)
+target_compile_features (zemux_test PRIVATE cxx_std_17)
+
+target_compile_definitions (zemux_test PRIVATE
+    -DBOOST_TEST_DYN_LINK
+)
+
+target_compile_options (zemux_test PRIVATE
+    -Wall
+    -Wextra
+    -Werror
+    -Wno-unknown-pragmas
+    "$<$<NOT:$<CONFIG:RELEASE>>:-fstack-protector>"
+    "$<$<CONFIG:RELEASE>:-Ofast>"
+)
+
+add_test (NAME example COMMAND zemux_test)
 
 ##
 ## Analyze
