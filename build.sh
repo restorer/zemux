@@ -5,10 +5,10 @@ cd "$(dirname "$0")"
 CMAKE_PARAMS=""
 CTEST="true"
 
-# BOOST_TEST_RUN_FILTERS="..."
-
 for ARG in "$@" ; do
-    case "$ARG" in
+    IFS="=" read -a ARGV <<< "$ARG"
+
+    case "${ARGV[0]}" in
         --clean)
             [ -e build ] && rm -r build
             ;;
@@ -19,6 +19,7 @@ for ARG in "$@" ; do
 
         --test)
             export BOOST_TEST_LOG_LEVEL="test_suite"
+            [ "${ARGV[1]}" != "" ] && export BOOST_TEST_RUN_FILTERS="${ARGV[1]}"
             CTEST="ctest --verbose"
             ;;
     esac
