@@ -114,7 +114,9 @@ find_package (Boost COMPONENTS unit_test_framework REQUIRED)
 include_directories (${Boost_INCLUDE_DIR})
 
 add_executable (zemux_test WIN32
-    test/example_test.cpp
+    test/runner.cpp
+    test/z80_correctness_test.cpp
+    test/z80_speed_test.cpp
 )
 
 target_link_libraries (zemux_test PRIVATE
@@ -128,10 +130,6 @@ target_link_libraries (zemux_test PRIVATE
 target_include_directories (zemux_test PRIVATE test)
 target_compile_features (zemux_test PRIVATE cxx_std_17)
 
-target_compile_definitions (zemux_test PRIVATE
-    -DBOOST_TEST_DYN_LINK
-)
-
 target_compile_options (zemux_test PRIVATE
     -Wall
     -Wextra
@@ -141,7 +139,7 @@ target_compile_options (zemux_test PRIVATE
     "$<$<CONFIG:RELEASE>:-Ofast>"
 )
 
-add_test (NAME example COMMAND zemux_test)
+add_test (NAME test COMMAND zemux_test)
 
 ##
 ## Analyze

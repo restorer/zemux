@@ -3,11 +3,18 @@
 #include <fstream>
 #include <cstring>
 #include <chrono>
+#include <boost/test/unit_test.hpp>
 #include "z80_speed_test.h"
 
-static const char* ZEXALL_PATH = "extras/zexall.com";
+static const char* ZEXALL_PATH = "../test-extras/zexall.com";
 static constexpr int MAX_BDOS_STRING_LEN = 128;
+
 static uint8_t memory[0x10000];
+
+static int64_t steadyClockNowMillis() {
+    using namespace std::chrono;
+    return time_point_cast<milliseconds>(steady_clock::now()).time_since_epoch().count();
+}
 
 static uint8_t onEthalonRead(uint16_t addr, bool /* m1 */, void* /* data */) {
     return memory[addr];
@@ -28,11 +35,6 @@ static uint8_t onEthalonReadInt(void* /* data */) {
     return 0xFF;
 }
 
-static int64_t steadyClockNowMillis() {
-    using namespace std::chrono;
-    return time_point_cast<milliseconds>(steady_clock::now()).time_since_epoch().count();
-}
-
 Z80SpeedTest::Z80SpeedTest() : testCpu { this } {
     ethalonCpu = __ns_Cpu__new(
         onEthalonRead, nullptr,
@@ -47,35 +49,23 @@ Z80SpeedTest::~Z80SpeedTest() {
     __ns_Cpu__free(ethalonCpu);
 }
 
-const char* Z80SpeedTest::name() {
-    return "Z80 Speed";
-}
-
-bool Z80SpeedTest::run() {
-    if (!prepare(ZEXALL_PATH)) {
-        return false;
-    }
-
-    std::cout << "Measuring ZemuX Z80 (test)...\n";
+void Z80SpeedTest::measure(const char* path) {
+    prepare(path);
+    BOOST_TEST_MESSAGE("Measuring ZemuX Z80 (test)...");
     int64_t startMillis = steadyClockNowMillis();
     executeTest();
     int64_t testTime = steadyClockNowMillis() - startMillis;
-    std::cout << "ZemuX Z80 (test) passed \"" << ZEXALL_PATH << "\" in " << testTime << " ms\n";
+    BOOST_TEST_MESSAGE("ZemuX Z80 (test) passed \"" << path << "\" in " << testTime << " ms");
 
-    if (!prepare("extras/zexall.com")) {
-        return false;
-    }
-
-    std::cout << "Measuring Zame Z80 (ethalon)...\n";
+    prepare(path);
+    BOOST_TEST_MESSAGE("Measuring Zame Z80 (ethalon)...");
     startMillis = steadyClockNowMillis();
     executeEthalon();
     int64_t ethalonTime = steadyClockNowMillis() - startMillis;
-    std::cout << "Zame Z80 (ethalon) passed \"" << ZEXALL_PATH << "\" in " << ethalonTime << " ms\n";
+    BOOST_TEST_MESSAGE("Zame Z80 (ethalon) passed \"" << path << "\" in " << ethalonTime << " ms");
 
-    std::cout << "\nZemuX Z80 (test) - " << testTime << " ms\n"
-        << "Zame Z80 (ethalon) - " << ethalonTime << " ms\n";
-
-    return true;
+    BOOST_TEST_MESSAGE("ZemuX Z80 (test) - " << testTime << " ms");
+    BOOST_TEST_MESSAGE("Zame Z80 (ethalon) - " << ethalonTime << " ms");
 }
 
 uint8_t Z80SpeedTest::onZ80MreqRd(uint16_t address, bool /* isM1 */) {
@@ -93,22 +83,16 @@ uint8_t Z80SpeedTest::onZ80IorqRd(uint16_t /* port */) {
 void Z80SpeedTest::onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) {
 }
 
-bool Z80SpeedTest::prepare(const char* path) {
-    std::cout << "Loading \"" << path << "\"...\n";
+void Z80SpeedTest::prepare(const char* path) {
+    BOOST_TEST_MESSAGE("Loading \"" << path << "\"...");
 
     std::ifstream ifs;
     ifs.open(path, std::ifstream::in | std::ifstream::binary);
-
-    if (ifs.fail()) {
-        std::cout << "Failed to open file\n";
-        return false;
-    }
+    BOOST_REQUIRE_MESSAGE(!ifs.fail(), "Failed to open \"" << path << "\"");
 
     memset(memory, 0, 0x10000);
     memory[7] = 0xF0; // Zexdoc and Zexall set SP to value stored at address 6, so SP will be 0xF000
     ifs.read(reinterpret_cast<char*>(&memory[0x0100]), 0x10000 - 0x0100);
-
-    return true;
 }
 
 void Z80SpeedTest::executeTest() {
@@ -147,7 +131,7 @@ void Z80SpeedTest::executeTest() {
         testCpu.step();
     }
 
-    std::cout << "\n";
+    bdosFlush();
 }
 
 void Z80SpeedTest::executeEthalon() {
@@ -186,13 +170,13 @@ void Z80SpeedTest::executeEthalon() {
         __ns_Cpu__tick(ethalonCpu);
     }
 
-    std::cout << "\n";
+    bdosFlush();
 }
 
 uint16_t Z80SpeedTest::bdos(uint16_t bc, uint16_t de, uint16_t sp) {
     switch (static_cast<uint8_t>(bc)) {
         case 2: {
-            std::cout << static_cast<char>(static_cast<uint8_t>(de));
+            bdosChar(static_cast<uint8_t>(de));
             break;
         }
 
@@ -204,10 +188,30 @@ uint16_t Z80SpeedTest::bdos(uint16_t bc, uint16_t de, uint16_t sp) {
                     break;
                 }
 
-                std::cout << ch;
+                bdosChar(ch);
             }
         }
     }
 
     return memory[sp] | (static_cast<uint16_t>(memory[static_cast<uint16_t>(sp + 1)]) << 8);
+}
+
+void Z80SpeedTest::bdosChar(char ch) {
+    if (ch == '\r' || ch == '\n') {
+        bdosFlush();
+    } else {
+        bdosBuffer += ch;
+    }
+}
+
+void Z80SpeedTest::bdosFlush() {
+    if (!bdosBuffer.empty()) {
+        BOOST_TEST_MESSAGE(bdosBuffer);
+        bdosBuffer.clear();
+    }
+}
+
+BOOST_AUTO_TEST_CASE(Z80SpeedTestZexall) {
+    Z80SpeedTest test;
+    test.measure(ZEXALL_PATH);
 }

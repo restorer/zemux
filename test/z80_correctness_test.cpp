@@ -2,17 +2,44 @@
 #include <iomanip>
 #include <fstream>
 #include <cstring>
+#include <boost/test/unit_test.hpp>
 #include "z80_correctness_test.h"
 
 // #define DUMP_EXECUTION
 
-static const char* ZEXALL_PATH = "extras/zexall.com";
-static const char* ZEXDOC_PATH = "extras/zexdoc.com";
+static const char* ZEXALL_PATH = "../test-extras/zexall.com";
+static const char* ZEXDOC_PATH = "../test-extras/zexdoc.com";
 static constexpr int MAX_BDOS_STRING_LEN = 128;
 static const char* ERROR_PHRASE = "ERROR";
 static constexpr int ERROR_PHRASE_LEN = 5;
+
 static uint8_t testMemory[0x10000];
 static uint8_t ethalonMemory[0x10000];
+
+// NB. BOOST_TEST_MESSAGE output uint8_t as char, so cast all the uint8_t to uint16_t in output messages.
+
+static void compareAndOutputByte(const char* name, uint8_t test, uint8_t ethalon) {
+    BOOST_TEST_MESSAGE(std::hex << std::setfill('0') << std::uppercase
+        << "test " << name << " " << std::setw(2) << static_cast<uint16_t>(test)
+        << (test == ethalon ? " == " : " != ")
+        << "ethalon " << name << " " << std::setw(2) << static_cast<uint16_t>(ethalon)
+    );
+}
+
+static void compareAndOutputWord(const char* name, uint16_t test, uint16_t ethalon) {
+    BOOST_TEST_MESSAGE(std::hex << std::setfill('0') << std::uppercase
+        << "test " << name << " " << std::setw(4) << test
+        << (test == ethalon ? " == " : " != ")
+        << "ethalon " << name << " " << std::setw(4) << ethalon
+    );
+}
+
+static void compareAndOutputInt(const char* name, int test, int ethalon) {
+    BOOST_TEST_MESSAGE("test " << name << " " << test
+        << (test == ethalon ? " == " : " != ")
+        << "ethalon " << name << " " << ethalon
+    );
+}
 
 static uint8_t onEthalonRead(uint16_t addr, bool /* m1 */, void* /* data */) {
     return ethalonMemory[addr];
@@ -47,14 +74,6 @@ Z80CorrectnessTest::~Z80CorrectnessTest() {
     __ns_Cpu__free(ethalonCpu);
 }
 
-const char* Z80CorrectnessTest::name() {
-    return "Z80 Correctness";
-}
-
-bool Z80CorrectnessTest::run() {
-    return execute(ZEXALL_PATH) && execute(ZEXDOC_PATH);
-}
-
 uint8_t Z80CorrectnessTest::onZ80MreqRd(uint16_t address, bool /* isM1 */) {
     return testMemory[address];
 }
@@ -70,16 +89,12 @@ uint8_t Z80CorrectnessTest::onZ80IorqRd(uint16_t /* port */) {
 void Z80CorrectnessTest::onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) {
 }
 
-bool Z80CorrectnessTest::execute(const char* path) {
-    std::cout << "Executing \"" << path << "\"...\n";
+void Z80CorrectnessTest::execute(const char* path) {
+    BOOST_TEST_MESSAGE("Loading \"" << path << "\"...");
 
     std::ifstream ifs;
     ifs.open(path, std::ifstream::in | std::ifstream::binary);
-
-    if (ifs.fail()) {
-        std::cout << "Failed to open file\n";
-        return false;
-    }
+    BOOST_REQUIRE_MESSAGE(!ifs.fail(), "Failed to open \"" << path << "\"");
 
     memset(testMemory, 0, 0x10000);
     testMemory[7] = 0xF0; // Zexdoc and Zexall set SP to value stored at address 6, so SP will be 0xF000
@@ -117,9 +132,7 @@ bool Z80CorrectnessTest::execute(const char* path) {
     __ns_Cpu__set_reg(ethalonCpu, CPU_HL_, 0xFFFF);
     __ns_Cpu__set_reg(ethalonCpu, CPU_AF_, 0xFFFF);
 
-    if (!performCheck()) {
-        return false;
-    }
+    compareState();
 
     // Execute test
 
@@ -139,7 +152,7 @@ bool Z80CorrectnessTest::execute(const char* path) {
 
             switch (static_cast<uint8_t>(testBC)) {
                 case 2: {
-                    std::cout << static_cast<char>(static_cast<uint8_t>(testDE));
+                    bdosChar(static_cast<uint8_t>(testDE));
                     break;
                 }
 
@@ -151,27 +164,12 @@ bool Z80CorrectnessTest::execute(const char* path) {
                             break;
                         }
 
-                        std::cout << ch;
+                        bdosChar(ch);
                     }
 
-                    for (int addr = testDE, maxAddr = std::min(0x10000, testDE + MAX_BDOS_STRING_LEN - ERROR_PHRASE_LEN); addr < maxAddr; ++addr) {
-                        if (static_cast<char>(testMemory[addr]) == '$') {
-                            break;
-                        }
-
-                        bool isMatched = true;
-
-                        for (int i = 0; i < ERROR_PHRASE_LEN; ++i) {
-                            if (ERROR_PHRASE[i] != testMemory[static_cast<uint16_t>(addr + i)]) {
-                                isMatched = false;
-                                break;
-                            }
-                        }
-
-                        if (isMatched) {
-                            std::cout << "\n\"" << ERROR_PHRASE << "\" matched\n";
-                            return false;
-                        }
+                    if (bdosBuffer.find(ERROR_PHRASE) != std::string::npos) {
+                        bdosFlush();
+                        BOOST_FAIL("\"" << ERROR_PHRASE << "\" matched");
                     }
                 }
             }
@@ -183,14 +181,12 @@ bool Z80CorrectnessTest::execute(const char* path) {
                 | (static_cast<uint16_t>(ethalonMemory[static_cast<uint16_t>(ethalonSP + 1)]) << 8);
 
             if (testRetAddr != ethalonRetAddr) {
-                std::cout << std::hex << std::uppercase
-                    << "\ntestRetAddr "
-                    << std::setw(4) << testRetAddr
-                    << " != ethalonRetAddr "
-                    << std::setw(4) << ethalonRetAddr
-                    << "\n";
+                bdosFlush();
 
-                return false;
+                BOOST_FAIL(std::hex << std::setfill('0') << std::uppercase
+                    << "testRetAddr " << std::setw(4) << testRetAddr
+                    << " != ethalonRetAddr " << std::setw(4) << ethalonRetAddr
+                );
             }
 
             testCpu.regs.PC = testRetAddr;
@@ -205,13 +201,11 @@ bool Z80CorrectnessTest::execute(const char* path) {
         unsigned int testTicks = testCpu.step();
         unsigned int ethalonTicks = __ns_Cpu__tick(ethalonCpu);
 
-        if (!performCheck()) {
-            return false;
-        }
+        compareState();
 
         if (testTicks != ethalonTicks) {
-            std::cout << "\ntestTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
-            return false;
+            bdosFlush();
+            BOOST_FAIL("testTicks " << testTicks << " != ethalonTicks " << ethalonTicks);
         }
     }
 
@@ -229,16 +223,12 @@ bool Z80CorrectnessTest::execute(const char* path) {
         unsigned int testTicks = testCpu.doInt();
         unsigned int ethalonTicks = __ns_Cpu__do_int(ethalonCpu);
 
-        if (!performCheck()) {
-            return false;
-        }
+        compareState();
 
         if (testTicks != ethalonTicks) {
-            std::cout << "\nIM " << im << ", DI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
-            return false;
+            bdosFlush();
+            BOOST_FAIL("IM " << im << ", DI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks);
         }
-
-        performCheck();
 
         testCpu.regs.IFF1 = true;
         testCpu.regs.IFF2 = true;
@@ -249,13 +239,11 @@ bool Z80CorrectnessTest::execute(const char* path) {
         testTicks = testCpu.doInt();
         ethalonTicks = __ns_Cpu__do_int(ethalonCpu);
 
-        if (!performCheck()) {
-            return false;
-        }
+        compareState();
 
         if (testTicks != ethalonTicks) {
-            std::cout << "\nIM " << im << ", EI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
-            return false;
+            bdosFlush();
+            BOOST_FAIL("IM " << im << ", EI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks);
         }
     }
 
@@ -271,16 +259,12 @@ bool Z80CorrectnessTest::execute(const char* path) {
         unsigned int testTicks = testCpu.doNmi();
         unsigned int ethalonTicks = __ns_Cpu__do_nmi(ethalonCpu);
 
-        if (!performCheck()) {
-            return false;
-        }
+        compareState();
 
         if (testTicks != ethalonTicks) {
-            std::cout << "\nNMI, DI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
-            return false;
+            bdosFlush();
+            BOOST_FAIL("NMI, DI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks);
         }
-
-        performCheck();
 
         testCpu.regs.IFF1 = true;
         testCpu.regs.IFF2 = true;
@@ -291,21 +275,18 @@ bool Z80CorrectnessTest::execute(const char* path) {
         testTicks = testCpu.doNmi();
         ethalonTicks = __ns_Cpu__do_nmi(ethalonCpu);
 
-        if (!performCheck()) {
-            return false;
-        }
+        compareState();
 
         if (testTicks != ethalonTicks) {
-            std::cout << "\nNMI, EI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks << "\n";
-            return false;
+            bdosFlush();
+            BOOST_FAIL("NMI, EI: testTicks " << testTicks << " != ethalonTicks " << ethalonTicks);
         }
     }
 
-    std::cout << "\n";
-    return true;
+    bdosFlush();
 }
 
-bool Z80CorrectnessTest::performCheck() {
+void Z80CorrectnessTest::compareState() {
     uint16_t testBC = testCpu.regs.BC;
     uint16_t testDE = testCpu.regs.DE;
     uint16_t testHL = testCpu.regs.HL;
@@ -347,45 +328,44 @@ bool Z80CorrectnessTest::performCheck() {
     bool ethalonIFF2 = static_cast<bool>(__ns_Cpu__get_reg(ethalonCpu, CPU_IFF2));
     int ethalonIM = static_cast<int>(__ns_Cpu__get_reg(ethalonCpu, CPU_IM));
     uint8_t ethalonPrefix = ethalonCpu->prefix;
-    bool ethalonIsIntPossible = __ns_Cpu__is_int_possible(ethalonCpu);
-    bool ethalonIsNmiPossible = __ns_Cpu__is_nmi_possible(ethalonCpu);
+    bool ethalonIsIntPossible = static_cast<bool>(__ns_Cpu__is_int_possible(ethalonCpu));
+    bool ethalonIsNmiPossible = static_cast<bool>(__ns_Cpu__is_nmi_possible(ethalonCpu));
 
     #ifdef DUMP_EXECUTION
-
-    std::cout << std::hex << std::uppercase
-        << "AF=" << std::setw(4) << testAF
-        << " BC=" << std::setw(4) << testBC
-        << " DE=" << std::setw(4) << testDE
-        << " HL=" << std::setw(4) << testHL
-        << " IX=" << std::setw(4) << testIX
-        << " IY=" << std::setw(4) << testIY
-        << " AF'=" << std::setw(4) << testAF_
-        << " BC'=" << std::setw(4) << testBC_
-        << " DE'=" << std::setw(4) << testDE_
-        << " HL'=" << std::setw(4) << testHL_
-        << "\nPC=" << std::setw(4) << testPC
-        << " SP=" << std::setw(4) << testSP
-        << " MP=" << std::setw(4) << testMP
-        << " I=" << std::setw(2) << testI
-        << " R=" << std::setw(2) << testR
-        << std::dec
-        << " IFF1=" << testIFF1
-        << " IFF2=" << testIFF2
-        << " IM=" << testIM
-        << " INT?=" << testIsIntPossible
-        << " NMI?=" << testIsNmiPossible
-        << std::hex
-        << " PREF=" << std::setw(2) << testPrefix
-        << "\n@PC " << std::setw(2) << testMemory[testPC]
-        << " " << std::setw(2) << testMemory[static_cast<uint16_t>(testPC + 1)]
-        << " " << std::setw(2) << testMemory[static_cast<uint16_t>(testPC + 2)]
-        << " " << std::setw(2) << testMemory[static_cast<uint16_t>(testPC + 3)]
-        << " | @SP " << std::setw(2) << testMemory[testSP]
-        << " " << std::setw(2) << testMemory[static_cast<uint16_t>(testSP + 1)]
-        << " " << std::setw(2) << testMemory[static_cast<uint16_t>(testSP + 2)]
-        << " " << std::setw(2) << testMemory[static_cast<uint16_t>(testSP + 3)]
-        << "\n\n";
-
+        BOOST_TEST_MESSAGE(std::hex << std::setfill('0') << std::uppercase
+            << "AF=" << std::setw(4) << testAF
+            << " BC=" << std::setw(4) << testBC
+            << " DE=" << std::setw(4) << testDE
+            << " HL=" << std::setw(4) << testHL
+            << " IX=" << std::setw(4) << testIX
+            << " IY=" << std::setw(4) << testIY
+            << " AF'=" << std::setw(4) << testAF_
+            << " BC'=" << std::setw(4) << testBC_
+            << " DE'=" << std::setw(4) << testDE_
+            << " HL'=" << std::setw(4) << testHL_
+            << "\nPC=" << std::setw(4) << testPC
+            << " SP=" << std::setw(4) << testSP
+            << " MP=" << std::setw(4) << testMP
+            << " I=" << std::setw(2) << static_cast<uint16_t>(testI)
+            << " R=" << std::setw(2) << static_cast<uint16_t>(testR)
+            << std::dec
+            << " IFF1=" << testIFF1
+            << " IFF2=" << testIFF2
+            << " IM=" << testIM
+            << " INT?=" << testIsIntPossible
+            << " NMI?=" << testIsNmiPossible
+            << std::hex
+            << " PREF=" << std::setw(2) << static_cast<uint16_t>(testPrefix)
+            << "\n@PC " << std::setw(2) << static_cast<uint16_t>(testMemory[testPC])
+            << " " << std::setw(2) << static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testPC + 1)])
+            << " " << std::setw(2) << static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testPC + 2)])
+            << " " << std::setw(2) << static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testPC + 3)])
+            << " | @SP " << std::setw(2) << static_cast<uint16_t>(testMemory[testSP])
+            << " " << std::setw(2) << static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testSP + 1)])
+            << " " << std::setw(2) << static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testSP + 2)])
+            << " " << std::setw(2) << static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testSP + 3)])
+            << "\n"
+        );
     #endif
 
     if (testBC != ethalonBC
@@ -410,53 +390,54 @@ bool Z80CorrectnessTest::performCheck() {
         || testIsIntPossible != ethalonIsIntPossible
         || testIsNmiPossible != ethalonIsNmiPossible
     ) {
-        compareAndOutputW("AF", testAF, ethalonAF);
-        compareAndOutputW("BC", testBC, ethalonBC);
-        compareAndOutputW("DE", testDE, ethalonDE);
-        compareAndOutputW("HL", testHL, ethalonHL);
-        compareAndOutputW("IX", testIX, ethalonIX);
-        compareAndOutputW("IY", testIY, ethalonIY);
-        compareAndOutputW("SP", testSP, ethalonSP);
-        compareAndOutputW("PC", testPC, ethalonPC);
-        compareAndOutputW("MP", testSP, ethalonMP);
-        compareAndOutputW("AF'", testAF_, ethalonAF_);
-        compareAndOutputW("BC'", testBC_, ethalonBC_);
-        compareAndOutputW("DE'", testDE_, ethalonDE_);
-        compareAndOutputW("HL'", testHL_, ethalonHL_);
-        compareAndOutputB("I", testI, ethalonI);
-        compareAndOutputB("R", testR, ethalonR);
-        compareAndOutputI("IFF1", testIFF1, ethalonIFF1);
-        compareAndOutputI("IFF2", testIFF2, ethalonIFF2);
-        compareAndOutputI("IM", testIM, ethalonIM);
-        compareAndOutputB("PREF", testPrefix, ethalonPrefix);
-        compareAndOutputI("INT?", testIsIntPossible, ethalonIsIntPossible);
-        compareAndOutputI("NMI?", testIsNmiPossible, ethalonIsNmiPossible);
+        compareAndOutputWord("AF", testAF, ethalonAF);
+        compareAndOutputWord("BC", testBC, ethalonBC);
+        compareAndOutputWord("DE", testDE, ethalonDE);
+        compareAndOutputWord("HL", testHL, ethalonHL);
+        compareAndOutputWord("IX", testIX, ethalonIX);
+        compareAndOutputWord("IY", testIY, ethalonIY);
+        compareAndOutputWord("SP", testSP, ethalonSP);
+        compareAndOutputWord("PC", testPC, ethalonPC);
+        compareAndOutputWord("MP", testMP, ethalonMP);
+        compareAndOutputWord("AF'", testAF_, ethalonAF_);
+        compareAndOutputWord("BC'", testBC_, ethalonBC_);
+        compareAndOutputWord("DE'", testDE_, ethalonDE_);
+        compareAndOutputWord("HL'", testHL_, ethalonHL_);
+        compareAndOutputByte("I", testI, ethalonI);
+        compareAndOutputByte("R", testR, ethalonR);
+        compareAndOutputInt("IFF1", testIFF1, ethalonIFF1);
+        compareAndOutputInt("IFF2", testIFF2, ethalonIFF2);
+        compareAndOutputInt("IM", testIM, ethalonIM);
+        compareAndOutputByte("PREF", testPrefix, ethalonPrefix);
+        compareAndOutputInt("INT?", testIsIntPossible, ethalonIsIntPossible);
+        compareAndOutputInt("NMI?", testIsNmiPossible, ethalonIsNmiPossible);
 
-        return false;
+        bdosFlush();
+        BOOST_FAIL("State comparison failed");
     }
-
-    return true;
 }
 
-void Z80CorrectnessTest::compareAndOutputB(const char* regName, uint8_t testReg, uint8_t ethalonReg) {
-    std::cout << std::hex << std::uppercase
-        << "test " << regName << " " << std::setw(2) << testReg
-        << (testReg == ethalonReg ? " == " : " != ")
-        << "ethalon " << regName << " " << std::setw(2) << ethalonReg
-        << "\n";
+void Z80CorrectnessTest::bdosChar(char ch) {
+    if (ch == '\r' || ch == '\n') {
+        bdosFlush();
+    } else {
+        bdosBuffer += ch;
+    }
 }
 
-void Z80CorrectnessTest::compareAndOutputW(const char* regName, uint16_t testReg, uint16_t ethalonReg) {
-    std::cout << std::hex << std::uppercase
-        << "test " << regName << " " << std::setw(4) << testReg
-        << (testReg == ethalonReg ? " == " : " != ")
-        << "ethalon " << regName << " " << std::setw(4) << ethalonReg
-        << "\n";
+void Z80CorrectnessTest::bdosFlush() {
+    if (!bdosBuffer.empty()) {
+        BOOST_TEST_MESSAGE(bdosBuffer);
+        bdosBuffer.clear();
+    }
 }
 
-void Z80CorrectnessTest::compareAndOutputI(const char* regName, int testReg, int ethalonReg) {
-    std::cout << "test " << regName << " " << testReg
-        << (testReg == ethalonReg ? " == " : " != ")
-        << "ethalon " << regName << " " << ethalonReg
-        << "\n";
+BOOST_AUTO_TEST_CASE(Z80CorrectnessZexall) {
+    Z80CorrectnessTest test;
+    test.execute(ZEXALL_PATH);
+}
+
+BOOST_AUTO_TEST_CASE(Z80CorrectnessZexdoc) {
+    Z80CorrectnessTest test;
+    test.execute(ZEXDOC_PATH);
 }

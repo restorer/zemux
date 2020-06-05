@@ -94,6 +94,7 @@ void Z80Cpu::reset() {
     isHalted = false;
     shouldResetPv = false;
     isProcessingInstruction = false;
+    shouldSkipNextInterrupt = false;
     pcIncrement = 1;
     prefix = 0;
     tstate = 0;

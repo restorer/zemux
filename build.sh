@@ -16,7 +16,8 @@ for ARG in "$@" ; do
             ;;
 
         --test)
-            CTEST="ctest"
+            export BOOST_TEST_LOG_LEVEL="message"
+            CTEST="ctest --verbose"
             ;;
     esac
 done
