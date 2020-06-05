@@ -5,6 +5,8 @@ cd "$(dirname "$0")"
 CMAKE_PARAMS=""
 CTEST="true"
 
+# BOOST_TEST_RUN_FILTERS="..."
+
 for ARG in "$@" ; do
     case "$ARG" in
         --clean)
@@ -16,7 +18,7 @@ for ARG in "$@" ; do
             ;;
 
         --test)
-            export BOOST_TEST_LOG_LEVEL="message"
+            export BOOST_TEST_LOG_LEVEL="test_suite"
             CTEST="ctest --verbose"
             ;;
     esac

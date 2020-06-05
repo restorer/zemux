@@ -57,13 +57,23 @@ public:
         return deviceTicksPassed;
     }
 
+    ZEMUX_FORCE_INLINE unsigned int systemForwardToDelta(unsigned int systemTicks) {
+        unsigned int prevDeviceTicksPassed = deviceTicksPassed;
+        return systemForwardTo(systemTicks) - prevDeviceTicksPassed;
+    }
+
     ZEMUX_FORCE_INLINE unsigned int systemAdvanceBy(unsigned int systemTicksDelta) {
         return systemForwardTo(systemTicksPassed + systemTicksDelta);
     }
 
     ZEMUX_FORCE_INLINE unsigned int systemAdvanceByDelta(unsigned int systemTicksDelta) {
+        unsigned int prevDeviceTicksPassed = deviceTicksPassed;
+        return systemAdvanceBy(systemTicksDelta) - prevDeviceTicksPassed;
+    }
+
+    ZEMUX_FORCE_INLINE unsigned int deviceForwardToDelta(unsigned int deviceTicks) {
         unsigned int prevSystemTicksPassed = systemTicksPassed;
-        return systemAdvanceBy(prevSystemTicksPassed + systemTicksDelta) - prevSystemTicksPassed;
+        return deviceForwardTo(deviceTicks) - prevSystemTicksPassed;
     }
 
     ZEMUX_FORCE_INLINE unsigned int deviceAdvanceBy(unsigned int deviceTicksDelta) {
@@ -71,38 +81,42 @@ public:
     }
 
     ZEMUX_FORCE_INLINE unsigned int deviceAdvanceByDelta(unsigned int deviceTicksDelta) {
-        unsigned int prevDeviceTicksPassed = deviceTicksPassed;
-        return deviceForwardTo(prevDeviceTicksPassed + deviceTicksDelta) - prevDeviceTicksPassed;
+        unsigned int prevSystemTicksPassed = systemTicksPassed;
+        return deviceAdvanceBy(deviceTicksDelta) - prevSystemTicksPassed;
     }
 
-    ZEMUX_FORCE_INLINE unsigned int convertSystemToDevice(unsigned int systemTicks) {
+    ZEMUX_FORCE_INLINE unsigned int systemToDeviceCeil(unsigned int systemTicks) {
         return (static_cast<uint_fast64_t>(systemTicks) * systemToDeviceMultiplier + FP_MATH_CEIL_ADDENT) >> FP_MATH_SHIFT;
     }
 
-    ZEMUX_FORCE_INLINE unsigned int convertDeviceToSystem(unsigned int deviceTicks) {
+    ZEMUX_FORCE_INLINE unsigned int deviceToSystemCeil(unsigned int deviceTicks) {
         return (static_cast<uint_fast64_t>(deviceTicks) * deviceToSystemMultiplier + FP_MATH_CEIL_ADDENT) >> FP_MATH_SHIFT;
     }
 
-    ZEMUX_FORCE_INLINE unsigned int convertSystemToDeviceLoops(unsigned int systemTicksDelta) {
-        return std::max(1U, convertSystemToDevice(systemTicksDelta));
+    ZEMUX_FORCE_INLINE unsigned int systemToDeviceLoops(unsigned int systemTicksDelta) {
+        return std::max(1U, systemToDeviceCeil(systemTicksDelta));
     }
 
-    ZEMUX_FORCE_INLINE unsigned int convertDeviceToSystemLoops(unsigned int deviceTicksDelta) {
-        return std::max(1U, convertDeviceToSystem(deviceTicksDelta));
+    ZEMUX_FORCE_INLINE unsigned int deviceToSystemLoops(unsigned int deviceTicksDelta) {
+        return std::max(1U, deviceToSystemCeil(deviceTicksDelta));
     }
 
-    void setClockRatio(int ratio);
-    void setSystemClockRate(unsigned int clockRate);
-    void setDeviceClockRate(unsigned int clockRate);
+    void setClockRatioFixedSystem(int ratio);
+    void setClockRatioFixedDevice(int ratio);
+    void setSystemClockRateFixedSystem(unsigned int rate);
+    void setSystemClockRateFixedDevice(unsigned int rate);
+    void setDeviceClockRateFixedSystem(unsigned int rate);
+    void setDeviceClockRateFixedDevice(unsigned int rate);
     unsigned int systemForwardTo(unsigned int systemTicks);
     unsigned int deviceForwardTo(unsigned int deviceTicks);
     void systemConsume(unsigned int systemTicks);
     void deviceConsume(unsigned int deviceTicks);
+    void reset();
 
 private:
 
-    static constexpr int FP_MATH_SHIFT = 16;
-    static constexpr uint_fast64_t FP_MATH_CEIL_ADDENT = 0xFFFF;
+    static constexpr int FP_MATH_SHIFT = 24;
+    static constexpr uint_fast64_t FP_MATH_CEIL_ADDENT = (static_cast<uint_fast64_t>(1) << FP_MATH_SHIFT) - static_cast<uint_fast64_t>(1);
 
     unsigned int systemClockRate;
     unsigned int deviceClockRate;
@@ -111,6 +125,14 @@ private:
     unsigned int deviceTicksPassed = 0;
     uint_fast64_t systemToDeviceMultiplier;
     uint_fast64_t deviceToSystemMultiplier;
+
+    ZEMUX_FORCE_INLINE unsigned int systemToDeviceFloor(unsigned int systemTicks) {
+        return (static_cast<uint_fast64_t>(systemTicks) * systemToDeviceMultiplier + systemTicks) >> FP_MATH_SHIFT;
+    }
+
+    ZEMUX_FORCE_INLINE unsigned int deviceToSystemFloor(unsigned int deviceTicks) {
+        return (static_cast<uint_fast64_t>(deviceTicks) * deviceToSystemMultiplier + deviceTicks) >> FP_MATH_SHIFT;
+    }
 
     void update();
 };

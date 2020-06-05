@@ -1,3 +1,6 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
  *
@@ -22,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#include <iostream>
 #include "chronograph.h"
 
 namespace zemux {
@@ -33,25 +37,46 @@ Chronograph::Chronograph(
     update();
 }
 
-void Chronograph::setClockRatio(int ratio) {
+void Chronograph::setClockRatioFixedSystem(int ratio) {
     clockRatio = ratio;
     update();
+    deviceTicksPassed = systemToDeviceCeil(systemTicksPassed);
 }
 
-void Chronograph::setSystemClockRate(unsigned int rate) {
+void Chronograph::setClockRatioFixedDevice(int ratio) {
+    clockRatio = ratio;
+    update();
+    systemTicksPassed = deviceToSystemCeil(deviceTicksPassed);
+}
+
+void Chronograph::setSystemClockRateFixedSystem(unsigned int rate) {
     systemClockRate = rate;
     update();
+    deviceTicksPassed = systemToDeviceCeil(systemTicksPassed);
 }
 
-void Chronograph::setDeviceClockRate(unsigned int rate) {
+void Chronograph::setSystemClockRateFixedDevice(unsigned int rate) {
+    systemClockRate = rate;
+    update();
+    systemTicksPassed = deviceToSystemCeil(deviceTicksPassed);
+}
+
+void Chronograph::setDeviceClockRateFixedSystem(unsigned int rate) {
     deviceClockRate = rate;
     update();
+    deviceTicksPassed = systemToDeviceCeil(systemTicksPassed);
+}
+
+void Chronograph::setDeviceClockRateFixedDevice(unsigned int rate) {
+    deviceClockRate = rate;
+    update();
+    systemTicksPassed = deviceToSystemCeil(deviceTicksPassed);
 }
 
 unsigned int Chronograph::systemForwardTo(unsigned int systemTicks) {
     if (systemTicks > systemTicksPassed) {
         systemTicksPassed = systemTicks;
-        deviceTicksPassed = std::max(deviceTicksPassed, convertSystemToDevice(systemTicks));
+        deviceTicksPassed = std::max(deviceTicksPassed, systemToDeviceCeil(systemTicks));
     }
 
     return deviceTicksPassed;
@@ -60,28 +85,45 @@ unsigned int Chronograph::systemForwardTo(unsigned int systemTicks) {
 unsigned int Chronograph::deviceForwardTo(unsigned int deviceTicks) {
     if (deviceTicks > deviceTicksPassed) {
         deviceTicksPassed = deviceTicks;
-        systemTicksPassed = std::max(systemTicksPassed, convertDeviceToSystem(deviceTicks));
+        systemTicksPassed = std::max(systemTicksPassed, deviceToSystemCeil(deviceTicks));
     }
 
     return systemTicksPassed;
 }
 
 void Chronograph::systemConsume(unsigned int systemTicks) {
-    if (systemTicks > systemTicksPassed) {
-        systemTicks = systemTicksPassed;
-    }
+    unsigned int deviceTicksConsumed = std::min(
+        deviceTicksPassed,
+        systemToDeviceFloor(
+            std::min(
+                systemTicks,
+                deviceToSystemFloor(deviceTicksPassed)
+            )
+        )
+    );
 
-    systemTicksPassed -= systemTicks;
-    deviceTicksPassed -= convertSystemToDevice(systemTicks);
+    systemTicksPassed -= deviceToSystemCeil(deviceTicksConsumed);
+    deviceTicksPassed -= deviceTicksConsumed;
 }
 
 void Chronograph::deviceConsume(unsigned int deviceTicks) {
-    if (deviceTicks > deviceTicksPassed) {
-        deviceTicksPassed = deviceTicksPassed;
-    }
+    unsigned int systemTicksConsumed = std::min(
+        systemTicksPassed,
+        deviceToSystemFloor(
+            std::min(
+                deviceTicks,
+                systemToDeviceFloor(systemTicksPassed)
+            )
+        )
+    );
 
-    deviceTicksPassed -= deviceTicks;
-    systemTicksPassed -= convertDeviceToSystem(deviceTicks);
+    systemTicksPassed -= systemTicksConsumed;
+    deviceTicksPassed -= systemToDeviceCeil(systemTicksConsumed);
+}
+
+void Chronograph::reset() {
+    systemTicksPassed = 0;
+    deviceTicksPassed = 0;
 }
 
 void Chronograph::update() {

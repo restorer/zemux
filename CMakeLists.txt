@@ -117,6 +117,7 @@ add_executable (zemux_test WIN32
     test/runner.cpp
     test/z80_correctness_test.cpp
     test/z80_speed_test.cpp
+    test/chronograph_test.cpp
 )
 
 target_link_libraries (zemux_test PRIVATE
