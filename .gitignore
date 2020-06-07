@@ -1,2 +1,2 @@
-/build
-/build-tests
+/cmake-build
+/cmake-build-*

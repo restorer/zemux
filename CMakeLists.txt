@@ -76,26 +76,23 @@ link_directories ("${CMAKE_BINARY_DIR}/src-guest")
 ##
 
 add_executable (zemux WIN32
-    src/zemux.cpp
-)
+        src/zemux.cpp)
 
 target_link_libraries (zemux PRIVATE
-    zemux_core
-    zemux_z80
-    zemux_guest
-)
+        zemux_core
+        zemux_z80
+        zemux_guest)
 
 target_include_directories (zemux PRIVATE src)
 target_compile_features (zemux PRIVATE cxx_std_17)
 
 target_compile_options (zemux PRIVATE
-    -Wall
-    -Wextra
-    -Werror
-    -Wno-unknown-pragmas
-    "$<$<NOT:$<CONFIG:RELEASE>>:-fstack-protector>"
-    "$<$<CONFIG:RELEASE>:-Ofast>"
-)
+        -Wall
+        -Wextra
+        -Werror
+        -Wno-unknown-pragmas
+        "$<$<NOT:$<CONFIG:RELEASE>>:-fstack-protector>"
+        "$<$<CONFIG:RELEASE>:-Ofast>")
 
 ##
 ## Test Zame Z80
@@ -114,31 +111,28 @@ find_package (Boost COMPONENTS unit_test_framework REQUIRED)
 include_directories (${Boost_INCLUDE_DIR})
 
 add_executable (zemux_test WIN32
-    test/runner.cpp
-    test/z80_correctness_test.cpp
-    test/z80_speed_test.cpp
-    test/chronograph_test.cpp
-)
+        test/runner.cpp
+        test/z80_correctness_test.cpp
+        test/z80_speed_test.cpp
+        test/chronograph_test.cpp)
 
 target_link_libraries (zemux_test PRIVATE
-    zemux_core
-    zemux_z80
-    zemux_guest
-    z80ex_wrapper
-    ${Boost_LIBRARIES}
-)
+        zemux_core
+        zemux_z80
+        zemux_guest
+        z80ex_wrapper
+        ${Boost_LIBRARIES})
 
 target_include_directories (zemux_test PRIVATE test)
 target_compile_features (zemux_test PRIVATE cxx_std_17)
 
 target_compile_options (zemux_test PRIVATE
-    -Wall
-    -Wextra
-    -Werror
-    -Wno-unknown-pragmas
-    "$<$<NOT:$<CONFIG:RELEASE>>:-fstack-protector>"
-    "$<$<CONFIG:RELEASE>:-Ofast>"
-)
+        -Wall
+        -Wextra
+        -Werror
+        -Wno-unknown-pragmas
+        "$<$<NOT:$<CONFIG:RELEASE>>:-fstack-protector>"
+        "$<$<CONFIG:RELEASE>:-Ofast>")
 
 add_test (NAME test COMMAND zemux_test)
 
@@ -148,30 +142,26 @@ add_test (NAME test COMMAND zemux_test)
 
 if (USE_ANALYZE)
     add_custom_command (
-        TARGET zemux
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/analysis"
-    )
+            TARGET zemux
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_BINARY_DIR}/analysis")
 
     add_custom_command (
-        TARGET zemux
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/analysis"
-    )
+            TARGET zemux
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/analysis")
 
     add_custom_command (
-        TARGET zemux
-        POST_BUILD
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-        COMMAND ${PVS_STUDIO_ANALYZER_COMMAND} analyze -o analysis.log -i -j 2 -f compile_commands.json
-        VERBATIM
-    )
+            TARGET zemux
+            POST_BUILD
+            WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+            COMMAND ${PVS_STUDIO_ANALYZER_COMMAND} analyze -o analysis.log -i -j 2 -f compile_commands.json
+            VERBATIM)
 
     add_custom_command (
-        TARGET zemux
-        POST_BUILD
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-        COMMAND ${PLOG_CONVERTER_COMMAND} -a "GA;64;OP;CS;MISRA" -t fullhtml -o analysis analysis.log
-        VERBATIM
-    )
+            TARGET zemux
+            POST_BUILD
+            WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+            COMMAND ${PLOG_CONVERTER_COMMAND} -a "GA;64;OP;CS;MISRA" -t fullhtml -o analysis analysis.log
+            VERBATIM)
 endif ()

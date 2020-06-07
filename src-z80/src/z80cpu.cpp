@@ -44,14 +44,14 @@ void Z80Cpu::initSharedData() {
     }
 
     for (int i = 0; i < 0x100; ++i) {
-        int p = ((i & 0x80) >> 7)
-            ^ ((i & 0x40) >> 6)
-            ^ ((i & 0x20) >> 5)
-            ^ ((i & 0x10) >> 4)
-            ^ ((i & 0x08) >> 3)
-            ^ ((i & 0x04) >> 2)
-            ^ ((i & 0x02) >> 1)
-            ^ (i & 0x01);
+        int p = ((i & 0x80) >> 7) ^
+                ((i & 0x40) >> 6) ^
+                ((i & 0x20) >> 5) ^
+                ((i & 0x10) >> 4) ^
+                ((i & 0x08) >> 3) ^
+                ((i & 0x04) >> 2) ^
+                ((i & 0x02) >> 1) ^
+                (i & 0x01);
 
         Z80Cpu::parityLookup[i] = (p ? 0 : Z80Cpu::FLAG_PV);
     }
@@ -164,9 +164,9 @@ unsigned int Z80Cpu::doInt() {
             break;
         }
 
-        // IM 2
+            // IM 2
         default: {
-            uint16_t address = (static_cast<uint16_t>(regs.I) << 8) | intVec;
+            uint16_t address = intVec | (static_cast<uint16_t>(regs.I) << 8);
 
             memoryWrite(--regs.SP, regs.PCH);
             memoryWrite(--regs.SP, regs.PCL);

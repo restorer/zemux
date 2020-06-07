@@ -29,9 +29,9 @@
 
 namespace zemux {
 
-template< std::size_t N >
+template<std::size_t N>
 struct Unroll {
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void loop(F const& block) {
         block();
         Unroll<N - 1>::loop(block);
@@ -40,7 +40,7 @@ struct Unroll {
 
 template<>
 struct Unroll<0> {
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void loop(F const&) {}
 };
 

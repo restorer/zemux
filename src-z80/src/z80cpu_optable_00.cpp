@@ -214,7 +214,7 @@ static void op_00_21(Z80Cpu* cpu) {
 
 // LD (NN),HL
 static void op_00_22(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_MNN_RP(cpu, cpu->regs.L, cpu->regs.H);
+    Z80CpuCore::op_LD_MNN_RP(cpu, cpu->regs.HL);
 }
 
 // INC HL
@@ -254,7 +254,7 @@ static void op_00_29(Z80Cpu* cpu) {
 
 // LD HL,(NN)
 static void op_00_2A(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_RP_MNN(cpu, &(cpu->regs.L), &(cpu->regs.H));
+    Z80CpuCore::op_LD_RP_MNN(cpu, &(cpu->regs.HL));
 }
 
 // DEC HL
@@ -1227,7 +1227,7 @@ static void op_00_E2(Z80Cpu* cpu) {
 
 // EX (SP),HL
 static void op_00_E3(Z80Cpu* cpu) {
-    Z80CpuCore::op_EX_MSP_RP(cpu, cpu->regs.L, cpu->regs.H, &(cpu->regs.HL));
+    Z80CpuCore::op_EX_MSP_RP(cpu, &(cpu->regs.HL));
 }
 
 // CALL PO,NN
@@ -1375,38 +1375,37 @@ static void op_00_FF(Z80Cpu* cpu) {
 }
 
 Z80CpuOpcode z80CpuOptable_00[0x100] = {
-    op_00_00, op_00_01, op_00_02, op_00_03, op_00_04, op_00_05, op_00_06, op_00_07,
-    op_00_08, op_00_09, op_00_0A, op_00_0B, op_00_0C, op_00_0D, op_00_0E, op_00_0F,
-    op_00_10, op_00_11, op_00_12, op_00_13, op_00_14, op_00_15, op_00_16, op_00_17,
-    op_00_18, op_00_19, op_00_1A, op_00_1B, op_00_1C, op_00_1D, op_00_1E, op_00_1F,
-    op_00_20, op_00_21, op_00_22, op_00_23, op_00_24, op_00_25, op_00_26, op_00_27,
-    op_00_28, op_00_29, op_00_2A, op_00_2B, op_00_2C, op_00_2D, op_00_2E, op_00_2F,
-    op_00_30, op_00_31, op_00_32, op_00_33, op_00_34, op_00_35, op_00_36, op_00_37,
-    op_00_38, op_00_39, op_00_3A, op_00_3B, op_00_3C, op_00_3D, op_00_3E, op_00_3F,
-    op_00_40, op_00_41, op_00_42, op_00_43, op_00_44, op_00_45, op_00_46, op_00_47,
-    op_00_48, op_00_49, op_00_4A, op_00_4B, op_00_4C, op_00_4D, op_00_4E, op_00_4F,
-    op_00_50, op_00_51, op_00_52, op_00_53, op_00_54, op_00_55, op_00_56, op_00_57,
-    op_00_58, op_00_59, op_00_5A, op_00_5B, op_00_5C, op_00_5D, op_00_5E, op_00_5F,
-    op_00_60, op_00_61, op_00_62, op_00_63, op_00_64, op_00_65, op_00_66, op_00_67,
-    op_00_68, op_00_69, op_00_6A, op_00_6B, op_00_6C, op_00_6D, op_00_6E, op_00_6F,
-    op_00_70, op_00_71, op_00_72, op_00_73, op_00_74, op_00_75, op_00_76, op_00_77,
-    op_00_78, op_00_79, op_00_7A, op_00_7B, op_00_7C, op_00_7D, op_00_7E, op_00_7F,
-    op_00_80, op_00_81, op_00_82, op_00_83, op_00_84, op_00_85, op_00_86, op_00_87,
-    op_00_88, op_00_89, op_00_8A, op_00_8B, op_00_8C, op_00_8D, op_00_8E, op_00_8F,
-    op_00_90, op_00_91, op_00_92, op_00_93, op_00_94, op_00_95, op_00_96, op_00_97,
-    op_00_98, op_00_99, op_00_9A, op_00_9B, op_00_9C, op_00_9D, op_00_9E, op_00_9F,
-    op_00_A0, op_00_A1, op_00_A2, op_00_A3, op_00_A4, op_00_A5, op_00_A6, op_00_A7,
-    op_00_A8, op_00_A9, op_00_AA, op_00_AB, op_00_AC, op_00_AD, op_00_AE, op_00_AF,
-    op_00_B0, op_00_B1, op_00_B2, op_00_B3, op_00_B4, op_00_B5, op_00_B6, op_00_B7,
-    op_00_B8, op_00_B9, op_00_BA, op_00_BB, op_00_BC, op_00_BD, op_00_BE, op_00_BF,
-    op_00_C0, op_00_C1, op_00_C2, op_00_C3, op_00_C4, op_00_C5, op_00_C6, op_00_C7,
-    op_00_C8, op_00_C9, op_00_CA, op_00_CB, op_00_CC, op_00_CD, op_00_CE, op_00_CF,
-    op_00_D0, op_00_D1, op_00_D2, op_00_D3, op_00_D4, op_00_D5, op_00_D6, op_00_D7,
-    op_00_D8, op_00_D9, op_00_DA, op_00_DB, op_00_DC, op_00_DD, op_00_DE, op_00_DF,
-    op_00_E0, op_00_E1, op_00_E2, op_00_E3, op_00_E4, op_00_E5, op_00_E6, op_00_E7,
-    op_00_E8, op_00_E9, op_00_EA, op_00_EB, op_00_EC, op_00_ED, op_00_EE, op_00_EF,
-    op_00_F0, op_00_F1, op_00_F2, op_00_F3, op_00_F4, op_00_F5, op_00_F6, op_00_F7,
-    op_00_F8, op_00_F9, op_00_FA, op_00_FB, op_00_FC, op_00_FD, op_00_FE, op_00_FF
-};
+        op_00_00, op_00_01, op_00_02, op_00_03, op_00_04, op_00_05, op_00_06, op_00_07,
+        op_00_08, op_00_09, op_00_0A, op_00_0B, op_00_0C, op_00_0D, op_00_0E, op_00_0F,
+        op_00_10, op_00_11, op_00_12, op_00_13, op_00_14, op_00_15, op_00_16, op_00_17,
+        op_00_18, op_00_19, op_00_1A, op_00_1B, op_00_1C, op_00_1D, op_00_1E, op_00_1F,
+        op_00_20, op_00_21, op_00_22, op_00_23, op_00_24, op_00_25, op_00_26, op_00_27,
+        op_00_28, op_00_29, op_00_2A, op_00_2B, op_00_2C, op_00_2D, op_00_2E, op_00_2F,
+        op_00_30, op_00_31, op_00_32, op_00_33, op_00_34, op_00_35, op_00_36, op_00_37,
+        op_00_38, op_00_39, op_00_3A, op_00_3B, op_00_3C, op_00_3D, op_00_3E, op_00_3F,
+        op_00_40, op_00_41, op_00_42, op_00_43, op_00_44, op_00_45, op_00_46, op_00_47,
+        op_00_48, op_00_49, op_00_4A, op_00_4B, op_00_4C, op_00_4D, op_00_4E, op_00_4F,
+        op_00_50, op_00_51, op_00_52, op_00_53, op_00_54, op_00_55, op_00_56, op_00_57,
+        op_00_58, op_00_59, op_00_5A, op_00_5B, op_00_5C, op_00_5D, op_00_5E, op_00_5F,
+        op_00_60, op_00_61, op_00_62, op_00_63, op_00_64, op_00_65, op_00_66, op_00_67,
+        op_00_68, op_00_69, op_00_6A, op_00_6B, op_00_6C, op_00_6D, op_00_6E, op_00_6F,
+        op_00_70, op_00_71, op_00_72, op_00_73, op_00_74, op_00_75, op_00_76, op_00_77,
+        op_00_78, op_00_79, op_00_7A, op_00_7B, op_00_7C, op_00_7D, op_00_7E, op_00_7F,
+        op_00_80, op_00_81, op_00_82, op_00_83, op_00_84, op_00_85, op_00_86, op_00_87,
+        op_00_88, op_00_89, op_00_8A, op_00_8B, op_00_8C, op_00_8D, op_00_8E, op_00_8F,
+        op_00_90, op_00_91, op_00_92, op_00_93, op_00_94, op_00_95, op_00_96, op_00_97,
+        op_00_98, op_00_99, op_00_9A, op_00_9B, op_00_9C, op_00_9D, op_00_9E, op_00_9F,
+        op_00_A0, op_00_A1, op_00_A2, op_00_A3, op_00_A4, op_00_A5, op_00_A6, op_00_A7,
+        op_00_A8, op_00_A9, op_00_AA, op_00_AB, op_00_AC, op_00_AD, op_00_AE, op_00_AF,
+        op_00_B0, op_00_B1, op_00_B2, op_00_B3, op_00_B4, op_00_B5, op_00_B6, op_00_B7,
+        op_00_B8, op_00_B9, op_00_BA, op_00_BB, op_00_BC, op_00_BD, op_00_BE, op_00_BF,
+        op_00_C0, op_00_C1, op_00_C2, op_00_C3, op_00_C4, op_00_C5, op_00_C6, op_00_C7,
+        op_00_C8, op_00_C9, op_00_CA, op_00_CB, op_00_CC, op_00_CD, op_00_CE, op_00_CF,
+        op_00_D0, op_00_D1, op_00_D2, op_00_D3, op_00_D4, op_00_D5, op_00_D6, op_00_D7,
+        op_00_D8, op_00_D9, op_00_DA, op_00_DB, op_00_DC, op_00_DD, op_00_DE, op_00_DF,
+        op_00_E0, op_00_E1, op_00_E2, op_00_E3, op_00_E4, op_00_E5, op_00_E6, op_00_E7,
+        op_00_E8, op_00_E9, op_00_EA, op_00_EB, op_00_EC, op_00_ED, op_00_EE, op_00_EF,
+        op_00_F0, op_00_F1, op_00_F2, op_00_F3, op_00_F4, op_00_F5, op_00_F6, op_00_F7,
+        op_00_F8, op_00_F9, op_00_FA, op_00_FB, op_00_FC, op_00_FD, op_00_FE, op_00_FF };
 
 }

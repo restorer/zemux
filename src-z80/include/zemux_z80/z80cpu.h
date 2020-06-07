@@ -36,8 +36,6 @@ namespace zemux {
 class Z80CpuCallback {
 public:
 
-    virtual ~Z80CpuCallback() = default;
-
     virtual uint8_t onZ80MreqRd(uint16_t address, bool isM1) = 0;
     virtual void onZ80MreqWr(uint16_t address, uint8_t value) = 0;
     virtual uint8_t onZ80IorqRd(uint16_t port) = 0;
@@ -54,147 +52,152 @@ public:
     // To handle contended memory with original ULA.
     virtual void onZ80PutAddress(uint16_t /* address */, unsigned int /* cycles */) {
     }
+
+protected:
+
+    constexpr Z80CpuCallback() = default;
+    ~Z80CpuCallback() = default;
 };
 
 struct Z80CpuRegs {
     union {
         uint16_t BC = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t B; uint8_t C; };
-        #else
+#else
         struct { uint8_t C; uint8_t B; };
-        #endif
+#endif
     };
 
     union {
         uint16_t DE = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t D; uint8_t E; };
-        #else
+#else
         struct { uint8_t E; uint8_t D; };
-        #endif
+#endif
     };
 
     union {
         uint16_t HL = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t H; uint8_t L; };
-        #else
+#else
         struct { uint8_t L; uint8_t H; };
-        #endif
+#endif
     };
 
     union {
         uint16_t AF = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t A; uint8_t F; };
-        #else
+#else
         struct { uint8_t F; uint8_t A; };
-        #endif
+#endif
     };
 
     union {
         uint16_t IX = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t IXH; uint8_t IXL; };
-        #else
+#else
         struct { uint8_t IXL; uint8_t IXH; };
-        #endif
+#endif
     };
 
     union {
         uint16_t IY = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t IYH; uint8_t IYL; };
-        #else
+#else
         struct { uint8_t IYL; uint8_t IYH; };
-        #endif
+#endif
     };
 
     union {
         uint16_t SP = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t SPH; uint8_t SPL; };
-        #else
+#else
         struct { uint8_t SPL; uint8_t SPH; };
-        #endif
+#endif
     };
 
     union {
         uint16_t PC = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t PCH; uint8_t PCL; };
-        #else
+#else
         struct { uint8_t PCL; uint8_t PCH; };
-        #endif
+#endif
     };
 
     union {
         uint16_t MP = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t MPH; uint8_t MPL; };
-        #else
+#else
         struct { uint8_t MPL; uint8_t MPH; };
-        #endif
+#endif
     };
 
     union {
         uint16_t BC_ = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t B_; uint8_t C_; };
-        #else
+#else
         struct { uint8_t C_; uint8_t B_; };
-        #endif
+#endif
     };
 
     union {
         uint16_t DE_ = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t D_; uint8_t E_; };
-        #else
+#else
         struct { uint8_t E_; uint8_t D_; };
-        #endif
+#endif
     };
 
     union {
         uint16_t HL_ = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t H_; uint8_t L_; };
-        #else
+#else
         struct { uint8_t L_; uint8_t H_; };
-        #endif
+#endif
     };
 
     union {
         uint16_t AF_ = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t A_; uint8_t F_; };
-        #else
+#else
         struct { uint8_t A_; uint8_t F_; };
-        #endif
+#endif
     };
 
     union {
         uint16_t IR = 0;
 
-        #ifdef ZEMUX_BIG_ENDIAN
+#ifdef ZEMUX_BIG_ENDIAN
         struct { uint8_t I; uint8_t R; };
-        #else
+#else
         struct { uint8_t R; uint8_t I; };
-        #endif
+#endif
     };
 
     bool IFF1 = false;
@@ -203,7 +206,11 @@ struct Z80CpuRegs {
 };
 
 class Z80Cpu;
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedStructInspection"
 class Z80CpuCore;
+#pragma clang diagnostic pop
 
 using Z80CpuOpcode = void (*)(Z80Cpu*);
 
@@ -219,23 +226,23 @@ public:
     static constexpr unsigned int FLAG_Z = 0x40; // zero
     static constexpr unsigned int FLAG_S = 0x80; // sign
 
-    Z80Cpu(Z80CpuCallback* cb);
+    explicit Z80Cpu(Z80CpuCallback* cb);
 
     Z80CpuRegs regs;
 
-    ZEMUX_FORCE_INLINE uint8_t getOpcodePrefix() {
+    [[nodiscard]] ZEMUX_FORCE_INLINE uint8_t getOpcodePrefix() const {
         return prefix;
     }
 
-    ZEMUX_FORCE_INLINE bool isIntPossible() {
+    [[nodiscard]] ZEMUX_FORCE_INLINE bool isIntPossible() const {
         return regs.IFF1 && !isProcessingInstruction && !prefix && !shouldSkipNextInterrupt;
     }
 
-    ZEMUX_FORCE_INLINE bool isNmiPossible() {
+    [[nodiscard]] ZEMUX_FORCE_INLINE bool isNmiPossible() const {
         return !isProcessingInstruction && !prefix && !shouldSkipNextInterrupt;
     }
 
-    ZEMUX_FORCE_INLINE unsigned int getTstate() {
+    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int getTstate() const {
         return tstate;
     }
 
@@ -283,7 +290,7 @@ private:
     unsigned int tstate = 0;
 
     ZEMUX_FORCE_INLINE void incR() {
-        regs.R = (regs.R & 0x80) | ((regs.R + 1) & 0x7F);
+        regs.R = (regs.R & 0x80) | ((regs.R + 1) & 0x7Fu);
     }
 
     ZEMUX_FORCE_INLINE void putAddressOnBus(uint16_t address, unsigned int cycles) {
@@ -320,14 +327,14 @@ private:
     }
 
     ZEMUX_FORCE_INLINE int8_t fetchOffsetMp(uint16_t rp) {
-        int8_t offset = static_cast<int8_t>(fetchByte());
+        auto offset = static_cast<int8_t>(fetchByte());
         regs.MP = rp + offset;
         return offset;
     }
 
     ZEMUX_FORCE_INLINE uint16_t fetchWord() {
         uint8_t value = fetchByte();
-        return value | (static_cast<uint16_t>(fetchByte()) << 8);
+        return value | static_cast<uint16_t>(static_cast<uint16_t>(fetchByte()) << 8);
     }
 
     ZEMUX_FORCE_INLINE uint8_t memoryRead(uint16_t address) {
@@ -360,7 +367,10 @@ private:
         tstate += 3;
     }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedStructInspection"
     friend class Z80CpuCore;
+#pragma clang diagnostic pop
 };
 
 }

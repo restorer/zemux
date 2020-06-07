@@ -248,7 +248,7 @@ static void op_FD_21(Z80Cpu* cpu) {
 
 // LD (NN),IY
 static void op_FD_22(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_MNN_RP(cpu, cpu->regs.IYL, cpu->regs.IYH);
+    Z80CpuCore::op_LD_MNN_RP(cpu, cpu->regs.IY);
     Z80CpuCore::do_PREF_00(cpu);
 }
 
@@ -296,7 +296,7 @@ static void op_FD_29(Z80Cpu* cpu) {
 
 // LD IY,(NN)
 static void op_FD_2A(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_RP_MNN(cpu, &(cpu->regs.IYL), &(cpu->regs.IYH));
+    Z80CpuCore::op_LD_RP_MNN(cpu, &(cpu->regs.IY));
     Z80CpuCore::do_PREF_00(cpu);
 }
 
@@ -1427,7 +1427,7 @@ static void op_FD_E2(Z80Cpu* cpu) {
 
 // EX (SP),IY
 static void op_FD_E3(Z80Cpu* cpu) {
-    Z80CpuCore::op_EX_MSP_RP(cpu, cpu->regs.IYL, cpu->regs.IYH, &(cpu->regs.IY));
+    Z80CpuCore::op_EX_MSP_RP(cpu, &(cpu->regs.IY));
     Z80CpuCore::do_PREF_00(cpu);
 }
 
@@ -1602,38 +1602,37 @@ static void op_FD_FF(Z80Cpu* cpu) {
 }
 
 Z80CpuOpcode z80CpuOptable_FD[0x100] = {
-    op_FD_00, op_FD_01, op_FD_02, op_FD_03, op_FD_04, op_FD_05, op_FD_06, op_FD_07,
-    op_FD_08, op_FD_09, op_FD_0A, op_FD_0B, op_FD_0C, op_FD_0D, op_FD_0E, op_FD_0F,
-    op_FD_10, op_FD_11, op_FD_12, op_FD_13, op_FD_14, op_FD_15, op_FD_16, op_FD_17,
-    op_FD_18, op_FD_19, op_FD_1A, op_FD_1B, op_FD_1C, op_FD_1D, op_FD_1E, op_FD_1F,
-    op_FD_20, op_FD_21, op_FD_22, op_FD_23, op_FD_24, op_FD_25, op_FD_26, op_FD_27,
-    op_FD_28, op_FD_29, op_FD_2A, op_FD_2B, op_FD_2C, op_FD_2D, op_FD_2E, op_FD_2F,
-    op_FD_30, op_FD_31, op_FD_32, op_FD_33, op_FD_34, op_FD_35, op_FD_36, op_FD_37,
-    op_FD_38, op_FD_39, op_FD_3A, op_FD_3B, op_FD_3C, op_FD_3D, op_FD_3E, op_FD_3F,
-    op_FD_40, op_FD_41, op_FD_42, op_FD_43, op_FD_44, op_FD_45, op_FD_46, op_FD_47,
-    op_FD_48, op_FD_49, op_FD_4A, op_FD_4B, op_FD_4C, op_FD_4D, op_FD_4E, op_FD_4F,
-    op_FD_50, op_FD_51, op_FD_52, op_FD_53, op_FD_54, op_FD_55, op_FD_56, op_FD_57,
-    op_FD_58, op_FD_59, op_FD_5A, op_FD_5B, op_FD_5C, op_FD_5D, op_FD_5E, op_FD_5F,
-    op_FD_60, op_FD_61, op_FD_62, op_FD_63, op_FD_64, op_FD_65, op_FD_66, op_FD_67,
-    op_FD_68, op_FD_69, op_FD_6A, op_FD_6B, op_FD_6C, op_FD_6D, op_FD_6E, op_FD_6F,
-    op_FD_70, op_FD_71, op_FD_72, op_FD_73, op_FD_74, op_FD_75, op_FD_76, op_FD_77,
-    op_FD_78, op_FD_79, op_FD_7A, op_FD_7B, op_FD_7C, op_FD_7D, op_FD_7E, op_FD_7F,
-    op_FD_80, op_FD_81, op_FD_82, op_FD_83, op_FD_84, op_FD_85, op_FD_86, op_FD_87,
-    op_FD_88, op_FD_89, op_FD_8A, op_FD_8B, op_FD_8C, op_FD_8D, op_FD_8E, op_FD_8F,
-    op_FD_90, op_FD_91, op_FD_92, op_FD_93, op_FD_94, op_FD_95, op_FD_96, op_FD_97,
-    op_FD_98, op_FD_99, op_FD_9A, op_FD_9B, op_FD_9C, op_FD_9D, op_FD_9E, op_FD_9F,
-    op_FD_A0, op_FD_A1, op_FD_A2, op_FD_A3, op_FD_A4, op_FD_A5, op_FD_A6, op_FD_A7,
-    op_FD_A8, op_FD_A9, op_FD_AA, op_FD_AB, op_FD_AC, op_FD_AD, op_FD_AE, op_FD_AF,
-    op_FD_B0, op_FD_B1, op_FD_B2, op_FD_B3, op_FD_B4, op_FD_B5, op_FD_B6, op_FD_B7,
-    op_FD_B8, op_FD_B9, op_FD_BA, op_FD_BB, op_FD_BC, op_FD_BD, op_FD_BE, op_FD_BF,
-    op_FD_C0, op_FD_C1, op_FD_C2, op_FD_C3, op_FD_C4, op_FD_C5, op_FD_C6, op_FD_C7,
-    op_FD_C8, op_FD_C9, op_FD_CA, op_FD_CB, op_FD_CC, op_FD_CD, op_FD_CE, op_FD_CF,
-    op_FD_D0, op_FD_D1, op_FD_D2, op_FD_D3, op_FD_D4, op_FD_D5, op_FD_D6, op_FD_D7,
-    op_FD_D8, op_FD_D9, op_FD_DA, op_FD_DB, op_FD_DC, op_FD_DD, op_FD_DE, op_FD_DF,
-    op_FD_E0, op_FD_E1, op_FD_E2, op_FD_E3, op_FD_E4, op_FD_E5, op_FD_E6, op_FD_E7,
-    op_FD_E8, op_FD_E9, op_FD_EA, op_FD_EB, op_FD_EC, op_FD_ED, op_FD_EE, op_FD_EF,
-    op_FD_F0, op_FD_F1, op_FD_F2, op_FD_F3, op_FD_F4, op_FD_F5, op_FD_F6, op_FD_F7,
-    op_FD_F8, op_FD_F9, op_FD_FA, op_FD_FB, op_FD_FC, op_FD_FD, op_FD_FE, op_FD_FF
-};
+        op_FD_00, op_FD_01, op_FD_02, op_FD_03, op_FD_04, op_FD_05, op_FD_06, op_FD_07,
+        op_FD_08, op_FD_09, op_FD_0A, op_FD_0B, op_FD_0C, op_FD_0D, op_FD_0E, op_FD_0F,
+        op_FD_10, op_FD_11, op_FD_12, op_FD_13, op_FD_14, op_FD_15, op_FD_16, op_FD_17,
+        op_FD_18, op_FD_19, op_FD_1A, op_FD_1B, op_FD_1C, op_FD_1D, op_FD_1E, op_FD_1F,
+        op_FD_20, op_FD_21, op_FD_22, op_FD_23, op_FD_24, op_FD_25, op_FD_26, op_FD_27,
+        op_FD_28, op_FD_29, op_FD_2A, op_FD_2B, op_FD_2C, op_FD_2D, op_FD_2E, op_FD_2F,
+        op_FD_30, op_FD_31, op_FD_32, op_FD_33, op_FD_34, op_FD_35, op_FD_36, op_FD_37,
+        op_FD_38, op_FD_39, op_FD_3A, op_FD_3B, op_FD_3C, op_FD_3D, op_FD_3E, op_FD_3F,
+        op_FD_40, op_FD_41, op_FD_42, op_FD_43, op_FD_44, op_FD_45, op_FD_46, op_FD_47,
+        op_FD_48, op_FD_49, op_FD_4A, op_FD_4B, op_FD_4C, op_FD_4D, op_FD_4E, op_FD_4F,
+        op_FD_50, op_FD_51, op_FD_52, op_FD_53, op_FD_54, op_FD_55, op_FD_56, op_FD_57,
+        op_FD_58, op_FD_59, op_FD_5A, op_FD_5B, op_FD_5C, op_FD_5D, op_FD_5E, op_FD_5F,
+        op_FD_60, op_FD_61, op_FD_62, op_FD_63, op_FD_64, op_FD_65, op_FD_66, op_FD_67,
+        op_FD_68, op_FD_69, op_FD_6A, op_FD_6B, op_FD_6C, op_FD_6D, op_FD_6E, op_FD_6F,
+        op_FD_70, op_FD_71, op_FD_72, op_FD_73, op_FD_74, op_FD_75, op_FD_76, op_FD_77,
+        op_FD_78, op_FD_79, op_FD_7A, op_FD_7B, op_FD_7C, op_FD_7D, op_FD_7E, op_FD_7F,
+        op_FD_80, op_FD_81, op_FD_82, op_FD_83, op_FD_84, op_FD_85, op_FD_86, op_FD_87,
+        op_FD_88, op_FD_89, op_FD_8A, op_FD_8B, op_FD_8C, op_FD_8D, op_FD_8E, op_FD_8F,
+        op_FD_90, op_FD_91, op_FD_92, op_FD_93, op_FD_94, op_FD_95, op_FD_96, op_FD_97,
+        op_FD_98, op_FD_99, op_FD_9A, op_FD_9B, op_FD_9C, op_FD_9D, op_FD_9E, op_FD_9F,
+        op_FD_A0, op_FD_A1, op_FD_A2, op_FD_A3, op_FD_A4, op_FD_A5, op_FD_A6, op_FD_A7,
+        op_FD_A8, op_FD_A9, op_FD_AA, op_FD_AB, op_FD_AC, op_FD_AD, op_FD_AE, op_FD_AF,
+        op_FD_B0, op_FD_B1, op_FD_B2, op_FD_B3, op_FD_B4, op_FD_B5, op_FD_B6, op_FD_B7,
+        op_FD_B8, op_FD_B9, op_FD_BA, op_FD_BB, op_FD_BC, op_FD_BD, op_FD_BE, op_FD_BF,
+        op_FD_C0, op_FD_C1, op_FD_C2, op_FD_C3, op_FD_C4, op_FD_C5, op_FD_C6, op_FD_C7,
+        op_FD_C8, op_FD_C9, op_FD_CA, op_FD_CB, op_FD_CC, op_FD_CD, op_FD_CE, op_FD_CF,
+        op_FD_D0, op_FD_D1, op_FD_D2, op_FD_D3, op_FD_D4, op_FD_D5, op_FD_D6, op_FD_D7,
+        op_FD_D8, op_FD_D9, op_FD_DA, op_FD_DB, op_FD_DC, op_FD_DD, op_FD_DE, op_FD_DF,
+        op_FD_E0, op_FD_E1, op_FD_E2, op_FD_E3, op_FD_E4, op_FD_E5, op_FD_E6, op_FD_E7,
+        op_FD_E8, op_FD_E9, op_FD_EA, op_FD_EB, op_FD_EC, op_FD_ED, op_FD_EE, op_FD_EF,
+        op_FD_F0, op_FD_F1, op_FD_F2, op_FD_F3, op_FD_F4, op_FD_F5, op_FD_F6, op_FD_F7,
+        op_FD_F8, op_FD_F9, op_FD_FA, op_FD_FB, op_FD_FC, op_FD_FD, op_FD_FE, op_FD_FF };
 
 }

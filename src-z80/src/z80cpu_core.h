@@ -29,6 +29,9 @@
 #include <zemux_core/force_inline.h>
 #include "z80cpu.h"
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedGlobalDeclarationInspection"
+
 namespace zemux {
 
 extern Z80CpuOpcode z80CpuOptable_00[0x100];
@@ -51,14 +54,14 @@ public:
         *r1 = r2;
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_DO_A_R(Z80Cpu* cpu, F block, uint8_t r) {
-        block(cpu, &(cpu->regs.A), r);
+        cpu->regs.A = block(cpu, cpu->regs.A, r);
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_DO_R(Z80Cpu* cpu, F block, uint8_t* r) {
-        block(cpu, r);
+        *r = block(cpu, *r);
     }
 
     ZEMUX_FORCE_INLINE static void op_EXX(Z80Cpu* cpu) {
@@ -109,11 +112,11 @@ public:
         }
 
         cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_N | Z80Cpu::FLAG_C))
-            | (value & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (value ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[value]
-            | ((value ^ cpu->regs.A) & Z80Cpu::FLAG_H)
-            | (cpu->regs.A > 0x99 ? Z80Cpu::FLAG_C : 0);
+                | (value & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (value ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[value]
+                | ((value ^ cpu->regs.A) & Z80Cpu::FLAG_H)
+                | (cpu->regs.A > 0x99 ? Z80Cpu::FLAG_C : 0);
 
         cpu->regs.A = value;
     }
@@ -122,21 +125,21 @@ public:
         cpu->regs.A ^= 0xFF;
 
         cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_C | Z80Cpu::FLAG_PV | Z80Cpu::FLAG_Z | Z80Cpu::FLAG_S))
-            | (cpu->regs.A & (Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5))
-            | (Z80Cpu::FLAG_N | Z80Cpu::FLAG_H);
+                | (cpu->regs.A & (Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5))
+                | (Z80Cpu::FLAG_N | Z80Cpu::FLAG_H);
     }
 
     ZEMUX_FORCE_INLINE static void op_CCF(Z80Cpu* cpu) {
         cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_PV | Z80Cpu::FLAG_Z | Z80Cpu::FLAG_S))
-            | ((cpu->regs.F & Z80Cpu::FLAG_C) << Z80Cpu::FLAG_C_TO_H)
-            | ((cpu->regs.F & Z80Cpu::FLAG_C) ^ Z80Cpu::FLAG_C)
-            | (cpu->regs.A & (Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5));
+                | ((cpu->regs.F & Z80Cpu::FLAG_C) << Z80Cpu::FLAG_C_TO_H)
+                | ((cpu->regs.F & Z80Cpu::FLAG_C) ^ Z80Cpu::FLAG_C)
+                | (cpu->regs.A & (Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5));
     }
 
     ZEMUX_FORCE_INLINE static void op_SCF(Z80Cpu* cpu) {
         cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_PV | Z80Cpu::FLAG_Z | Z80Cpu::FLAG_S))
-            | (cpu->regs.A & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | Z80Cpu::FLAG_C;
+                | (cpu->regs.A & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | Z80Cpu::FLAG_C;
     }
 
     ZEMUX_FORCE_INLINE static void op_DI(Z80Cpu* cpu) {
@@ -161,8 +164,8 @@ public:
         cpu->regs.A = (cpu->regs.A << 1) | (cpu->regs.F & Z80Cpu::FLAG_C);
 
         cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_PV | Z80Cpu::FLAG_Z | Z80Cpu::FLAG_S))
-            | (cpu->regs.A & (Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5))
-            | (value >> 7);
+                | (cpu->regs.A & (Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5))
+                | (value >> 7);
     }
 
     ZEMUX_FORCE_INLINE static void op_RRA(Z80Cpu* cpu) {
@@ -170,19 +173,20 @@ public:
         cpu->regs.A = (cpu->regs.A >> 1) | (cpu->regs.F << 7);
 
         cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_PV | Z80Cpu::FLAG_Z | Z80Cpu::FLAG_S))
-            | (cpu->regs.A & (Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5))
-            | (value & Z80Cpu::FLAG_C);
+                | (cpu->regs.A & (Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5))
+                | (value & Z80Cpu::FLAG_C);
     }
 
     ZEMUX_FORCE_INLINE static void op_RLCA(Z80Cpu* cpu) {
         cpu->regs.A = (cpu->regs.A << 1) | (cpu->regs.A >> 7);
 
         cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_PV | Z80Cpu::FLAG_Z | Z80Cpu::FLAG_S))
-            | (cpu->regs.A & (Z80Cpu::FLAG_C | Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5));
+                | (cpu->regs.A & (Z80Cpu::FLAG_C | Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5));
     }
 
     ZEMUX_FORCE_INLINE static void op_RRCA(Z80Cpu* cpu) {
-        cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_PV | Z80Cpu::FLAG_Z | Z80Cpu::FLAG_S)) | (cpu->regs.A & Z80Cpu::FLAG_C);
+        cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_PV | Z80Cpu::FLAG_Z | Z80Cpu::FLAG_S)) |
+                (cpu->regs.A & Z80Cpu::FLAG_C);
         cpu->regs.A = (cpu->regs.A >> 1) | (cpu->regs.A << 7);
         cpu->regs.F |= (cpu->regs.A & (Z80Cpu::FLAG_3 | Z80Cpu::FLAG_5));
     }
@@ -218,9 +222,9 @@ public:
 
     // Instructions (6 cycles)
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_DO_RP(Z80Cpu* cpu, F block, uint16_t* rp) {
-        block(cpu, rp);
+        *rp = block(cpu, *rp);
         cpu->putAddressOnBus(cpu->regs.IR, 2);
     }
 
@@ -235,9 +239,9 @@ public:
         *r = cpu->fetchByte();
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_DO_A_N(Z80Cpu* cpu, F block) {
-        block(cpu, &(cpu->regs.A), cpu->fetchByte());
+        cpu->regs.A = block(cpu, cpu->regs.A, cpu->fetchByte());
     }
 
     ZEMUX_FORCE_INLINE static void op_LD_R_MRP(Z80Cpu* cpu, uint8_t* r, uint16_t rp) {
@@ -259,9 +263,9 @@ public:
         cpu->memoryWrite(rp, cpu->regs.A);
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_DO_A_MHL(Z80Cpu* cpu, F block) {
-        block(cpu, &(cpu->regs.A), cpu->memoryRead(cpu->regs.HL));
+        cpu->regs.A = block(cpu, cpu->regs.A, cpu->memoryRead(cpu->regs.HL));
     }
 
     // Instructions (8 cycles)
@@ -270,11 +274,11 @@ public:
         uint8_t value = r & (1 << bit);
 
         cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C)
-            | Z80Cpu::FLAG_H
-            | (value & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (value ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[value]
-            | (r & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3));
+                | Z80Cpu::FLAG_H
+                | (value & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (value ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[value]
+                | (r & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3));
     }
 
     ZEMUX_FORCE_INLINE static void op_SET_R(Z80Cpu*, int bit, uint8_t* r) {
@@ -288,7 +292,7 @@ public:
     ZEMUX_FORCE_INLINE static void op_NEG_P00(Z80Cpu* cpu) {
         uint8_t value = cpu->regs.A;
         cpu->regs.A = 0;
-        do_SUB_8(cpu, &(cpu->regs.A), value);
+        cpu->regs.A = do_SUB_8(cpu, cpu->regs.A, value);
         do_PREF_00(cpu);
     }
 
@@ -303,9 +307,9 @@ public:
         cpu->regs.A = cpu->regs.I;
 
         cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C)
-            | (cpu->regs.A & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (cpu->regs.A ? 0 : Z80Cpu::FLAG_Z)
-            | (cpu->regs.IFF2 << Z80Cpu::FLAG_PV_IFF_S8);
+                | (cpu->regs.A & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (cpu->regs.A ? 0 : Z80Cpu::FLAG_Z)
+                | (cpu->regs.IFF2 << Z80Cpu::FLAG_PV_IFF_S8);
 
         cpu->putAddressOnBus(cpu->regs.IR, 1);
         cpu->shouldResetPv = true;
@@ -317,9 +321,9 @@ public:
         cpu->regs.A = cpu->regs.R;
 
         cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C)
-            | (cpu->regs.A & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (cpu->regs.A ? 0 : Z80Cpu::FLAG_Z)
-            | (cpu->regs.IFF2 << Z80Cpu::FLAG_PV_IFF_S8);
+                | (cpu->regs.A & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (cpu->regs.A ? 0 : Z80Cpu::FLAG_Z)
+                | (cpu->regs.IFF2 << Z80Cpu::FLAG_PV_IFF_S8);
 
         cpu->putAddressOnBus(cpu->regs.IR, 1);
         cpu->shouldResetPv = true;
@@ -350,7 +354,7 @@ public:
         cpu->regs.MP = cpu->regs.PC;
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_JP_CC(Z80Cpu* cpu, F block) {
         uint16_t address = cpu->fetchWord();
         cpu->regs.MP = address;
@@ -375,19 +379,18 @@ public:
     // Instructions (11 cycles)
 
     ZEMUX_FORCE_INLINE static void op_ADD_RP_RP(Z80Cpu* cpu, uint16_t* rp1, uint16_t rp2) {
-        do_ADD_16(cpu, rp1, rp2);
+        *rp1 = do_ADD_16(cpu, *rp1, rp2);
         cpu->putAddressOnBus(cpu->regs.IR, 7);
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_DO_MHL(Z80Cpu* cpu, F block) {
-        uint8_t value = cpu->memoryRead(cpu->regs.HL);
-        block(cpu, &value);
+        uint8_t value = block(cpu, cpu->memoryRead(cpu->regs.HL));
         cpu->putAddressOnBus(cpu->regs.HL, 1);
         cpu->memoryWrite(cpu->regs.HL, value);
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_RET_CC(Z80Cpu* cpu, F block) {
         cpu->putAddressOnBus(cpu->regs.IR, 1);
 
@@ -434,7 +437,7 @@ public:
         cpu->regs.MP = cpu->regs.PC;
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_JR_CC(Z80Cpu* cpu, F block) {
         uint16_t address = cpu->regs.PC;
         int8_t offset = static_cast<int8_t>(cpu->fetchByte());
@@ -452,9 +455,9 @@ public:
         cpu->regs.MP = cpu->regs.BC + 1;
 
         cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C)
-            | (value & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (value ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[value];
+                | (value & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (value ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[value];
 
         do_PREF_00(cpu);
     }
@@ -470,9 +473,9 @@ public:
         cpu->regs.MP = cpu->regs.BC + 1;
 
         cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C)
-            | (value & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (value ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[value];
+                | (value & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (value ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[value];
 
         do_PREF_00(cpu);
     }
@@ -525,13 +528,13 @@ public:
     // Instructions (15 cycles)
 
     ZEMUX_FORCE_INLINE static void op_ADC_HL_RP_P00(Z80Cpu* cpu, uint16_t rp) {
-        do_ADC_16(cpu, &(cpu->regs.HL), rp);
+        cpu->regs.HL = do_ADC_16(cpu, cpu->regs.HL, rp);
         cpu->putAddressOnBus(cpu->regs.IR, 7);
         do_PREF_00(cpu);
     }
 
     ZEMUX_FORCE_INLINE static void op_SBC_HL_RP_P00(Z80Cpu* cpu, uint16_t rp) {
-        do_SBC_16(cpu, &(cpu->regs.HL), rp);
+        cpu->regs.HL = do_SBC_16(cpu, cpu->regs.HL, rp);
         cpu->putAddressOnBus(cpu->regs.IR, 7);
         do_PREF_00(cpu);
     }
@@ -560,18 +563,17 @@ public:
         withOptable[opcode](cpu);
     }
 
-    ZEMUX_FORCE_INLINE static void op_LD_RP_MNN(Z80Cpu* cpu, uint8_t* rl, uint8_t* rh) {
+    ZEMUX_FORCE_INLINE static void op_LD_RP_MNN(Z80Cpu* cpu, uint16_t* rp) {
         uint16_t address = cpu->fetchWord();
-        *rl = cpu->memoryRead(address);
-        *rh = cpu->memoryRead(address + 1);
+        *rp = cpu->memoryRead(address) | (static_cast<uint16_t>(cpu->memoryRead(address + 1)) << 8);
         cpu->regs.MP = address + 1;
     }
 
-    ZEMUX_FORCE_INLINE static void op_LD_MNN_RP(Z80Cpu* cpu, uint8_t rl, uint8_t rh) {
+    ZEMUX_FORCE_INLINE static void op_LD_MNN_RP(Z80Cpu* cpu, uint16_t rp) {
         uint16_t address = cpu->fetchWord();
         cpu->regs.MP = address + 1;
-        cpu->memoryWrite(address, rl);
-        cpu->memoryWrite(address + 1, rh);
+        cpu->memoryWrite(address, static_cast<uint8_t>(rp));
+        cpu->memoryWrite(address + 1, static_cast<uint8_t>(rp >> 8));
     }
 
     ZEMUX_FORCE_INLINE static void op_LDI_P00(Z80Cpu* cpu) {
@@ -631,7 +633,7 @@ public:
         cpu->regs.MP = address;
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_CALL_CC(Z80Cpu* cpu, F block) {
         uint16_t address = cpu->fetchWord();
         cpu->regs.MP = address;
@@ -652,9 +654,9 @@ public:
         cpu->regs.A = (cpu->regs.A & 0xF0) | (value >> 4);
 
         cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C)
-            | (cpu->regs.A & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (cpu->regs.A ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[cpu->regs.A];
+                | (cpu->regs.A & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (cpu->regs.A ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[cpu->regs.A];
 
         cpu->regs.MP = cpu->regs.HL + 1;
         do_PREF_00(cpu);
@@ -667,9 +669,9 @@ public:
         cpu->regs.A = (cpu->regs.A & 0xF0) | (value & 0x0F);
 
         cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C)
-            | (cpu->regs.A & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (cpu->regs.A ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[cpu->regs.A];
+                | (cpu->regs.A & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (cpu->regs.A ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[cpu->regs.A];
 
         cpu->regs.MP = cpu->regs.HL + 1;
         do_PREF_00(cpu);
@@ -693,12 +695,12 @@ public:
         do_PREF_00(cpu);
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_DO_A_ORP_P00(Z80Cpu* cpu, F block, uint16_t rp) {
         uint16_t address = cpu->regs.PC;
         int8_t offset = cpu->fetchOffsetMp(rp);
         cpu->putAddressOnBus(address, 5);
-        block(cpu, &(cpu->regs.A), cpu->memoryRead(rp + offset));
+        cpu->regs.A = block(cpu, cpu->regs.A, cpu->memoryRead(rp + offset));
         do_PREF_00(cpu);
     }
 
@@ -713,13 +715,17 @@ public:
         do_PREF_00(cpu);
     }
 
-    ZEMUX_FORCE_INLINE static void op_EX_MSP_RP(Z80Cpu* cpu, uint8_t rl, uint8_t rh, uint16_t* rp) {
-        uint16_t value = cpu->memoryRead(cpu->regs.SP) | (static_cast<uint16_t>(cpu->memoryRead(cpu->regs.SP + 1)) << 8);
+    ZEMUX_FORCE_INLINE static void op_EX_MSP_RP(Z80Cpu* cpu, uint16_t* rp) {
+        uint16_t value = cpu->memoryRead(cpu->regs.SP) |
+                (static_cast<uint16_t>(cpu->memoryRead(cpu->regs.SP + 1)) << 8);
+
         cpu->putAddressOnBus(cpu->regs.SP + 1, 1);
         cpu->regs.MP = value;
 
-        cpu->memoryWrite(cpu->regs.SP, rl);
-        cpu->memoryWrite(cpu->regs.SP + 1, rh);
+        uint16_t rpv = *rp;
+        cpu->memoryWrite(cpu->regs.SP, static_cast<uint8_t>(rpv));
+        cpu->memoryWrite(cpu->regs.SP + 1, static_cast<uint8_t>(rpv >> 8));
+
         cpu->putAddressOnBus(cpu->regs.SP + 1, 2);
         *rp = value;
     }
@@ -787,14 +793,13 @@ public:
 
     // Instructions (23 cycles)
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_DO_ORP_P00(Z80Cpu* cpu, F block, uint16_t rp) {
         uint16_t offsetAddress = cpu->regs.PC;
         uint16_t valueAddress = rp + cpu->fetchOffsetMp(rp);
         cpu->putAddressOnBus(offsetAddress, 5);
 
-        uint8_t value = cpu->memoryRead(valueAddress);
-        block(cpu, &value);
+        uint8_t value = block(cpu, cpu->memoryRead(valueAddress));
         cpu->putAddressOnBus(valueAddress, 1);
 
         cpu->memoryWrite(valueAddress, value);
@@ -823,26 +828,24 @@ public:
         do_PREF_00(cpu);
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_DO_PORP_P00(Z80Cpu* cpu, F block, uint16_t rp) {
         uint16_t address = rp + cpu->cbOffset;
         cpu->regs.MP = address;
 
-        uint8_t value = cpu->memoryRead(address);
-        block(cpu, &value);
+        uint8_t value = block(cpu, cpu->memoryRead(address));
         cpu->putAddressOnBus(address, 1);
 
         cpu->memoryWrite(address, value);
         do_PREF_00(cpu);
     }
 
-    template< typename F >
+    template<typename F>
     ZEMUX_FORCE_INLINE static void op_LD_DO_R_PORP_P00(Z80Cpu* cpu, F block, uint8_t* r, uint16_t rp) {
         uint16_t address = rp + cpu->cbOffset;
         cpu->regs.MP = address;
 
-        uint8_t value = cpu->memoryRead(address);
-        block(cpu, &value);
+        uint8_t value = block(cpu, cpu->memoryRead(address));
         cpu->putAddressOnBus(address, 1);
 
         *r = value;
@@ -880,7 +883,7 @@ public:
         return !(cpu->regs.F & Z80Cpu::FLAG_Z);
     }
 
-    ZEMUX_FORCE_INLINE static  bool cc_Z(Z80Cpu* cpu) {
+    ZEMUX_FORCE_INLINE static bool cc_Z(Z80Cpu* cpu) {
         return cpu->regs.F & Z80Cpu::FLAG_Z;
     }
 
@@ -915,256 +918,300 @@ public:
         cpu->optable = z80CpuOptable_00;
     }
 
-    ZEMUX_FORCE_INLINE static void do_SUB_8(Z80Cpu* cpu, uint8_t* x, uint8_t y) {
-        uint16_t result = (*x) - y;
-        uint8_t halfResult = ((*x) & 0x0F) - (y & 0x0F);
-        int16_t signedResult = static_cast<int8_t>(*x) - static_cast<int8_t>(y);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_SUB_8(Z80Cpu* cpu, uint8_t x, uint8_t y) {
+        uint16_t result = x - y;
+        uint8_t halfResult = (x & 0x0F) - (y & 0x0F);
+        int16_t signedResult = static_cast<int8_t>(x) - static_cast<int8_t>(y);
 
         cpu->regs.F = ((result & Z80Cpu::FLAG_C_M8) >> Z80Cpu::FLAG_C_S8)
-            | Z80Cpu::FLAG_N
-            | (halfResult & Z80Cpu::FLAG_H)
-            | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
-            | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | Z80Cpu::FLAG_N
+                | (halfResult & Z80Cpu::FLAG_H)
+                | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
+                | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
 
-        *x = result;
+        return result;
     }
 
-    ZEMUX_FORCE_INLINE static void do_INC_8(Z80Cpu* cpu, uint8_t* x) {
-        cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C) | ((((*x) & 0x0F) + 1) & Z80Cpu::FLAG_H);
-        ++(*x);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_INC_8(Z80Cpu* cpu, uint8_t x) {
+        cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C) | (((x & 0x0F) + 1) & Z80Cpu::FLAG_H);
+        ++x;
 
-        cpu->regs.F |= ((*x) == Z80Cpu::FLAG_PV_C8 ? Z80Cpu::FLAG_PV : 0)
-            | ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z);
+        cpu->regs.F |= (x == Z80Cpu::FLAG_PV_C8 ? Z80Cpu::FLAG_PV : 0)
+                | (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z);
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_DEC_8(Z80Cpu* cpu, uint8_t* x) {
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_DEC_8(Z80Cpu* cpu, uint8_t x) {
         cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C)
-            | Z80Cpu::FLAG_N
-            | ((((*x) & 0x0F) - 1) & Z80Cpu::FLAG_H)
-            | ((*x) == Z80Cpu::FLAG_PV_C8 ? Z80Cpu::FLAG_PV : 0);
+                | Z80Cpu::FLAG_N
+                | (((x & 0x0F) - 1) & Z80Cpu::FLAG_H)
+                | (x == Z80Cpu::FLAG_PV_C8 ? Z80Cpu::FLAG_PV : 0);
 
-        --(*x);
-        cpu->regs.F |= ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3)) | ((*x) ? 0 : Z80Cpu::FLAG_Z);
+        --x;
+        cpu->regs.F |= (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3)) | (x ? 0 : Z80Cpu::FLAG_Z);
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_ADD_8(Z80Cpu* cpu, uint8_t* x, uint8_t y) {
-        uint16_t result = (*x) + y;
-        uint8_t halfResult = ((*x) & 0x0F) + (y & 0x0F);
-        int16_t signedResult = static_cast<int8_t>(*x) + static_cast<int8_t>(y);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_ADD_8(Z80Cpu* cpu, uint8_t x, uint8_t y) {
+        uint16_t result = x + y;
+        uint8_t halfResult = (x & 0x0F) + (y & 0x0F);
+        int16_t signedResult = static_cast<int8_t>(x) + static_cast<int8_t>(y);
 
         cpu->regs.F = ((result & Z80Cpu::FLAG_C_M8) >> Z80Cpu::FLAG_C_S8)
-            | (halfResult & Z80Cpu::FLAG_H)
-            | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
-            | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | (halfResult & Z80Cpu::FLAG_H)
+                | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
+                | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
 
-        *x = result;
+        return result;
     }
 
-    ZEMUX_FORCE_INLINE static void do_ADC_8(Z80Cpu* cpu, uint8_t* x, uint8_t y) {
-        uint16_t result = (*x) + y + (cpu->regs.F & Z80Cpu::FLAG_C);
-        uint8_t halfResult = ((*x) & 0x0F) + (y & 0x0F) + (cpu->regs.F & Z80Cpu::FLAG_C);
-        int16_t signedResult = static_cast<int8_t>(*x) + static_cast<int8_t>(y) + static_cast<int16_t>(cpu->regs.F & Z80Cpu::FLAG_C);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_ADC_8(Z80Cpu* cpu, uint8_t x, uint8_t y) {
+        uint16_t result = x + y + (cpu->regs.F & Z80Cpu::FLAG_C);
+        uint8_t halfResult = (x & 0x0F) + (y & 0x0F) + (cpu->regs.F & Z80Cpu::FLAG_C);
+
+        int16_t signedResult = static_cast<int8_t>(x) +
+                static_cast<int8_t>(y) +
+                static_cast<int16_t>(cpu->regs.F & Z80Cpu::FLAG_C);
 
         cpu->regs.F = ((result & Z80Cpu::FLAG_C_M8) >> Z80Cpu::FLAG_C_S8)
-            | (halfResult & Z80Cpu::FLAG_H)
-            | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
-            | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | (halfResult & Z80Cpu::FLAG_H)
+                | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
+                | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
 
-        *x = result;
+        return result;
     }
 
-    ZEMUX_FORCE_INLINE static void do_SBC_8(Z80Cpu* cpu, uint8_t* x, uint8_t y) {
-        uint16_t result = (*x) - y - (cpu->regs.F & Z80Cpu::FLAG_C);
-        uint8_t halfResult = ((*x) & 0x0F) - (y & 0x0F) - (cpu->regs.F & Z80Cpu::FLAG_C);
-        int16_t signedResult = static_cast<int8_t>(*x) - static_cast<int8_t>(y) - static_cast<int16_t>(cpu->regs.F & Z80Cpu::FLAG_C);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_SBC_8(Z80Cpu* cpu, uint8_t x, uint8_t y) {
+        uint16_t result = x - y - (cpu->regs.F & Z80Cpu::FLAG_C);
+        uint8_t halfResult = (x & 0x0F) - (y & 0x0F) - (cpu->regs.F & Z80Cpu::FLAG_C);
+
+        int16_t signedResult = static_cast<int8_t>(x) -
+                static_cast<int8_t>(y) -
+                static_cast<int16_t>(cpu->regs.F & Z80Cpu::FLAG_C);
 
         cpu->regs.F = ((result & Z80Cpu::FLAG_C_M8) >> Z80Cpu::FLAG_C_S8)
-            | Z80Cpu::FLAG_N
-            | (halfResult & Z80Cpu::FLAG_H)
-            | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
-            | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | Z80Cpu::FLAG_N
+                | (halfResult & Z80Cpu::FLAG_H)
+                | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
+                | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
 
-        *x = result;
+        return result;
     }
 
-    ZEMUX_FORCE_INLINE static void do_AND_8(Z80Cpu* cpu, uint8_t* x, uint8_t y) {
-        *x &= y;
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_AND_8(Z80Cpu* cpu, uint8_t x, uint8_t y) {
+        x &= y;
 
         cpu->regs.F = Z80Cpu::FLAG_H
-            | ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+                | (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_XOR_8(Z80Cpu* cpu, uint8_t* x, uint8_t y) {
-        (*x) ^= y;
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_XOR_8(Z80Cpu* cpu, uint8_t x, uint8_t y) {
+        x ^= y;
 
-        cpu->regs.F = ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+        cpu->regs.F = (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_OR_8(Z80Cpu* cpu, uint8_t* x, uint8_t y) {
-        (*x) |= y;
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_OR_8(Z80Cpu* cpu, uint8_t x, uint8_t y) {
+        x |= y;
 
-        cpu->regs.F = ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+        cpu->regs.F = (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_CP_8(Z80Cpu* cpu, uint8_t* x, uint8_t y) {
-        uint16_t result = (*x) - y;
-        uint8_t halfResult = ((*x) & 0x0F) - (y & 0x0F);
-        int16_t signedResult = static_cast<int8_t>(*x) - static_cast<int8_t>(y);
+    ZEMUX_FORCE_INLINE static uint8_t do_CP_8(Z80Cpu* cpu, uint8_t x, uint8_t y) {
+        uint16_t result = x - y;
+        uint8_t halfResult = (x & 0x0F) - (y & 0x0F);
+        int16_t signedResult = static_cast<int8_t>(x) - static_cast<int8_t>(y);
 
         cpu->regs.F = ((result & Z80Cpu::FLAG_C_M8) >> Z80Cpu::FLAG_C_S8)
-            | Z80Cpu::FLAG_N
-            | (halfResult & Z80Cpu::FLAG_H)
-            | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
-            | (y & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (result & Z80Cpu::FLAG_S)
-            | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | Z80Cpu::FLAG_N
+                | (halfResult & Z80Cpu::FLAG_H)
+                | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
+                | (y & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (result & Z80Cpu::FLAG_S)
+                | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_RLC_8(Z80Cpu* cpu, uint8_t* x) {
-        *x = ((*x) << 1) | ((*x) >> 7);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_RLC_8(Z80Cpu* cpu, uint8_t x) {
+        x = (x << 1) | (x >> 7);
 
-        cpu->regs.F = ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3 | Z80Cpu::FLAG_C))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+        cpu->regs.F = (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3 | Z80Cpu::FLAG_C))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_RRC_8(Z80Cpu* cpu, uint8_t* x) {
-        cpu->regs.F = (*x) & Z80Cpu::FLAG_C;
-        *x = ((*x) >> 1) | ((*x) << 7);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_RRC_8(Z80Cpu* cpu, uint8_t x) {
+        cpu->regs.F = x & Z80Cpu::FLAG_C;
+        x = (x >> 1) | (x << 7);
 
-        cpu->regs.F |= ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+        cpu->regs.F |= (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_RL_8(Z80Cpu* cpu, uint8_t* x) {
-        uint8_t value = *x;
-        *x = ((*x) << 1) | (cpu->regs.F & Z80Cpu::FLAG_C);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_RL_8(Z80Cpu* cpu, uint8_t x) {
+        uint8_t value = x;
+        x = (x << 1) | (cpu->regs.F & Z80Cpu::FLAG_C);
 
         cpu->regs.F = (value >> 7)
-            | ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+                | (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_RR_8(Z80Cpu* cpu, uint8_t* x) {
-        uint8_t value = *x;
-        *x = ((*x) >> 1) | (cpu->regs.F << 7);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_RR_8(Z80Cpu* cpu, uint8_t x) {
+        uint8_t value = x;
+        x = (x >> 1) | (cpu->regs.F << 7);
 
         cpu->regs.F = (value & Z80Cpu::FLAG_C)
-            | ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+                | (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_SLA_8(Z80Cpu* cpu, uint8_t* x) {
-        cpu->regs.F = (*x) >> 7;
-        *x <<= 1;
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_SLA_8(Z80Cpu* cpu, uint8_t x) {
+        cpu->regs.F = x >> 7;
+        x <<= 1;
 
-        cpu->regs.F |= ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+        cpu->regs.F |= (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_SRA_8(Z80Cpu* cpu, uint8_t* x) {
-        cpu->regs.F = (*x) & Z80Cpu::FLAG_C;
-        *x = ((*x) & 0x80) | ((*x) >> 1);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_SRA_8(Z80Cpu* cpu, uint8_t x) {
+        cpu->regs.F = x & Z80Cpu::FLAG_C;
+        x = (x & 0x80) | (x >> 1);
 
-        cpu->regs.F |= ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+        cpu->regs.F |= (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_SLL_8(Z80Cpu* cpu, uint8_t* x) {
-        cpu->regs.F = (*x) >> 7;
-        *x = ((*x) << 1) | 0x01;
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_SLL_8(Z80Cpu* cpu, uint8_t x) {
+        cpu->regs.F = x >> 7;
+        x = (x << 1) | 0x01;
 
-        cpu->regs.F |= ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+        cpu->regs.F |= (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_SRL_8(Z80Cpu* cpu, uint8_t* x) {
-        cpu->regs.F = (*x) & Z80Cpu::FLAG_C;
-        *x >>= 1;
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_SRL_8(Z80Cpu* cpu, uint8_t x) {
+        cpu->regs.F = x & Z80Cpu::FLAG_C;
+        x >>= 1;
 
-        cpu->regs.F |= ((*x) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((*x) ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[*x];
+        cpu->regs.F |= (x & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[x];
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_INC_16(Z80Cpu*, uint16_t* rp) {
-        ++(*rp);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint16_t do_INC_16(Z80Cpu*, uint16_t rp) {
+        return rp + 1;
     }
 
-    ZEMUX_FORCE_INLINE static void do_DEC_16(Z80Cpu*, uint16_t* rp) {
-        --(*rp);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint16_t do_DEC_16(Z80Cpu*, uint16_t rp) {
+        return rp - 1;
     }
 
-    ZEMUX_FORCE_INLINE static void do_ADD_16(Z80Cpu* cpu, uint16_t* x, uint16_t y) {
-        uint32_t result = (*x) + y;
-        uint16_t halfResult = ((*x) & 0x0FFF) + (y & 0x0FFF);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint16_t do_ADD_16(Z80Cpu* cpu, uint16_t x, uint16_t y) {
+        uint32_t result = x + y;
+        uint16_t halfResult = (x & 0x0FFF) + (y & 0x0FFF);
 
-        cpu->regs.MP = (*x) + 1;
-        *x = result;
+        cpu->regs.MP = x + 1;
+        x = result;
 
         cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_PV | Z80Cpu::FLAG_Z | Z80Cpu::FLAG_S))
-            | ((result & Z80Cpu::FLAG_C_M16) >> Z80Cpu::FLAG_C_S16)
-            | ((result >> 8) & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | ((halfResult & Z80Cpu::FLAG_H_M16) >> Z80Cpu::FLAG_H_S16);
+                | ((result & Z80Cpu::FLAG_C_M16) >> Z80Cpu::FLAG_C_S16)
+                | ((result >> 8) & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | ((halfResult & Z80Cpu::FLAG_H_M16) >> Z80Cpu::FLAG_H_S16);
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_ADC_16(Z80Cpu* cpu, uint16_t* x, uint16_t y) {
-        uint32_t result = (*x) + y + (cpu->regs.F & Z80Cpu::FLAG_C);
-        uint16_t halfResult = ((*x) & 0x0FFF) + (y & 0x0FFF) + (cpu->regs.F & Z80Cpu::FLAG_C);
-        int32_t signedResult = static_cast<int16_t>(*x) + static_cast<int16_t>(y) + static_cast<int32_t>(cpu->regs.F & Z80Cpu::FLAG_C);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint16_t do_ADC_16(Z80Cpu* cpu, uint16_t x, uint16_t y) {
+        uint32_t result = x + y + (cpu->regs.F & Z80Cpu::FLAG_C);
+        uint16_t halfResult = (x & 0x0FFF) + (y & 0x0FFF) + (cpu->regs.F & Z80Cpu::FLAG_C);
 
-        cpu->regs.MP = (*x) + 1;
-        *x = result;
+        int32_t signedResult = static_cast<int16_t>(x) +
+                static_cast<int16_t>(y) +
+                static_cast<int32_t>(cpu->regs.F & Z80Cpu::FLAG_C);
+
+        cpu->regs.MP = x + 1;
+        x = result;
 
         cpu->regs.F = ((result & Z80Cpu::FLAG_C_M16) >> Z80Cpu::FLAG_C_S16)
-            | ((halfResult & Z80Cpu::FLAG_H_M16) >> Z80Cpu::FLAG_H_S16)
-            | ((signedResult < -32768 || signedResult > 32767) ? Z80Cpu::FLAG_PV : 0)
-            | ((result >> 8) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (static_cast<uint16_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | ((halfResult & Z80Cpu::FLAG_H_M16) >> Z80Cpu::FLAG_H_S16)
+                | ((signedResult < -32768 || signedResult > 32767) ? Z80Cpu::FLAG_PV : 0)
+                | ((result >> 8) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (x ? 0 : Z80Cpu::FLAG_Z);
+
+        return x;
     }
 
-    ZEMUX_FORCE_INLINE static void do_SBC_16(Z80Cpu* cpu, uint16_t* x, uint16_t y) {
-        uint32_t result = (*x) - y - (cpu->regs.F & Z80Cpu::FLAG_C);
-        uint16_t halfResult = ((*x) & 0x0FFF) - (y & 0x0FFF) - (cpu->regs.F & Z80Cpu::FLAG_C);
-        int32_t signedResult = static_cast<int16_t>(*x) - static_cast<int16_t>(y) - static_cast<int32_t>(cpu->regs.F & Z80Cpu::FLAG_C);
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint16_t do_SBC_16(Z80Cpu* cpu, uint16_t x, uint16_t y) {
+        uint32_t result = x - y - (cpu->regs.F & Z80Cpu::FLAG_C);
+        uint16_t halfResult = (x & 0x0FFF) - (y & 0x0FFF) - (cpu->regs.F & Z80Cpu::FLAG_C);
+
+        int32_t signedResult = static_cast<int16_t>(x) -
+                static_cast<int16_t>(y) -
+                static_cast<int32_t>(cpu->regs.F & Z80Cpu::FLAG_C);
 
         cpu->regs.F = ((result & Z80Cpu::FLAG_C_M16) >> Z80Cpu::FLAG_C_S16)
-            | Z80Cpu::FLAG_N
-            | ((halfResult & Z80Cpu::FLAG_H_M16) >> Z80Cpu::FLAG_H_S16)
-            | ((signedResult < -32768 || signedResult > 32767) ? Z80Cpu::FLAG_PV : 0)
-            | ((result >> 8) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (static_cast<uint16_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | Z80Cpu::FLAG_N
+                | ((halfResult & Z80Cpu::FLAG_H_M16) >> Z80Cpu::FLAG_H_S16)
+                | ((signedResult < -32768 || signedResult > 32767) ? Z80Cpu::FLAG_PV : 0)
+                | ((result >> 8) & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (static_cast<uint16_t>(result) ? 0 : Z80Cpu::FLAG_Z);
 
-        cpu->regs.MP = (*x) + 1;
-        *x = result;
+        cpu->regs.MP = x + 1;
+        return result;
     }
 
     ZEMUX_FORCE_INLINE static void do_BIT(Z80Cpu* cpu, uint8_t value, int bit) {
         uint8_t result = value & (1 << bit);
 
         cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C)
-            | Z80Cpu::FLAG_H
-            | (result & Z80Cpu::FLAG_S)
-            | (result ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[result]
-            | (cpu->regs.MPH & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3));
+                | Z80Cpu::FLAG_H
+                | (result & Z80Cpu::FLAG_S)
+                | (result ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[result]
+                | (cpu->regs.MPH & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3));
     }
 
     ZEMUX_FORCE_INLINE static void do_REP_LD_INC(Z80Cpu* cpu) {
@@ -1189,7 +1236,7 @@ public:
 
     // Actions (affecting T-state)
 
-    ZEMUX_FORCE_INLINE static uint16_t do_POP(Z80Cpu* cpu) {
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint16_t do_POP(Z80Cpu* cpu) {
         uint8_t value = cpu->memoryRead((cpu->regs.SP)++);
         return value | (static_cast<uint16_t>(cpu->memoryRead((cpu->regs.SP)++)) << 8);
     }
@@ -1204,7 +1251,7 @@ public:
         cpu->memoryWrite(--(cpu->regs.SP), static_cast<uint8_t>(rp));
     }
 
-    ZEMUX_FORCE_INLINE static uint8_t do_IN(Z80Cpu* cpu, uint16_t port) {
+    [[nodiscard]] ZEMUX_FORCE_INLINE static uint8_t do_IN(Z80Cpu* cpu, uint16_t port) {
         uint8_t result = cpu->ioRead(port);
         cpu->regs.MP = port + 1;
         return result;
@@ -1225,9 +1272,9 @@ public:
         value += cpu->regs.A;
 
         cpu->regs.F = (cpu->regs.F & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_Z | Z80Cpu::FLAG_C))
-            | (cpu->regs.BC ? Z80Cpu::FLAG_PV : 0)
-            | (value & Z80Cpu::FLAG_3)
-            | ((value << Z80Cpu::FLAG_N_TO_5) & Z80Cpu::FLAG_5);
+                | (cpu->regs.BC ? Z80Cpu::FLAG_PV : 0)
+                | (value & Z80Cpu::FLAG_3)
+                | ((value << Z80Cpu::FLAG_N_TO_5) & Z80Cpu::FLAG_5);
     }
 
     ZEMUX_FORCE_INLINE static void do_REP_LD_INCR(Z80Cpu* cpu) {
@@ -1261,11 +1308,11 @@ public:
         --(cpu->regs.BC);
 
         cpu->regs.F = (cpu->regs.F & Z80Cpu::FLAG_C)
-            | Z80Cpu::FLAG_N
-            | (cpu->regs.BC ? Z80Cpu::FLAG_PV : 0)
-            | (halfResult & Z80Cpu::FLAG_H)
-            | (value ? 0 : Z80Cpu::FLAG_Z)
-            | (value & Z80Cpu::FLAG_S);
+                | Z80Cpu::FLAG_N
+                | (cpu->regs.BC ? Z80Cpu::FLAG_PV : 0)
+                | (halfResult & Z80Cpu::FLAG_H)
+                | (value ? 0 : Z80Cpu::FLAG_Z)
+                | (value & Z80Cpu::FLAG_S);
 
         value -= ((cpu->regs.F & Z80Cpu::FLAG_H) >> Z80Cpu::FLAG_H_TO_C);
         cpu->regs.F |= (value & Z80Cpu::FLAG_3) | ((value << Z80Cpu::FLAG_N_TO_5) & Z80Cpu::FLAG_5);
@@ -1305,10 +1352,10 @@ public:
         uint16_t wordValue = byteValue + static_cast<uint8_t>(cpu->regs.C + 1);
 
         cpu->regs.F = ((byteValue >> Z80Cpu::FLAG_S_TO_N) & Z80Cpu::FLAG_N)
-            | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
-            | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
+                | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
+                | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
     }
 
     ZEMUX_FORCE_INLINE static void do_REP_IND(Z80Cpu* cpu) {
@@ -1321,10 +1368,10 @@ public:
         uint16_t wordValue = byteValue + static_cast<uint8_t>(cpu->regs.C - 1);
 
         cpu->regs.F = ((byteValue >> Z80Cpu::FLAG_S_TO_N) & Z80Cpu::FLAG_N)
-            | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
-            | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
+                | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
+                | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
     }
 
     ZEMUX_FORCE_INLINE static void do_REP_IN_INCR(Z80Cpu* cpu) {
@@ -1357,10 +1404,10 @@ public:
         uint16_t wordValue = byteValue + cpu->regs.L;
 
         cpu->regs.F = ((byteValue >> Z80Cpu::FLAG_S_TO_N) & Z80Cpu::FLAG_N)
-            | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
-            | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
+                | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
+                | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
     }
 
     ZEMUX_FORCE_INLINE static void do_REP_OUTD(Z80Cpu* cpu) {
@@ -1375,10 +1422,10 @@ public:
         uint16_t wordValue = byteValue + cpu->regs.L;
 
         cpu->regs.F = ((byteValue >> Z80Cpu::FLAG_S_TO_N) & Z80Cpu::FLAG_N)
-            | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-            | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
-            | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
-            | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
+                | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
+                | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
+                | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
+                | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
     }
 
     ZEMUX_FORCE_INLINE static void do_REP_OUT_INCR_DECR(Z80Cpu* cpu) {
@@ -1391,4 +1438,5 @@ public:
 
 }
 
+#pragma clang diagnostic pop
 #endif

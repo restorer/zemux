@@ -63,11 +63,11 @@ static uint8_t onEthalonReadInt(void* /* data */) {
 
 Z80SpeedTest::Z80SpeedTest() : testCpu { this } {
     ethalonCpu = __ns_Cpu__new(
-        onEthalonRead, nullptr,
-        onEthalonWrite, nullptr,
-        onEthalonIn, nullptr,
-        onEthalonOut, nullptr,
-        onEthalonReadInt, nullptr
+            onEthalonRead, nullptr,
+            onEthalonWrite, nullptr,
+            onEthalonIn, nullptr,
+            onEthalonOut, nullptr,
+            onEthalonReadInt, nullptr
     );
 }
 
@@ -92,12 +92,21 @@ void Z80SpeedTest::measure(const char* path) {
 
     if (testTime < ethalonTime) {
         double ratio = static_cast<double>(ethalonTime) / static_cast<double>(testTime);
-        BOOST_TEST_MESSAGE("ZemuX Z80 (test) is " << std::setprecision(3) << ratio << "x faster then Zame Z80 (ethalon)");
+
+        BOOST_TEST_MESSAGE("ZemuX Z80 (test) is "
+                << std::setprecision(3)
+                << ratio
+                << "x faster then Zame Z80 (ethalon)");
     } else if (testTime == ethalonTime) {
-        BOOST_TEST_MESSAGE("ZemuX Z80 (test) has the same speed as Zame Z80 (ethalon), but probably this is bug in testing environment. Please retest.");
+        BOOST_TEST_MESSAGE(
+                "ZemuX Z80 (test) has the same speed as Zame Z80 (ethalon), but probably this is bug in testing environment. Please retest.");
     } else {
         double ratio = static_cast<double>(testTime) / static_cast<double>(ethalonTime);
-        BOOST_TEST_MESSAGE("ZemuX Z80 (test) is " << std::setprecision(3) << ratio << "x SLOWER then Zame Z80 (ethalon)");
+
+        BOOST_TEST_MESSAGE("ZemuX Z80 (test) is "
+                << std::setprecision(3)
+                << ratio
+                << "x SLOWER then Zame Z80 (ethalon)");
     }
 }
 
@@ -244,7 +253,12 @@ void Z80SpeedTest::bdosFlush() {
     }
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-err58-cpp"
+
 BOOST_AUTO_TEST_CASE(Z80Speed) {
     Z80SpeedTest test;
     test.measure(ZEXALL_PATH);
 }
+
+#pragma clang diagnostic pop

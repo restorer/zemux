@@ -37,7 +37,6 @@ static const char* ZEXALL_PATH = "../test-extras/zexall.com";
 static const char* ZEXDOC_PATH = "../test-extras/zexdoc.com";
 static constexpr int MAX_BDOS_STRING_LEN = 128;
 static const char* ERROR_PHRASE = "ERROR";
-static constexpr int ERROR_PHRASE_LEN = 5;
 
 static uint8_t testMemory[0x10000];
 static uint8_t ethalonMemory[0x10000];
@@ -46,25 +45,22 @@ static uint8_t ethalonMemory[0x10000];
 
 static void compareAndOutputByte(const char* name, uint8_t test, uint8_t ethalon) {
     BOOST_TEST_MESSAGE(std::hex << std::setfill('0') << std::uppercase
-        << "test " << name << " " << std::setw(2) << static_cast<uint16_t>(test)
-        << (test == ethalon ? " == " : " != ")
-        << "ethalon " << name << " " << std::setw(2) << static_cast<uint16_t>(ethalon)
-    );
+            << "test " << name << " " << std::setw(2) << static_cast<uint16_t>(test)
+            << (test == ethalon ? " == " : " != ")
+            << "ethalon " << name << " " << std::setw(2) << static_cast<uint16_t>(ethalon));
 }
 
 static void compareAndOutputWord(const char* name, uint16_t test, uint16_t ethalon) {
     BOOST_TEST_MESSAGE(std::hex << std::setfill('0') << std::uppercase
-        << "test " << name << " " << std::setw(4) << test
-        << (test == ethalon ? " == " : " != ")
-        << "ethalon " << name << " " << std::setw(4) << ethalon
-    );
+            << "test " << name << " " << std::setw(4) << test
+            << (test == ethalon ? " == " : " != ")
+            << "ethalon " << name << " " << std::setw(4) << ethalon);
 }
 
 static void compareAndOutputInt(const char* name, int test, int ethalon) {
     BOOST_TEST_MESSAGE("test " << name << " " << test
-        << (test == ethalon ? " == " : " != ")
-        << "ethalon " << name << " " << ethalon
-    );
+            << (test == ethalon ? " == " : " != ")
+            << "ethalon " << name << " " << ethalon);
 }
 
 static uint8_t onEthalonRead(uint16_t addr, bool /* m1 */, void* /* data */) {
@@ -88,11 +84,11 @@ static uint8_t onEthalonReadInt(void* /* data */) {
 
 Z80CorrectnessTest::Z80CorrectnessTest() : testCpu { this } {
     ethalonCpu = __ns_Cpu__new(
-        onEthalonRead, nullptr,
-        onEthalonWrite, nullptr,
-        onEthalonIn, nullptr,
-        onEthalonOut, nullptr,
-        onEthalonReadInt, nullptr
+            onEthalonRead, nullptr,
+            onEthalonWrite, nullptr,
+            onEthalonIn, nullptr,
+            onEthalonOut, nullptr,
+            onEthalonReadInt, nullptr
     );
 }
 
@@ -183,7 +179,9 @@ void Z80CorrectnessTest::execute(const char* path) {
                 }
 
                 case 9: {
-                    for (int addr = testDE, maxAddr = std::min(0x10000, testDE + MAX_BDOS_STRING_LEN); addr < maxAddr; ++addr) {
+                    int maxAddr = std::min(0x10000, testDE + MAX_BDOS_STRING_LEN);
+
+                    for (int addr = testDE; addr < maxAddr; ++addr) {
                         char ch = static_cast<char>(testMemory[addr]);
 
                         if (ch == '$') {
@@ -200,18 +198,18 @@ void Z80CorrectnessTest::execute(const char* path) {
                 }
             }
 
-            uint16_t testRetAddr = testMemory[testSP]
-                | (static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testSP + 1)]) << 8);
+            uint16_t testRetAddr = testMemory[testSP] |
+                    (static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testSP + 1)]) << 8);
 
-            uint16_t ethalonRetAddr = ethalonMemory[ethalonSP]
-                | (static_cast<uint16_t>(ethalonMemory[static_cast<uint16_t>(ethalonSP + 1)]) << 8);
+            uint16_t ethalonRetAddr = ethalonMemory[ethalonSP] |
+                    (static_cast<uint16_t>(ethalonMemory[static_cast<uint16_t>(ethalonSP + 1)]) << 8);
 
             if (testRetAddr != ethalonRetAddr) {
                 bdosFlush();
 
                 BOOST_FAIL(std::hex << std::setfill('0') << std::uppercase
-                    << "testRetAddr " << std::setw(4) << testRetAddr
-                    << " != ethalonRetAddr " << std::setw(4) << ethalonRetAddr
+                        << "testRetAddr " << std::setw(4) << testRetAddr
+                        << " != ethalonRetAddr " << std::setw(4) << ethalonRetAddr
                 );
             }
 
@@ -348,17 +346,17 @@ void Z80CorrectnessTest::compareState() {
     uint16_t ethalonDE_ = __ns_Cpu__get_reg(ethalonCpu, CPU_DE_);
     uint16_t ethalonHL_ = __ns_Cpu__get_reg(ethalonCpu, CPU_HL_);
     uint16_t ethalonAF_ = __ns_Cpu__get_reg(ethalonCpu, CPU_AF_);
-    uint8_t ethalonI = static_cast<uint8_t>(__ns_Cpu__get_reg(ethalonCpu, CPU_I));
-    uint8_t ethalonR = static_cast<uint8_t>(__ns_Cpu__get_reg(ethalonCpu, CPU_R));
-    bool ethalonIFF1 = static_cast<bool>(__ns_Cpu__get_reg(ethalonCpu, CPU_IFF1));
-    bool ethalonIFF2 = static_cast<bool>(__ns_Cpu__get_reg(ethalonCpu, CPU_IFF2));
-    int ethalonIM = static_cast<int>(__ns_Cpu__get_reg(ethalonCpu, CPU_IM));
+    auto ethalonI = static_cast<uint8_t>(__ns_Cpu__get_reg(ethalonCpu, CPU_I));
+    auto ethalonR = static_cast<uint8_t>(__ns_Cpu__get_reg(ethalonCpu, CPU_R));
+    auto ethalonIFF1 = static_cast<bool>(__ns_Cpu__get_reg(ethalonCpu, CPU_IFF1));
+    auto ethalonIFF2 = static_cast<bool>(__ns_Cpu__get_reg(ethalonCpu, CPU_IFF2));
+    auto ethalonIM = static_cast<int>(__ns_Cpu__get_reg(ethalonCpu, CPU_IM));
     uint8_t ethalonPrefix = ethalonCpu->prefix;
-    bool ethalonIsIntPossible = static_cast<bool>(__ns_Cpu__is_int_possible(ethalonCpu));
-    bool ethalonIsNmiPossible = static_cast<bool>(__ns_Cpu__is_nmi_possible(ethalonCpu));
+    auto ethalonIsIntPossible = static_cast<bool>(__ns_Cpu__is_int_possible(ethalonCpu));
+    auto ethalonIsNmiPossible = static_cast<bool>(__ns_Cpu__is_nmi_possible(ethalonCpu));
 
-    #ifdef DUMP_EXECUTION
-        BOOST_TEST_MESSAGE(std::hex << std::setfill('0') << std::uppercase
+#ifdef DUMP_EXECUTION
+    BOOST_TEST_MESSAGE(std::hex << std::setfill('0') << std::uppercase
             << "AF=" << std::setw(4) << testAF
             << " BC=" << std::setw(4) << testBC
             << " DE=" << std::setw(4) << testDE
@@ -390,32 +388,31 @@ void Z80CorrectnessTest::compareState() {
             << " " << std::setw(2) << static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testSP + 1)])
             << " " << std::setw(2) << static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testSP + 2)])
             << " " << std::setw(2) << static_cast<uint16_t>(testMemory[static_cast<uint16_t>(testSP + 3)])
-            << "\n"
-        );
-    #endif
+            << "\n");
+#endif
 
     if (testBC != ethalonBC
-        || testDE != ethalonDE
-        || testHL != ethalonHL
-        || testAF != ethalonAF
-        || testIX != ethalonIX
-        || testIY != ethalonIY
-        || testSP != ethalonSP
-        || testPC != ethalonPC
-        || testMP != ethalonMP
-        || testBC_ != ethalonBC_
-        || testDE_ != ethalonDE_
-        || testHL_ != ethalonHL_
-        || testAF_ != ethalonAF_
-        || testI != ethalonI
-        || testR != ethalonR
-        || testIFF1 != ethalonIFF1
-        || testIFF2 != ethalonIFF2
-        || testIM != ethalonIM
-        || testPrefix != ethalonPrefix
-        || testIsIntPossible != ethalonIsIntPossible
-        || testIsNmiPossible != ethalonIsNmiPossible
-    ) {
+            || testDE != ethalonDE
+            || testHL != ethalonHL
+            || testAF != ethalonAF
+            || testIX != ethalonIX
+            || testIY != ethalonIY
+            || testSP != ethalonSP
+            || testPC != ethalonPC
+            || testMP != ethalonMP
+            || testBC_ != ethalonBC_
+            || testDE_ != ethalonDE_
+            || testHL_ != ethalonHL_
+            || testAF_ != ethalonAF_
+            || testI != ethalonI
+            || testR != ethalonR
+            || testIFF1 != ethalonIFF1
+            || testIFF2 != ethalonIFF2
+            || testIM != ethalonIM
+            || testPrefix != ethalonPrefix
+            || testIsIntPossible != ethalonIsIntPossible
+            || testIsNmiPossible != ethalonIsNmiPossible
+            ) {
         compareAndOutputWord("AF", testAF, ethalonAF);
         compareAndOutputWord("BC", testBC, ethalonBC);
         compareAndOutputWord("DE", testDE, ethalonDE);
@@ -458,6 +455,9 @@ void Z80CorrectnessTest::bdosFlush() {
     }
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-err58-cpp"
+
 BOOST_AUTO_TEST_CASE(Z80CorrectnessZexall) {
     Z80CorrectnessTest test;
     test.execute(ZEXALL_PATH);
@@ -467,3 +467,5 @@ BOOST_AUTO_TEST_CASE(Z80CorrectnessZexdoc) {
     Z80CorrectnessTest test;
     test.execute(ZEXDOC_PATH);
 }
+
+#pragma clang diagnostic pop

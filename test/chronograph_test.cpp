@@ -28,156 +28,161 @@
 #include <boost/test/unit_test.hpp>
 #include <zemux_guest/chronograph.h>
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-err58-cpp"
+
 BOOST_AUTO_TEST_CASE(Chronograph) {
     zemux::Chronograph chrono(1, 3);
 
     BOOST_TEST_MESSAGE("Initial");
 
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 0U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 0U);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 0);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 0);
 
     BOOST_TEST_MESSAGE("System");
 
-    BOOST_REQUIRE(chrono.systemForwardTo(1U) == 3U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 3U);
+    BOOST_REQUIRE(chrono.systemForwardTo(1) == 3);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 3);
 
-    BOOST_REQUIRE(chrono.systemForwardTo(2U) == 6U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 6U);
+    BOOST_REQUIRE(chrono.systemForwardTo(2) == 6);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 6);
 
-    BOOST_REQUIRE(chrono.systemForwardTo(1U) == 6U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 6U);
+    BOOST_REQUIRE(chrono.systemForwardTo(1) == 6);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 6);
 
-    BOOST_REQUIRE(chrono.systemAdvanceBy(1U) == 9U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 9U);
+    BOOST_REQUIRE(chrono.systemAdvanceBy(1) == 9);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 9);
 
-    BOOST_REQUIRE(chrono.systemAdvanceBy(2U) == 15U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 5U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 15U);
+    BOOST_REQUIRE(chrono.systemAdvanceBy(2) == 15);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 5);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 15);
 
-    BOOST_REQUIRE(chrono.systemAdvanceByDelta(1U) == 3U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 6U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 18U);
+    BOOST_REQUIRE(chrono.systemAdvanceByDelta(1) == 3);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 6);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 18);
 
-    BOOST_REQUIRE(chrono.systemAdvanceByDelta(2U) == 6U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 8U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 24U);
+    BOOST_REQUIRE(chrono.systemAdvanceByDelta(2) == 6);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 8);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 24);
 
-    BOOST_REQUIRE(chrono.systemForwardToDelta(9U) == 3U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 9U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 27U);
+    BOOST_REQUIRE(chrono.systemForwardToDelta(9) == 3);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 9);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 27);
 
-    chrono.systemConsume(9U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 0U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 0U);
+    chrono.systemConsume(9);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 0);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 0);
 
     BOOST_TEST_MESSAGE("Device");
 
-    BOOST_REQUIRE(chrono.deviceForwardTo(1U) == 1U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 1U);
+    BOOST_REQUIRE(chrono.deviceForwardTo(1) == 1);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 1);
 
-    BOOST_REQUIRE(chrono.deviceForwardTo(2U) == 1U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 2U);
+    BOOST_REQUIRE(chrono.deviceForwardTo(2) == 1);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 2);
 
-    BOOST_REQUIRE(chrono.deviceForwardToDelta(3U) == 0U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 3U);
+    BOOST_REQUIRE(chrono.deviceForwardToDelta(3) == 0);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 3);
 
-    BOOST_REQUIRE(chrono.deviceForwardTo(4U) == 2U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 4U);
+    BOOST_REQUIRE(chrono.deviceForwardTo(4) == 2);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 4);
 
-    BOOST_REQUIRE(chrono.deviceForwardTo(1U) == 2U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 4U);
+    BOOST_REQUIRE(chrono.deviceForwardTo(1) == 2);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 4);
 
-    BOOST_REQUIRE(chrono.deviceAdvanceBy(1U) == 2U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 5U);
+    BOOST_REQUIRE(chrono.deviceAdvanceBy(1) == 2);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 5);
 
-    BOOST_REQUIRE(chrono.deviceAdvanceBy(2U) == 3U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 7U);
+    BOOST_REQUIRE(chrono.deviceAdvanceBy(2) == 3);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 7);
 
-    BOOST_REQUIRE(chrono.deviceAdvanceByDelta(1U) == 0U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 8U);
+    BOOST_REQUIRE(chrono.deviceAdvanceByDelta(1) == 0);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 8);
 
-    BOOST_REQUIRE(chrono.deviceAdvanceByDelta(1U) == 0U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 9U);
+    BOOST_REQUIRE(chrono.deviceAdvanceByDelta(1) == 0);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 9);
 
-    BOOST_REQUIRE(chrono.deviceAdvanceByDelta(1U) == 1U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 4U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 10U);
+    BOOST_REQUIRE(chrono.deviceAdvanceByDelta(1) == 1);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 4);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 10);
 
-    chrono.deviceConsume(10U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 1U);
+    chrono.deviceConsume(10);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 1);
 
-    chrono.systemConsume(1U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 1U);
+    chrono.systemConsume(1);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 1);
 
     BOOST_TEST_MESSAGE("Reset");
 
     chrono.reset();
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 0U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 0U);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 0);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 0);
 
     BOOST_TEST_MESSAGE("Clock ratio");
 
-    BOOST_REQUIRE(chrono.deviceAdvanceBy(1U) == 1U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 1U);
+    BOOST_REQUIRE(chrono.deviceAdvanceBy(1) == 1);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 1);
 
     chrono.setClockRatioFixedSystem(-3);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 1U);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 1);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 1);
 
-    BOOST_REQUIRE(chrono.systemAdvanceBy(1U) == 2U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 2U);
+    BOOST_REQUIRE(chrono.systemAdvanceBy(1) == 2);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 2);
 
     chrono.setClockRatioFixedSystem(0);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 6U);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 2);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 6);
 
-    BOOST_REQUIRE(chrono.systemAdvanceBy(1U) == 9U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 9U);
+    BOOST_REQUIRE(chrono.systemAdvanceBy(1) == 9);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 9);
 
     chrono.setClockRatioFixedSystem(3);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 27U);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 3);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 27);
 
-    BOOST_REQUIRE(chrono.systemAdvanceBy(1U) == 36U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 4U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 36U);
+    BOOST_REQUIRE(chrono.systemAdvanceBy(1) == 36);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 4);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 36);
 
     BOOST_TEST_MESSAGE("Various ZX-Spectrum timings");
 
     chrono.reset();
     chrono.setClockRatioFixedSystem(0);
-    chrono.setSystemClockRateFixedSystem(3584000U);
-    chrono.setDeviceClockRateFixedSystem(221800U);
+    chrono.setSystemClockRateFixedSystem(3584000);
+    chrono.setDeviceClockRateFixedSystem(221800);
 
-    BOOST_REQUIRE(chrono.systemAdvanceByDelta(128U) == 8U);
-    BOOST_REQUIRE(chrono.systemAdvanceByDelta(256U) == 16U);
-    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 24U);
-    BOOST_REQUIRE(chrono.systemForwardTo(3584000U) == 221800U);
+    BOOST_REQUIRE(chrono.systemAdvanceByDelta(128) == 8);
+    BOOST_REQUIRE(chrono.systemAdvanceByDelta(256) == 16);
+    BOOST_REQUIRE(chrono.getDeviceTicksPassed() == 24);
+    BOOST_REQUIRE(chrono.systemForwardTo(3584000) == 221800);
 
     chrono.reset();
     chrono.setClockRatioFixedSystem(0);
-    chrono.setSystemClockRateFixedSystem(44100U);
+    chrono.setSystemClockRateFixedSystem(44100);
 
-    BOOST_REQUIRE(chrono.deviceAdvanceByDelta(128U) == 26U);
-    BOOST_REQUIRE(chrono.deviceAdvanceByDelta(256U) == 51U);
-    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 77U);
-    BOOST_REQUIRE(chrono.deviceForwardTo(221800U) == 44100U);
+    BOOST_REQUIRE(chrono.deviceAdvanceByDelta(128) == 26);
+    BOOST_REQUIRE(chrono.deviceAdvanceByDelta(256) == 51);
+    BOOST_REQUIRE(chrono.getSystemTicksPassed() == 77);
+    BOOST_REQUIRE(chrono.deviceForwardTo(221800) == 44100);
 }
+
+#pragma clang diagnostic pop

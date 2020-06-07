@@ -25,14 +25,13 @@
  * THE SOFTWARE.
  */
 
-#include <iostream>
 #include "chronograph.h"
 
 namespace zemux {
 
 Chronograph::Chronograph(
-    unsigned int systemClockRate,
-    unsigned int deviceClockRate
+        unsigned int systemClockRate,
+        unsigned int deviceClockRate
 ) : systemClockRate { systemClockRate }, deviceClockRate { deviceClockRate } {
     update();
 }
@@ -93,14 +92,11 @@ unsigned int Chronograph::deviceForwardTo(unsigned int deviceTicks) {
 
 void Chronograph::systemConsume(unsigned int systemTicks) {
     unsigned int deviceTicksConsumed = std::min(
-        deviceTicksPassed,
-        systemToDeviceFloor(
-            std::min(
-                systemTicks,
-                deviceToSystemFloor(deviceTicksPassed)
-            )
-        )
-    );
+            deviceTicksPassed,
+            systemToDeviceFloor(
+                    std::min(
+                            systemTicks,
+                            deviceToSystemFloor(deviceTicksPassed))));
 
     systemTicksPassed -= deviceToSystemCeil(deviceTicksConsumed);
     deviceTicksPassed -= deviceTicksConsumed;
@@ -108,14 +104,11 @@ void Chronograph::systemConsume(unsigned int systemTicks) {
 
 void Chronograph::deviceConsume(unsigned int deviceTicks) {
     unsigned int systemTicksConsumed = std::min(
-        systemTicksPassed,
-        deviceToSystemFloor(
-            std::min(
-                deviceTicks,
-                systemToDeviceFloor(systemTicksPassed)
-            )
-        )
-    );
+            systemTicksPassed,
+            deviceToSystemFloor(
+                    std::min(
+                            deviceTicks,
+                            systemToDeviceFloor(systemTicksPassed))));
 
     systemTicksPassed -= systemTicksConsumed;
     deviceTicksPassed -= systemToDeviceCeil(systemTicksConsumed);

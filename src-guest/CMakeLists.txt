@@ -23,23 +23,20 @@
 cmake_minimum_required (VERSION 3.10)
 
 add_library (zemux_guest SHARED
-    src/chronograph.cpp
-)
+        src/chronograph.cpp)
 
 target_include_directories (zemux_guest
-    PUBLIC include
-    PRIVATE src include/zemux_guest
-)
+        PUBLIC include
+        PRIVATE src include/zemux_guest)
 
 target_link_libraries (zemux_guest PRIVATE zemux_core)
 target_compile_features (zemux_guest PRIVATE cxx_std_17)
 
 target_compile_options (zemux_guest PRIVATE
-    -Wall
-    -Wextra
-    -Werror
-    -Wno-unknown-pragmas
-    "$<$<NOT:$<CONFIG:RELEASE>>:-O1>"
-    "$<$<NOT:$<CONFIG:RELEASE>>:-fstack-protector>"
-    "$<$<CONFIG:RELEASE>:-Ofast>"
-)
+        -Wall
+        -Wextra
+        -Werror
+        -Wno-unknown-pragmas
+        "$<$<NOT:$<CONFIG:RELEASE>>:-O1>"
+        "$<$<NOT:$<CONFIG:RELEASE>>:-fstack-protector>"
+        "$<$<CONFIG:RELEASE>:-Ofast>")
