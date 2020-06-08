@@ -22,17 +22,17 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-add_library (zemux_guest SHARED
-        src/chronometer.cpp)
+add_library (zemux_ay SHARED
+        src/ay_chip.cpp)
 
-target_include_directories (zemux_guest
+target_include_directories (zemux_ay
         PUBLIC include
-        PRIVATE src include/zemux_guest)
+        PRIVATE src include/zemux_ay)
 
-target_link_libraries (zemux_guest PRIVATE zemux_core)
-target_compile_features (zemux_guest PRIVATE cxx_std_17)
+target_link_libraries (zemux_ay PRIVATE zemux_core)
+target_compile_features (zemux_ay PRIVATE cxx_std_17)
 
-target_compile_options (zemux_guest PRIVATE
+target_compile_options (zemux_ay PRIVATE
         -Wall
         -Wextra
         -Werror

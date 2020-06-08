@@ -61,7 +61,7 @@ static uint8_t onEthalonReadInt(void* /* data */) {
     return 0xFF;
 }
 
-Z80SpeedTest::Z80SpeedTest() : testCpu { this } {
+Z80SpeedTest::Z80SpeedTest() : testCpu { this, zemux::TypeNmos } {
     ethalonCpu = __ns_Cpu__new(
             onEthalonRead, nullptr,
             onEthalonWrite, nullptr,

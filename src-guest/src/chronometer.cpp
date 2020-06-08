@@ -25,54 +25,54 @@
  * THE SOFTWARE.
  */
 
-#include "chronograph.h"
+#include "chronometer.h"
 
 namespace zemux {
 
-Chronograph::Chronograph(
+Chronometer::Chronometer(
         unsigned int systemClockRate,
         unsigned int deviceClockRate
 ) : systemClockRate { systemClockRate }, deviceClockRate { deviceClockRate } {
     update();
 }
 
-void Chronograph::setClockRatioFixedSystem(int ratio) {
+void Chronometer::setClockRatioFixedSystem(int ratio) {
     clockRatio = ratio;
     update();
     deviceTicksPassed = systemToDeviceCeil(systemTicksPassed);
 }
 
-void Chronograph::setClockRatioFixedDevice(int ratio) {
+void Chronometer::setClockRatioFixedDevice(int ratio) {
     clockRatio = ratio;
     update();
     systemTicksPassed = deviceToSystemCeil(deviceTicksPassed);
 }
 
-void Chronograph::setSystemClockRateFixedSystem(unsigned int rate) {
+void Chronometer::setSystemClockRateFixedSystem(unsigned int rate) {
     systemClockRate = rate;
     update();
     deviceTicksPassed = systemToDeviceCeil(systemTicksPassed);
 }
 
-void Chronograph::setSystemClockRateFixedDevice(unsigned int rate) {
+void Chronometer::setSystemClockRateFixedDevice(unsigned int rate) {
     systemClockRate = rate;
     update();
     systemTicksPassed = deviceToSystemCeil(deviceTicksPassed);
 }
 
-void Chronograph::setDeviceClockRateFixedSystem(unsigned int rate) {
+void Chronometer::setDeviceClockRateFixedSystem(unsigned int rate) {
     deviceClockRate = rate;
     update();
     deviceTicksPassed = systemToDeviceCeil(systemTicksPassed);
 }
 
-void Chronograph::setDeviceClockRateFixedDevice(unsigned int rate) {
+void Chronometer::setDeviceClockRateFixedDevice(unsigned int rate) {
     deviceClockRate = rate;
     update();
     systemTicksPassed = deviceToSystemCeil(deviceTicksPassed);
 }
 
-unsigned int Chronograph::systemForwardTo(unsigned int systemTicks) {
+unsigned int Chronometer::systemForwardTo(unsigned int systemTicks) {
     if (systemTicks > systemTicksPassed) {
         systemTicksPassed = systemTicks;
         deviceTicksPassed = std::max(deviceTicksPassed, systemToDeviceCeil(systemTicks));
@@ -81,7 +81,7 @@ unsigned int Chronograph::systemForwardTo(unsigned int systemTicks) {
     return deviceTicksPassed;
 }
 
-unsigned int Chronograph::deviceForwardTo(unsigned int deviceTicks) {
+unsigned int Chronometer::deviceForwardTo(unsigned int deviceTicks) {
     if (deviceTicks > deviceTicksPassed) {
         deviceTicksPassed = deviceTicks;
         systemTicksPassed = std::max(systemTicksPassed, deviceToSystemCeil(deviceTicks));
@@ -90,7 +90,7 @@ unsigned int Chronograph::deviceForwardTo(unsigned int deviceTicks) {
     return systemTicksPassed;
 }
 
-void Chronograph::systemConsume(unsigned int systemTicks) {
+void Chronometer::systemConsume(unsigned int systemTicks) {
     unsigned int deviceTicksConsumed = std::min(
             deviceTicksPassed,
             systemToDeviceFloor(
@@ -102,7 +102,7 @@ void Chronograph::systemConsume(unsigned int systemTicks) {
     deviceTicksPassed -= deviceTicksConsumed;
 }
 
-void Chronograph::deviceConsume(unsigned int deviceTicks) {
+void Chronometer::deviceConsume(unsigned int deviceTicks) {
     unsigned int systemTicksConsumed = std::min(
             systemTicksPassed,
             deviceToSystemFloor(
@@ -114,12 +114,12 @@ void Chronograph::deviceConsume(unsigned int deviceTicks) {
     deviceTicksPassed -= systemToDeviceCeil(systemTicksConsumed);
 }
 
-void Chronograph::reset() {
+void Chronometer::reset() {
     systemTicksPassed = 0;
     deviceTicksPassed = 0;
 }
 
-void Chronograph::update() {
+void Chronometer::update() {
     uint_fast64_t systemActualRate;
     uint_fast64_t deviceActualRate;
 

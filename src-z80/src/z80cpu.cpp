@@ -59,7 +59,7 @@ void Z80Cpu::initSharedData() {
     isSharedDataInitialized = true;
 }
 
-Z80Cpu::Z80Cpu(Z80CpuCallback* cb) : cb { cb } {
+Z80Cpu::Z80Cpu(Z80CpuCallback* cb, Z80CpuType chipType) : cb { cb }, chipType { chipType } {
     initSharedData();
 
     regs.BC = 0xFFFF;
@@ -75,6 +75,10 @@ Z80Cpu::Z80Cpu(Z80CpuCallback* cb) : cb { cb } {
     regs.AF_ = 0xFFFF;
 
     reset();
+}
+
+void Z80Cpu::setChipType(Z80CpuType type) {
+    chipType = type;
 }
 
 void Z80Cpu::reset() {
@@ -118,7 +122,15 @@ unsigned int Z80Cpu::step() {
 unsigned int Z80Cpu::doInt() {
     tstate = 0;
 
-    if (!regs.IFF1 || isProcessingInstruction || prefix || shouldSkipNextInterrupt) {
+    if (!regs.IFF1 || shouldSkipNextInterrupt) {
+        return tstate;
+    }
+
+    if (isProcessingInstruction || prefix) {
+        if (chipType == TypeNmos) {
+            shouldResetPv = true;
+        }
+
         return tstate;
     }
 

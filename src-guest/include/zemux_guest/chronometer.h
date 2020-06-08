@@ -1,5 +1,5 @@
-#ifndef ZEMUX__GUEST__CHRONOGRAPH
-#define ZEMUX__GUEST__CHRONOGRAPH
+#ifndef ZEMUX__GUEST__CHRONOMETER
+#define ZEMUX__GUEST__CHRONOMETER
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -32,10 +32,10 @@
 
 namespace zemux {
 
-class Chronograph final : private NonCopyable {
+class Chronometer final : private NonCopyable {
 public:
 
-    Chronograph(unsigned int systemClockRate, unsigned int deviceClockRate);
+    Chronometer(unsigned int systemClockRate, unsigned int deviceClockRate);
 
     [[nodiscard]] ZEMUX_FORCE_INLINE int getClockRatio() const {
         return clockRatio;
@@ -127,8 +127,8 @@ private:
     int clockRatio = 0;
     unsigned int systemTicksPassed = 0;
     unsigned int deviceTicksPassed = 0;
-    uint_fast64_t systemToDeviceMultiplier = 0;
-    uint_fast64_t deviceToSystemMultiplier = 0;
+    uint_fast64_t systemToDeviceMultiplier;
+    uint_fast64_t deviceToSystemMultiplier;
 
     [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int systemToDeviceFloor(unsigned int systemTicks) const {
         return (static_cast<uint_fast64_t>(systemTicks) * systemToDeviceMultiplier + systemTicks) >> FP_MATH_SHIFT;

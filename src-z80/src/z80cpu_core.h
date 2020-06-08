@@ -42,6 +42,23 @@ extern Z80CpuOpcode z80CpuOptable_FD[0x100];
 extern Z80CpuOpcode z80CpuOptable_DD_CB[0x100];
 extern Z80CpuOpcode z80CpuOptable_FD_CB[0x100];
 
+// Fake optimizations:
+//
+// (signedResult < -128 || signedResult > 127) <=> ((signedResult + 128) & 0xFF00)
+// (signedResult < -32768 || signedResult > 32767) <=> ((signedResult + 32768) & 0xFFFF0000)
+// static_cast<uint8_t>(result) <=> (result & 0xFF)
+//
+// For all cases, for x86-64 and for ARM Clang generates the same code, GCC generates almost the same code.
+//
+// ----
+//
+// Possible optimizations:
+//
+// For 8-bit operations precompute lookup-tables for flag F (max size will be 0x20000 for x and y and carry),
+// but check if it will be actually faster (according to Godbolt Compiler Explorer the generated code
+// for current variant has 3x more assembly instructions than code for lookup, but using lookup may have
+// the same speed or be actually slower due to modern CPU architecture).
+
 class Z80CpuCore final : private NonCopyable {
 public:
 
@@ -312,7 +329,15 @@ public:
                 | (cpu->regs.IFF2 << Z80Cpu::FLAG_PV_IFF_S8);
 
         cpu->putAddressOnBus(cpu->regs.IR, 1);
-        cpu->shouldResetPv = true;
+
+        if (cpu->shouldResetPv) {
+            // doInt() was called immediately before the command (but after the prefix),
+            // or doInt() was called during last call to putAddressOnBus().
+            cpu->regs.F &= ~Z80Cpu::FLAG_PV;
+        } else {
+            // For the case when doInt() will be called immediately after the command.
+            cpu->shouldResetPv = (cpu->chipType == TypeNmos);
+        }
 
         do_PREF_00(cpu);
     }
@@ -326,7 +351,15 @@ public:
                 | (cpu->regs.IFF2 << Z80Cpu::FLAG_PV_IFF_S8);
 
         cpu->putAddressOnBus(cpu->regs.IR, 1);
-        cpu->shouldResetPv = true;
+
+        if (cpu->shouldResetPv) {
+            // doInt() was called immediately before the command (but after the prefix),
+            // or doInt() was called during last call to putAddressOnBus().
+            cpu->regs.F &= ~Z80Cpu::FLAG_PV;
+        } else {
+            // For the case when doInt() will be called immediately after the command.
+            cpu->shouldResetPv = (cpu->chipType == TypeNmos);
+        }
 
         do_PREF_00(cpu);
     }
@@ -481,7 +514,7 @@ public:
     }
 
     ZEMUX_FORCE_INLINE static void op_OUT_BC_0_P00(Z80Cpu* cpu) {
-        cpu->ioWrite(cpu->regs.BC, 0);
+        cpu->ioWrite(cpu->regs.BC, cpu->chipType == TypeCmos ? 0xFF : 0x00);
         cpu->regs.MP = cpu->regs.BC + 1;
         do_PREF_00(cpu);
     }
@@ -928,7 +961,7 @@ public:
                 | (halfResult & Z80Cpu::FLAG_H)
                 | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
                 | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-                | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | ((result & 0xFF) ? 0 : Z80Cpu::FLAG_Z);
 
         return result;
     }
@@ -965,7 +998,7 @@ public:
                 | (halfResult & Z80Cpu::FLAG_H)
                 | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
                 | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-                | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | ((result & 0xFF) ? 0 : Z80Cpu::FLAG_Z);
 
         return result;
     }
@@ -982,7 +1015,7 @@ public:
                 | (halfResult & Z80Cpu::FLAG_H)
                 | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
                 | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-                | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | ((result & 0xFF) ? 0 : Z80Cpu::FLAG_Z);
 
         return result;
     }
@@ -1000,7 +1033,7 @@ public:
                 | (halfResult & Z80Cpu::FLAG_H)
                 | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
                 | (result & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
-                | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | ((result & 0xFF) ? 0 : Z80Cpu::FLAG_Z);
 
         return result;
     }
@@ -1047,7 +1080,7 @@ public:
                 | ((signedResult < -128 || signedResult > 127) ? Z80Cpu::FLAG_PV : 0)
                 | (y & (Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
                 | (result & Z80Cpu::FLAG_S)
-                | (static_cast<uint8_t>(result) ? 0 : Z80Cpu::FLAG_Z);
+                | ((result & 0xFF) ? 0 : Z80Cpu::FLAG_Z);
 
         return x;
     }
@@ -1354,7 +1387,7 @@ public:
         cpu->regs.F = ((byteValue >> Z80Cpu::FLAG_S_TO_N) & Z80Cpu::FLAG_N)
                 | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
                 | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
-                | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
+                | Z80Cpu::parityLookup[(wordValue & 0x07) ^ cpu->regs.B]
                 | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
     }
 
@@ -1370,7 +1403,7 @@ public:
         cpu->regs.F = ((byteValue >> Z80Cpu::FLAG_S_TO_N) & Z80Cpu::FLAG_N)
                 | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
                 | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
-                | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
+                | Z80Cpu::parityLookup[(wordValue & 0x07) ^ cpu->regs.B]
                 | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
     }
 
@@ -1406,7 +1439,7 @@ public:
         cpu->regs.F = ((byteValue >> Z80Cpu::FLAG_S_TO_N) & Z80Cpu::FLAG_N)
                 | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
                 | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
-                | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
+                | Z80Cpu::parityLookup[(wordValue & 0x07) ^ cpu->regs.B]
                 | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
     }
 
@@ -1424,7 +1457,7 @@ public:
         cpu->regs.F = ((byteValue >> Z80Cpu::FLAG_S_TO_N) & Z80Cpu::FLAG_N)
                 | (cpu->regs.B & (Z80Cpu::FLAG_S | Z80Cpu::FLAG_5 | Z80Cpu::FLAG_3))
                 | (cpu->regs.B ? 0 : Z80Cpu::FLAG_Z)
-                | Z80Cpu::parityLookup[static_cast<uint8_t>(wordValue & 0x07) ^ cpu->regs.B]
+                | Z80Cpu::parityLookup[(wordValue & 0x07) ^ cpu->regs.B]
                 | ((wordValue > 255) ? (Z80Cpu::FLAG_C | Z80Cpu::FLAG_H) : 0);
     }
 

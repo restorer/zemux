@@ -59,6 +59,11 @@ protected:
     ~Z80CpuCallback() = default;
 };
 
+enum Z80CpuType {
+    TypeNmos,
+    TypeCmos
+};
+
 struct Z80CpuRegs {
     union {
         uint16_t BC = 0;
@@ -226,14 +231,21 @@ public:
     static constexpr unsigned int FLAG_Z = 0x40; // zero
     static constexpr unsigned int FLAG_S = 0x80; // sign
 
-    explicit Z80Cpu(Z80CpuCallback* cb);
+    explicit Z80Cpu(Z80CpuCallback* cb, Z80CpuType chipType = TypeNmos);
 
     Z80CpuRegs regs;
+
+    ZEMUX_FORCE_INLINE Z80CpuType getChipType() {
+        return chipType;
+    };
 
     [[nodiscard]] ZEMUX_FORCE_INLINE uint8_t getOpcodePrefix() const {
         return prefix;
     }
 
+    // Should only be used in the debugger.
+    // During emulation, you should call doInt() directly, without checking isIntPossible().
+    // If you do not do it, it will not allow you to correctly emulate the behavior of the NMOS chip.
     [[nodiscard]] ZEMUX_FORCE_INLINE bool isIntPossible() const {
         return regs.IFF1 && !isProcessingInstruction && !prefix && !shouldSkipNextInterrupt;
     }
@@ -250,6 +262,7 @@ public:
         tstate += cycles;
     }
 
+    void setChipType(Z80CpuType type);
     void reset();
     unsigned int step();
     unsigned int doInt();
@@ -276,9 +289,11 @@ private:
     static constexpr unsigned int FLAG_S_TO_N = 6;
 
     static uint8_t parityLookup[0x100];
+
     static void initSharedData();
 
     Z80CpuCallback* cb;
+    Z80CpuType chipType;
     Z80CpuOpcode* optable;
     bool isHalted;
     bool shouldResetPv;

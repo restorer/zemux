@@ -65,6 +65,13 @@ add_subdirectory (src-z80 "${CMAKE_BINARY_DIR}/src-z80")
 link_directories ("${CMAKE_BINARY_DIR}/src-z80")
 
 ##
+## Ay
+##
+
+add_subdirectory (src-ay "${CMAKE_BINARY_DIR}/src-ay")
+link_directories ("${CMAKE_BINARY_DIR}/src-ay")
+
+##
 ## Guest
 ##
 
@@ -81,6 +88,7 @@ add_executable (zemux WIN32
 target_link_libraries (zemux PRIVATE
         zemux_core
         zemux_z80
+        zemux_ay
         zemux_guest)
 
 target_include_directories (zemux PRIVATE src)
@@ -114,7 +122,7 @@ add_executable (zemux_test WIN32
         test/runner.cpp
         test/z80_correctness_test.cpp
         test/z80_speed_test.cpp
-        test/chronograph_test.cpp)
+        test/chronometer_test.cpp)
 
 target_link_libraries (zemux_test PRIVATE
         zemux_core
