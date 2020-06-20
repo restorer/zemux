@@ -26,7 +26,7 @@
  */
 
 #include <boost/test/unit_test.hpp>
-#include <zemux_guest/chronometer.h>
+#include <zemux_machine/chronometer.h>
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"

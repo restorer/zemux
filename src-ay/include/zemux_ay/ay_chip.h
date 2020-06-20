@@ -6,9 +6,6 @@
  *
  * Copyright (c) 2020, Viachaslau Tratsiak (aka restorer)
  *
- * Based on YM-2149F emulator for Unreal Speccy project
- * created under public domain license by SMT, jan.2006
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -26,6 +23,10 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ *
+ * Based on YM-2149F emulator for Unreal Speccy project
+ * created under public domain license by SMT, jan.2006
  */
 
 #include <cstdint>

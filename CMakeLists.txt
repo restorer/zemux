@@ -72,11 +72,11 @@ add_subdirectory (src-ay "${CMAKE_BINARY_DIR}/src-ay")
 link_directories ("${CMAKE_BINARY_DIR}/src-ay")
 
 ##
-## Guest
+## Machine
 ##
 
-add_subdirectory (src-guest "${CMAKE_BINARY_DIR}/src-guest")
-link_directories ("${CMAKE_BINARY_DIR}/src-guest")
+add_subdirectory (src-machine "${CMAKE_BINARY_DIR}/src-machine")
+link_directories ("${CMAKE_BINARY_DIR}/src-machine")
 
 ##
 ## ZemuX
@@ -89,7 +89,7 @@ target_link_libraries (zemux PRIVATE
         zemux_core
         zemux_z80
         zemux_ay
-        zemux_guest)
+        zemux_machine)
 
 target_include_directories (zemux PRIVATE src)
 target_compile_features (zemux PRIVATE cxx_std_17)
@@ -127,7 +127,7 @@ add_executable (zemux_test WIN32
 target_link_libraries (zemux_test PRIVATE
         zemux_core
         zemux_z80
-        zemux_guest
+        zemux_machine
         z80ex_wrapper
         ${Boost_LIBRARIES})
 
