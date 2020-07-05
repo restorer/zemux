@@ -22,17 +22,25 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-add_library (zemux_ay SHARED
-        src/ay_chip.cpp)
+add_library (zemux_chips SHARED
+        src/ay_chip.cpp
+        src/z80_chip.cpp
+        src/z80_chip_optable_00.cpp
+        src/z80_chip_optable_CB.cpp
+        src/z80_chip_optable_DD.cpp
+        src/z80_chip_optable_ED.cpp
+        src/z80_chip_optable_FD.cpp
+        src/z80_chip_optable_DD_CB.cpp
+        src/z80_chip_optable_FD_CB.cpp)
 
-target_include_directories (zemux_ay
+target_include_directories (zemux_chips
         PUBLIC include
-        PRIVATE src include/zemux_ay)
+        PRIVATE src include/zemux_chips)
 
-target_link_libraries (zemux_ay PRIVATE zemux_core)
-target_compile_features (zemux_ay PRIVATE cxx_std_17)
+target_link_libraries (zemux_chips PRIVATE zemux_core)
+target_compile_features (zemux_chips PRIVATE cxx_std_17)
 
-target_compile_options (zemux_ay PRIVATE
+target_compile_options (zemux_chips PRIVATE
         -Wall
         -Wextra
         -Werror

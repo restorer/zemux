@@ -51,29 +51,17 @@ if (NOT USE_DEFAULT_FIND_FRAMEWORK)
 endif ()
 
 ##
-## Core
+## ZemuX modules
 ##
 
 add_subdirectory (src-core "${CMAKE_BINARY_DIR}/src-core")
 link_directories ("${CMAKE_BINARY_DIR}/src-core")
 
-##
-## Z80
-##
+add_subdirectory (src-chips "${CMAKE_BINARY_DIR}/src-chips")
+link_directories ("${CMAKE_BINARY_DIR}/src-chips")
 
-add_subdirectory (src-z80 "${CMAKE_BINARY_DIR}/src-z80")
-link_directories ("${CMAKE_BINARY_DIR}/src-z80")
-
-##
-## Ay
-##
-
-add_subdirectory (src-ay "${CMAKE_BINARY_DIR}/src-ay")
-link_directories ("${CMAKE_BINARY_DIR}/src-ay")
-
-##
-## Machine
-##
+add_subdirectory (src-peripherals "${CMAKE_BINARY_DIR}/src-peripherals")
+link_directories ("${CMAKE_BINARY_DIR}/src-peripherals")
 
 add_subdirectory (src-machine "${CMAKE_BINARY_DIR}/src-machine")
 link_directories ("${CMAKE_BINARY_DIR}/src-machine")
@@ -87,8 +75,8 @@ add_executable (zemux WIN32
 
 target_link_libraries (zemux PRIVATE
         zemux_core
-        zemux_z80
-        zemux_ay
+        zemux_chips
+        zemux_peripherals
         zemux_machine)
 
 target_include_directories (zemux PRIVATE src)
@@ -103,12 +91,12 @@ target_compile_options (zemux PRIVATE
         "$<$<CONFIG:RELEASE>:-Ofast>")
 
 ##
-## Test Zame Z80
+## Test modules
 ##
 
-set (ZAME_SRC_OUTPUT_DIR "${CMAKE_BINARY_DIR}/test-zame-z80__processed")
-add_subdirectory (test-zame-z80 "${CMAKE_BINARY_DIR}/test-zame-z80")
-link_directories ("${CMAKE_BINARY_DIR}/test-zame-z80")
+set (ZAME_SRC_OUTPUT_DIR "${CMAKE_BINARY_DIR}/test-vendor-zame-z80__processed")
+add_subdirectory (test-vendor-zame-z80 "${CMAKE_BINARY_DIR}/test-vendor-zame-z80")
+link_directories ("${CMAKE_BINARY_DIR}/test-vendor-zame-z80")
 include_directories ("${ZAME_SRC_OUTPUT_DIR}")
 
 ##
@@ -120,13 +108,13 @@ include_directories (${Boost_INCLUDE_DIR})
 
 add_executable (zemux_test WIN32
         test/runner.cpp
+        test/chronometer_test.cpp
         test/z80_correctness_test.cpp
-        test/z80_speed_test.cpp
-        test/chronometer_test.cpp)
+        test/z80_speed_test.cpp)
 
 target_link_libraries (zemux_test PRIVATE
         zemux_core
-        zemux_z80
+        zemux_chips
         zemux_machine
         z80ex_wrapper
         ${Boost_LIBRARIES})

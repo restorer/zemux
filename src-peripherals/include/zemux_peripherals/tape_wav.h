@@ -1,5 +1,5 @@
-#ifndef TEST__Z80_CORRECTNESS_TEST
-#define TEST__Z80_CORRECTNESS_TEST
+#ifndef ZEMUX_PERIPHERALS__TAPE_WAV
+#define ZEMUX_PERIPHERALS__TAPE_WAV
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,36 +25,22 @@
  * THE SOFTWARE.
  */
 
-#include <cstdint>
-#include <string>
-#include <zemux_chips/z80_chip.h>
+#include <zemux_core/non_copyable.h>
+#include <zemux_core/data_io.h>
+#include "tape.h"
 
-extern "C" {
-#include <lib_z80/cpu.h>
-}
+namespace zemux {
 
-class Z80CorrectnessTest : public zemux::Z80ChipCallback {
+class TapeWav final : public Tape, private NonCopyable {
 public:
 
-    Z80CorrectnessTest();
-    ~Z80CorrectnessTest();
+    TapeWav(DataReader* reader, Loudspeaker* loudspeaker);
+    ~TapeWav() = default;
 
-    uint8_t onZ80MreqRd(uint16_t address, bool /* isM1 */) override;
-    void onZ80MreqWr(uint16_t address, uint8_t value) override;
-    uint8_t onZ80IorqRd(uint16_t /* port */) override;
-    void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override;
-
-    void execute(const char* path);
-
-private:
-
-    zemux::Z80Chip testCpu;
-    s_Cpu* ethalonCpu;
-    std::string bdosBuffer;
-
-    void compareState();
-    void bdosChar(char ch);
-    void bdosFlush();
+    void step(unsigned int micros) override;
+    void rewindToNearest(unsigned int micros) override;
 };
+
+}
 
 #endif

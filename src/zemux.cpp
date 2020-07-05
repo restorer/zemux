@@ -1,12 +1,12 @@
 #include <iostream>
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/loudspeaker.h>
-#include <zemux_z80/z80cpu.h>
-#include <zemux_ay/ay_chip.h>
+#include <zemux_chips/z80_chip.h>
+#include <zemux_chips/ay_chip.h>
 
 namespace zemux {
 
-class ZemuXStub : public Z80CpuCallback, public Loudspeaker, private NonCopyable {
+class ZemuXStub : public Z80ChipCallback, public Loudspeaker, private NonCopyable {
 public:
 
     uint8_t onZ80MreqRd(uint16_t /* address */, bool /* isM1 */) override {
@@ -32,7 +32,7 @@ public:
 int main() {
     zemux::ZemuXStub zemuXStub;
 
-    zemux::Z80Cpu cpu(&zemuXStub);
+    zemux::Z80Chip cpu(&zemuXStub);
     zemux::AyChip ayChip(&zemuXStub);
 
     std::cout << "Test\n";

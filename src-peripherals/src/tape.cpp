@@ -1,5 +1,5 @@
-#ifndef TEST__Z80_CORRECTNESS_TEST
-#define TEST__Z80_CORRECTNESS_TEST
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,36 +25,11 @@
  * THE SOFTWARE.
  */
 
-#include <cstdint>
-#include <string>
-#include <zemux_chips/z80_chip.h>
+#include "tape.h"
 
-extern "C" {
-#include <lib_z80/cpu.h>
+namespace zemux {
+
+Tape::Tape(DataReader* reader, Loudspeaker* loudspeaker) : reader { reader }, loudspeaker { loudspeaker } {
 }
 
-class Z80CorrectnessTest : public zemux::Z80ChipCallback {
-public:
-
-    Z80CorrectnessTest();
-    ~Z80CorrectnessTest();
-
-    uint8_t onZ80MreqRd(uint16_t address, bool /* isM1 */) override;
-    void onZ80MreqWr(uint16_t address, uint8_t value) override;
-    uint8_t onZ80IorqRd(uint16_t /* port */) override;
-    void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override;
-
-    void execute(const char* path);
-
-private:
-
-    zemux::Z80Chip testCpu;
-    s_Cpu* ethalonCpu;
-    std::string bdosBuffer;
-
-    void compareState();
-    void bdosChar(char ch);
-    void bdosFlush();
-};
-
-#endif
+}

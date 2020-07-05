@@ -27,13 +27,13 @@
 
 #include <cstdint>
 #include <string>
-#include <zemux_z80/z80cpu.h>
+#include <zemux_chips/z80_chip.h>
 
 extern "C" {
 #include <lib_z80/cpu.h>
 }
 
-class Z80SpeedTest : public zemux::Z80CpuCallback {
+class Z80SpeedTest : public zemux::Z80ChipCallback {
 public:
 
     Z80SpeedTest();
@@ -48,7 +48,7 @@ public:
 
 private:
 
-    zemux::Z80Cpu testCpu;
+    zemux::Z80Chip testCpu;
     s_Cpu* ethalonCpu;
     std::string bdosBuffer;
 

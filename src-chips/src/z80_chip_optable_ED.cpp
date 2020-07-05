@@ -25,8 +25,8 @@
  * THE SOFTWARE.
  */
 
-#include "z80cpu.h"
-#include "z80cpu_core.h"
+#include "z80_chip.h"
+#include "z80_chip_core.h"
 
 namespace zemux {
 
@@ -35,9 +35,9 @@ namespace zemux {
 //
 
 // *NOP
-static void op_ED_00(Z80Cpu* cpu) {
-    Z80CpuCore::op_NOP(cpu);
-    Z80CpuCore::do_PREF_00(cpu);
+static void op_ED_00(Z80Chip* cpu) {
+    Z80ChipCore::op_NOP(cpu);
+    Z80ChipCore::do_PREF_00(cpu);
 }
 
 #define op_ED_01 op_ED_00
@@ -124,85 +124,85 @@ static void op_ED_00(Z80Cpu* cpu) {
 //
 
 // IN B,(C)
-static void op_ED_40(Z80Cpu* cpu) {
-    Z80CpuCore::op_IN_R_BC_P00(cpu, &(cpu->regs.B));
+static void op_ED_40(Z80Chip* cpu) {
+    Z80ChipCore::op_IN_R_BC_P00(cpu, &(cpu->regs.B));
 }
 
 // OUT (C),B
-static void op_ED_41(Z80Cpu* cpu) {
-    Z80CpuCore::op_OUT_BC_R_P00(cpu, cpu->regs.B);
+static void op_ED_41(Z80Chip* cpu) {
+    Z80ChipCore::op_OUT_BC_R_P00(cpu, cpu->regs.B);
 }
 
 // SBC HL,BC
-static void op_ED_42(Z80Cpu* cpu) {
-    Z80CpuCore::op_SBC_HL_RP_P00(cpu, cpu->regs.BC);
+static void op_ED_42(Z80Chip* cpu) {
+    Z80ChipCore::op_SBC_HL_RP_P00(cpu, cpu->regs.BC);
 }
 
 // LD (NN),BC
-static void op_ED_43(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_MNN_RP(cpu, cpu->regs.BC);
-    Z80CpuCore::do_PREF_00(cpu);
+static void op_ED_43(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_MNN_RP(cpu, cpu->regs.BC);
+    Z80ChipCore::do_PREF_00(cpu);
 }
 
 // NEG
-static void op_ED_44(Z80Cpu* cpu) {
-    Z80CpuCore::op_NEG_P00(cpu);
+static void op_ED_44(Z80Chip* cpu) {
+    Z80ChipCore::op_NEG_P00(cpu);
 }
 
 // RETN
-static void op_ED_45(Z80Cpu* cpu) {
-    Z80CpuCore::op_RETN_P00(cpu);
+static void op_ED_45(Z80Chip* cpu) {
+    Z80ChipCore::op_RETN_P00(cpu);
 }
 
 // IM 0
-static void op_ED_46(Z80Cpu* cpu) {
-    Z80CpuCore::op_IM_P00(cpu, 0);
+static void op_ED_46(Z80Chip* cpu) {
+    Z80ChipCore::op_IM_P00(cpu, 0);
 }
 
 // LD I,A
-static void op_ED_47(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_I_A_P00(cpu);
+static void op_ED_47(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_I_A_P00(cpu);
 }
 
 // IN C,(C)
-static void op_ED_48(Z80Cpu* cpu) {
-    Z80CpuCore::op_IN_R_BC_P00(cpu, &(cpu->regs.C));
+static void op_ED_48(Z80Chip* cpu) {
+    Z80ChipCore::op_IN_R_BC_P00(cpu, &(cpu->regs.C));
 }
 
 // OUT (C),C
-static void op_ED_49(Z80Cpu* cpu) {
-    Z80CpuCore::op_OUT_BC_R_P00(cpu, cpu->regs.C);
+static void op_ED_49(Z80Chip* cpu) {
+    Z80ChipCore::op_OUT_BC_R_P00(cpu, cpu->regs.C);
 }
 
 // ADC HL,BC
-static void op_ED_4A(Z80Cpu* cpu) {
-    Z80CpuCore::op_ADC_HL_RP_P00(cpu, cpu->regs.BC);
+static void op_ED_4A(Z80Chip* cpu) {
+    Z80ChipCore::op_ADC_HL_RP_P00(cpu, cpu->regs.BC);
 }
 
 // LD BC,(NN)
-static void op_ED_4B(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_RP_MNN(cpu, &(cpu->regs.BC));
-    Z80CpuCore::do_PREF_00(cpu);
+static void op_ED_4B(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_RP_MNN(cpu, &(cpu->regs.BC));
+    Z80ChipCore::do_PREF_00(cpu);
 }
 
 // NEG
-static void op_ED_4C(Z80Cpu* cpu) {
-    Z80CpuCore::op_NEG_P00(cpu);
+static void op_ED_4C(Z80Chip* cpu) {
+    Z80ChipCore::op_NEG_P00(cpu);
 }
 
 // RETI
-static void op_ED_4D(Z80Cpu* cpu) {
-    Z80CpuCore::op_RETI_P00(cpu);
+static void op_ED_4D(Z80Chip* cpu) {
+    Z80ChipCore::op_RETI_P00(cpu);
 }
 
 // IM 0
-static void op_ED_4E(Z80Cpu* cpu) {
-    Z80CpuCore::op_IM_P00(cpu, 0);
+static void op_ED_4E(Z80Chip* cpu) {
+    Z80ChipCore::op_IM_P00(cpu, 0);
 }
 
 // LD R,A
-static void op_ED_4F(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_RR_A_P00(cpu);
+static void op_ED_4F(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_RR_A_P00(cpu);
 }
 
 //
@@ -210,85 +210,85 @@ static void op_ED_4F(Z80Cpu* cpu) {
 //
 
 // IN D,(C)
-static void op_ED_50(Z80Cpu* cpu) {
-    Z80CpuCore::op_IN_R_BC_P00(cpu, &(cpu->regs.D));
+static void op_ED_50(Z80Chip* cpu) {
+    Z80ChipCore::op_IN_R_BC_P00(cpu, &(cpu->regs.D));
 }
 
 // OUT (C),D
-static void op_ED_51(Z80Cpu* cpu) {
-    Z80CpuCore::op_OUT_BC_R_P00(cpu, cpu->regs.D);
+static void op_ED_51(Z80Chip* cpu) {
+    Z80ChipCore::op_OUT_BC_R_P00(cpu, cpu->regs.D);
 }
 
 // SBC HL,DE
-static void op_ED_52(Z80Cpu* cpu) {
-    Z80CpuCore::op_SBC_HL_RP_P00(cpu, cpu->regs.DE);
+static void op_ED_52(Z80Chip* cpu) {
+    Z80ChipCore::op_SBC_HL_RP_P00(cpu, cpu->regs.DE);
 }
 
 // LD (NN),DE
-static void op_ED_53(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_MNN_RP(cpu, cpu->regs.DE);
-    Z80CpuCore::do_PREF_00(cpu);
+static void op_ED_53(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_MNN_RP(cpu, cpu->regs.DE);
+    Z80ChipCore::do_PREF_00(cpu);
 }
 
 // NEG
-static void op_ED_54(Z80Cpu* cpu) {
-    Z80CpuCore::op_NEG_P00(cpu);
+static void op_ED_54(Z80Chip* cpu) {
+    Z80ChipCore::op_NEG_P00(cpu);
 }
 
 // RETN
-static void op_ED_55(Z80Cpu* cpu) {
-    Z80CpuCore::op_RETN_P00(cpu);
+static void op_ED_55(Z80Chip* cpu) {
+    Z80ChipCore::op_RETN_P00(cpu);
 }
 
 // IM 1
-static void op_ED_56(Z80Cpu* cpu) {
-    Z80CpuCore::op_IM_P00(cpu, 1);
+static void op_ED_56(Z80Chip* cpu) {
+    Z80ChipCore::op_IM_P00(cpu, 1);
 }
 
 // LD A,I
-static void op_ED_57(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_A_I_P00(cpu);
+static void op_ED_57(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_A_I_P00(cpu);
 }
 
 // IN E,(C)
-static void op_ED_58(Z80Cpu* cpu) {
-    Z80CpuCore::op_IN_R_BC_P00(cpu, &(cpu->regs.E));
+static void op_ED_58(Z80Chip* cpu) {
+    Z80ChipCore::op_IN_R_BC_P00(cpu, &(cpu->regs.E));
 }
 
 // OUT (C),E
-static void op_ED_59(Z80Cpu* cpu) {
-    Z80CpuCore::op_OUT_BC_R_P00(cpu, cpu->regs.E);
+static void op_ED_59(Z80Chip* cpu) {
+    Z80ChipCore::op_OUT_BC_R_P00(cpu, cpu->regs.E);
 }
 
 // ADC HL,DE
-static void op_ED_5A(Z80Cpu* cpu) {
-    Z80CpuCore::op_ADC_HL_RP_P00(cpu, cpu->regs.DE);
+static void op_ED_5A(Z80Chip* cpu) {
+    Z80ChipCore::op_ADC_HL_RP_P00(cpu, cpu->regs.DE);
 }
 
 // LD DE,(NN)
-static void op_ED_5B(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_RP_MNN(cpu, &(cpu->regs.DE));
-    Z80CpuCore::do_PREF_00(cpu);
+static void op_ED_5B(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_RP_MNN(cpu, &(cpu->regs.DE));
+    Z80ChipCore::do_PREF_00(cpu);
 }
 
 // NEG
-static void op_ED_5C(Z80Cpu* cpu) {
-    Z80CpuCore::op_NEG_P00(cpu);
+static void op_ED_5C(Z80Chip* cpu) {
+    Z80ChipCore::op_NEG_P00(cpu);
 }
 
 // RETN
-static void op_ED_5D(Z80Cpu* cpu) {
-    Z80CpuCore::op_RETN_P00(cpu);
+static void op_ED_5D(Z80Chip* cpu) {
+    Z80ChipCore::op_RETN_P00(cpu);
 }
 
 // IM 2
-static void op_ED_5E(Z80Cpu* cpu) {
-    Z80CpuCore::op_IM_P00(cpu, 2);
+static void op_ED_5E(Z80Chip* cpu) {
+    Z80ChipCore::op_IM_P00(cpu, 2);
 }
 
 // LD A,R
-static void op_ED_5F(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_A_RR_P00(cpu);
+static void op_ED_5F(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_A_RR_P00(cpu);
 }
 
 //
@@ -296,163 +296,163 @@ static void op_ED_5F(Z80Cpu* cpu) {
 //
 
 // IN H,(C)
-static void op_ED_60(Z80Cpu* cpu) {
-    Z80CpuCore::op_IN_R_BC_P00(cpu, &(cpu->regs.H));
+static void op_ED_60(Z80Chip* cpu) {
+    Z80ChipCore::op_IN_R_BC_P00(cpu, &(cpu->regs.H));
 }
 
 // OUT (H),D
-static void op_ED_61(Z80Cpu* cpu) {
-    Z80CpuCore::op_OUT_BC_R_P00(cpu, cpu->regs.H);
+static void op_ED_61(Z80Chip* cpu) {
+    Z80ChipCore::op_OUT_BC_R_P00(cpu, cpu->regs.H);
 }
 
 // SBC HL,HL
-static void op_ED_62(Z80Cpu* cpu) {
-    Z80CpuCore::op_SBC_HL_RP_P00(cpu, cpu->regs.HL);
+static void op_ED_62(Z80Chip* cpu) {
+    Z80ChipCore::op_SBC_HL_RP_P00(cpu, cpu->regs.HL);
 }
 
 // LD (NN),HL
-static void op_ED_63(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_MNN_RP(cpu, cpu->regs.HL);
-    Z80CpuCore::do_PREF_00(cpu);
+static void op_ED_63(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_MNN_RP(cpu, cpu->regs.HL);
+    Z80ChipCore::do_PREF_00(cpu);
 }
 
 // NEG
-static void op_ED_64(Z80Cpu* cpu) {
-    Z80CpuCore::op_NEG_P00(cpu);
+static void op_ED_64(Z80Chip* cpu) {
+    Z80ChipCore::op_NEG_P00(cpu);
 }
 
 // RETN
-static void op_ED_65(Z80Cpu* cpu) {
-    Z80CpuCore::op_RETN_P00(cpu);
+static void op_ED_65(Z80Chip* cpu) {
+    Z80ChipCore::op_RETN_P00(cpu);
 }
 
 // IM 0
-static void op_ED_66(Z80Cpu* cpu) {
-    Z80CpuCore::op_IM_P00(cpu, 0);
+static void op_ED_66(Z80Chip* cpu) {
+    Z80ChipCore::op_IM_P00(cpu, 0);
 }
 
 // RRD
-static void op_ED_67(Z80Cpu* cpu) {
-    Z80CpuCore::op_RRD_P00(cpu);
+static void op_ED_67(Z80Chip* cpu) {
+    Z80ChipCore::op_RRD_P00(cpu);
 }
 
 // IN L,(C)
-static void op_ED_68(Z80Cpu* cpu) {
-    Z80CpuCore::op_IN_R_BC_P00(cpu, &(cpu->regs.L));
+static void op_ED_68(Z80Chip* cpu) {
+    Z80ChipCore::op_IN_R_BC_P00(cpu, &(cpu->regs.L));
 }
 
 // OUT (C),L
-static void op_ED_69(Z80Cpu* cpu) {
-    Z80CpuCore::op_OUT_BC_R_P00(cpu, cpu->regs.L);
+static void op_ED_69(Z80Chip* cpu) {
+    Z80ChipCore::op_OUT_BC_R_P00(cpu, cpu->regs.L);
 }
 
 // ADC HL,HL
-static void op_ED_6A(Z80Cpu* cpu) {
-    Z80CpuCore::op_ADC_HL_RP_P00(cpu, cpu->regs.HL);
+static void op_ED_6A(Z80Chip* cpu) {
+    Z80ChipCore::op_ADC_HL_RP_P00(cpu, cpu->regs.HL);
 }
 
 // LD HL,(NN)
-static void op_ED_6B(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_RP_MNN(cpu, &(cpu->regs.HL));
-    Z80CpuCore::do_PREF_00(cpu);
+static void op_ED_6B(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_RP_MNN(cpu, &(cpu->regs.HL));
+    Z80ChipCore::do_PREF_00(cpu);
 }
 
 // NEG
-static void op_ED_6C(Z80Cpu* cpu) {
-    Z80CpuCore::op_NEG_P00(cpu);
+static void op_ED_6C(Z80Chip* cpu) {
+    Z80ChipCore::op_NEG_P00(cpu);
 }
 
 // RETN
-static void op_ED_6D(Z80Cpu* cpu) {
-    Z80CpuCore::op_RETN_P00(cpu);
+static void op_ED_6D(Z80Chip* cpu) {
+    Z80ChipCore::op_RETN_P00(cpu);
 }
 
 // IM 0
-static void op_ED_6E(Z80Cpu* cpu) {
-    Z80CpuCore::op_IM_P00(cpu, 0);
+static void op_ED_6E(Z80Chip* cpu) {
+    Z80ChipCore::op_IM_P00(cpu, 0);
 }
 
 // RLD
-static void op_ED_6F(Z80Cpu* cpu) {
-    Z80CpuCore::op_RLD_P00(cpu);
+static void op_ED_6F(Z80Chip* cpu) {
+    Z80ChipCore::op_RLD_P00(cpu);
 }
 
 // IN F,(C)
-static void op_ED_70(Z80Cpu* cpu) {
-    Z80CpuCore::op_IN_F_BC_P00(cpu);
+static void op_ED_70(Z80Chip* cpu) {
+    Z80ChipCore::op_IN_F_BC_P00(cpu);
 }
 
 // OUT (C),0
-static void op_ED_71(Z80Cpu* cpu) {
-    Z80CpuCore::op_OUT_BC_0_P00(cpu);
+static void op_ED_71(Z80Chip* cpu) {
+    Z80ChipCore::op_OUT_BC_0_P00(cpu);
 }
 
 // SBC HL,SP
-static void op_ED_72(Z80Cpu* cpu) {
-    Z80CpuCore::op_SBC_HL_RP_P00(cpu, cpu->regs.SP);
+static void op_ED_72(Z80Chip* cpu) {
+    Z80ChipCore::op_SBC_HL_RP_P00(cpu, cpu->regs.SP);
 }
 
 // LD (NN),SP
-static void op_ED_73(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_MNN_RP(cpu, cpu->regs.SP);
-    Z80CpuCore::do_PREF_00(cpu);
+static void op_ED_73(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_MNN_RP(cpu, cpu->regs.SP);
+    Z80ChipCore::do_PREF_00(cpu);
 }
 
 // NEG
-static void op_ED_74(Z80Cpu* cpu) {
-    Z80CpuCore::op_NEG_P00(cpu);
+static void op_ED_74(Z80Chip* cpu) {
+    Z80ChipCore::op_NEG_P00(cpu);
 }
 
 // RETN
-static void op_ED_75(Z80Cpu* cpu) {
-    Z80CpuCore::op_RETN_P00(cpu);
+static void op_ED_75(Z80Chip* cpu) {
+    Z80ChipCore::op_RETN_P00(cpu);
 }
 
 // IM 1
-static void op_ED_76(Z80Cpu* cpu) {
-    Z80CpuCore::op_IM_P00(cpu, 1);
+static void op_ED_76(Z80Chip* cpu) {
+    Z80ChipCore::op_IM_P00(cpu, 1);
 }
 
 // LD (HL),A
-static void op_ED_77(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_MRP_R(cpu, cpu->regs.HL, cpu->regs.A);
-    Z80CpuCore::do_PREF_00(cpu);
+static void op_ED_77(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_MRP_R(cpu, cpu->regs.HL, cpu->regs.A);
+    Z80ChipCore::do_PREF_00(cpu);
 }
 
 // IN A,(C)
-static void op_ED_78(Z80Cpu* cpu) {
-    Z80CpuCore::op_IN_R_BC_P00(cpu, &(cpu->regs.A));
+static void op_ED_78(Z80Chip* cpu) {
+    Z80ChipCore::op_IN_R_BC_P00(cpu, &(cpu->regs.A));
 }
 
 // OUT (C),A
-static void op_ED_79(Z80Cpu* cpu) {
-    Z80CpuCore::op_OUT_BC_R_P00(cpu, cpu->regs.A);
+static void op_ED_79(Z80Chip* cpu) {
+    Z80ChipCore::op_OUT_BC_R_P00(cpu, cpu->regs.A);
 }
 
 // ADC HL,SP
-static void op_ED_7A(Z80Cpu* cpu) {
-    Z80CpuCore::op_ADC_HL_RP_P00(cpu, cpu->regs.SP);
+static void op_ED_7A(Z80Chip* cpu) {
+    Z80ChipCore::op_ADC_HL_RP_P00(cpu, cpu->regs.SP);
 }
 
 // LD SP,(NN)
-static void op_ED_7B(Z80Cpu* cpu) {
-    Z80CpuCore::op_LD_RP_MNN(cpu, &(cpu->regs.SP));
-    Z80CpuCore::do_PREF_00(cpu);
+static void op_ED_7B(Z80Chip* cpu) {
+    Z80ChipCore::op_LD_RP_MNN(cpu, &(cpu->regs.SP));
+    Z80ChipCore::do_PREF_00(cpu);
 }
 
 // NEG
-static void op_ED_7C(Z80Cpu* cpu) {
-    Z80CpuCore::op_NEG_P00(cpu);
+static void op_ED_7C(Z80Chip* cpu) {
+    Z80ChipCore::op_NEG_P00(cpu);
 }
 
 // RETN
-static void op_ED_7D(Z80Cpu* cpu) {
-    Z80CpuCore::op_RETN_P00(cpu);
+static void op_ED_7D(Z80Chip* cpu) {
+    Z80ChipCore::op_RETN_P00(cpu);
 }
 
 // IM 2
-static void op_ED_7E(Z80Cpu* cpu) {
-    Z80CpuCore::op_IM_P00(cpu, 2);
+static void op_ED_7E(Z80Chip* cpu) {
+    Z80ChipCore::op_IM_P00(cpu, 2);
 }
 
 #define op_ED_7F op_ED_00
@@ -500,23 +500,23 @@ static void op_ED_7E(Z80Cpu* cpu) {
 #define op_ED_9F op_ED_00
 
 // LDI
-static void op_ED_A0(Z80Cpu* cpu) {
-    Z80CpuCore::op_LDI_P00(cpu);
+static void op_ED_A0(Z80Chip* cpu) {
+    Z80ChipCore::op_LDI_P00(cpu);
 }
 
 // CPI
-static void op_ED_A1(Z80Cpu* cpu) {
-    Z80CpuCore::op_CPI_P00(cpu);
+static void op_ED_A1(Z80Chip* cpu) {
+    Z80ChipCore::op_CPI_P00(cpu);
 }
 
 // INI
-static void op_ED_A2(Z80Cpu* cpu) {
-    Z80CpuCore::op_INI_P00(cpu);
+static void op_ED_A2(Z80Chip* cpu) {
+    Z80ChipCore::op_INI_P00(cpu);
 }
 
 // OUTI
-static void op_ED_A3(Z80Cpu* cpu) {
-    Z80CpuCore::op_OUTI_P00(cpu);
+static void op_ED_A3(Z80Chip* cpu) {
+    Z80ChipCore::op_OUTI_P00(cpu);
 }
 
 #define op_ED_A4 op_ED_00
@@ -525,23 +525,23 @@ static void op_ED_A3(Z80Cpu* cpu) {
 #define op_ED_A7 op_ED_00
 
 // LDD
-static void op_ED_A8(Z80Cpu* cpu) {
-    Z80CpuCore::op_LDD_P00(cpu);
+static void op_ED_A8(Z80Chip* cpu) {
+    Z80ChipCore::op_LDD_P00(cpu);
 }
 
 // CPD
-static void op_ED_A9(Z80Cpu* cpu) {
-    Z80CpuCore::op_CPD_P00(cpu);
+static void op_ED_A9(Z80Chip* cpu) {
+    Z80ChipCore::op_CPD_P00(cpu);
 }
 
 // IND
-static void op_ED_AA(Z80Cpu* cpu) {
-    Z80CpuCore::op_IND_P00(cpu);
+static void op_ED_AA(Z80Chip* cpu) {
+    Z80ChipCore::op_IND_P00(cpu);
 }
 
 // OUTD
-static void op_ED_AB(Z80Cpu* cpu) {
-    Z80CpuCore::op_OUTD_P00(cpu);
+static void op_ED_AB(Z80Chip* cpu) {
+    Z80ChipCore::op_OUTD_P00(cpu);
 }
 
 #define op_ED_AC op_ED_00
@@ -550,23 +550,23 @@ static void op_ED_AB(Z80Cpu* cpu) {
 #define op_ED_AF op_ED_00
 
 // LDIR
-static void op_ED_B0(Z80Cpu* cpu) {
-    Z80CpuCore::op_LDIR_P00(cpu);
+static void op_ED_B0(Z80Chip* cpu) {
+    Z80ChipCore::op_LDIR_P00(cpu);
 }
 
 // CPIR
-static void op_ED_B1(Z80Cpu* cpu) {
-    Z80CpuCore::op_CPIR_P00(cpu);
+static void op_ED_B1(Z80Chip* cpu) {
+    Z80ChipCore::op_CPIR_P00(cpu);
 }
 
 // INIR
-static void op_ED_B2(Z80Cpu* cpu) {
-    Z80CpuCore::op_INIR_P00(cpu);
+static void op_ED_B2(Z80Chip* cpu) {
+    Z80ChipCore::op_INIR_P00(cpu);
 }
 
 // OTIR
-static void op_ED_B3(Z80Cpu* cpu) {
-    Z80CpuCore::op_OTIR_P00(cpu);
+static void op_ED_B3(Z80Chip* cpu) {
+    Z80ChipCore::op_OTIR_P00(cpu);
 }
 
 #define op_ED_B4 op_ED_00
@@ -575,23 +575,23 @@ static void op_ED_B3(Z80Cpu* cpu) {
 #define op_ED_B7 op_ED_00
 
 // LDDR
-static void op_ED_B8(Z80Cpu* cpu) {
-    Z80CpuCore::op_LDDR_P00(cpu);
+static void op_ED_B8(Z80Chip* cpu) {
+    Z80ChipCore::op_LDDR_P00(cpu);
 }
 
 // CPDR
-static void op_ED_B9(Z80Cpu* cpu) {
-    Z80CpuCore::op_CPDR_P00(cpu);
+static void op_ED_B9(Z80Chip* cpu) {
+    Z80ChipCore::op_CPDR_P00(cpu);
 }
 
 // INDR
-static void op_ED_BA(Z80Cpu* cpu) {
-    Z80CpuCore::op_INDR_P00(cpu);
+static void op_ED_BA(Z80Chip* cpu) {
+    Z80ChipCore::op_INDR_P00(cpu);
 }
 
 // OTDR
-static void op_ED_BB(Z80Cpu* cpu) {
-    Z80CpuCore::op_OTDR_P00(cpu);
+static void op_ED_BB(Z80Chip* cpu) {
+    Z80ChipCore::op_OTDR_P00(cpu);
 }
 
 #define op_ED_BC op_ED_00
@@ -683,7 +683,7 @@ static void op_ED_BB(Z80Cpu* cpu) {
 #define op_ED_FE op_ED_00
 #define op_ED_FF op_ED_00
 
-Z80CpuOpcode z80CpuOptable_ED[0x100] = {
+Z80Chip::Opcode z80ChipOptable_ED[0x100] = {
         op_ED_00, op_ED_01, op_ED_02, op_ED_03, op_ED_04, op_ED_05, op_ED_06, op_ED_07,
         op_ED_08, op_ED_09, op_ED_0A, op_ED_0B, op_ED_0C, op_ED_0D, op_ED_0E, op_ED_0F,
         op_ED_10, op_ED_11, op_ED_12, op_ED_13, op_ED_14, op_ED_15, op_ED_16, op_ED_17,

@@ -1,5 +1,5 @@
-#ifndef ZEMUX__AY__AY_CHIP
-#define ZEMUX__AY__AY_CHIP
+#ifndef ZEMUX_CHIPS__AY_CHIP
+#define ZEMUX_CHIPS__AY_CHIP
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -36,7 +36,7 @@
 
 namespace zemux {
 
-class AyChipDataCallback {
+class AyChipCallback {
 public:
 
     virtual uint8_t onAyDataIn(uint8_t port) = 0;
@@ -44,47 +44,8 @@ public:
 
 protected:
 
-    constexpr AyChipDataCallback() = default;
-    ~AyChipDataCallback() = default;
-};
-
-enum AyChipType {
-    TypeAy,
-    TypeYm
-};
-
-enum AyChipVolume {
-    VolumeAy = 0,
-    VolumeYm = 1
-};
-
-enum AyChipPan {
-    PanMono = 0,
-    PanABC = 1,
-    PanACB = 2,
-    PanBAC = 3,
-    PanBCA = 4,
-    PanCAB = 5,
-    PanCBA = 6
-};
-
-enum AyChipReg {
-    RegAPeriodFine = 0,
-    RegAPeriodCoarse = 1,
-    RegBPeriodFine = 2,
-    RegBPeriodCoarse = 3,
-    RegCPeriodFine = 4,
-    RegCPeriodCoarse = 5,
-    RegNoisePeriod = 6,
-    RegControl = 7,
-    RegAAmp = 8,
-    RegBAmp = 9,
-    RegCAmp = 10,
-    RegEnvPeriodFine = 11,
-    RegEnvPeriodCoarse = 12,
-    RegEnvShape = 13,
-    RegPortA = 14,
-    RegPortB = 15
+    constexpr AyChipCallback() = default;
+    ~AyChipCallback() = default;
 };
 
 ZEMUX_FORCE_INLINE constexpr unsigned int ayChipExternalToDeviceRate(unsigned int externalClockRate) {
@@ -94,29 +55,68 @@ ZEMUX_FORCE_INLINE constexpr unsigned int ayChipExternalToDeviceRate(unsigned in
 class AyChip final : private NonCopyable {
 public:
 
+    enum ChipType {
+        TypeAy,
+        TypeYm
+    };
+
+    enum VolumeType {
+        VolumeAy = 0,
+        VolumeYm = 1
+    };
+
+    enum PanType {
+        PanMono = 0,
+        PanABC = 1,
+        PanACB = 2,
+        PanBAC = 3,
+        PanBCA = 4,
+        PanCAB = 5,
+        PanCBA = 6
+    };
+
+    enum RegType {
+        RegAPeriodFine = 0,
+        RegAPeriodCoarse = 1,
+        RegBPeriodFine = 2,
+        RegBPeriodCoarse = 3,
+        RegCPeriodFine = 4,
+        RegCPeriodCoarse = 5,
+        RegNoisePeriod = 6,
+        RegControl = 7,
+        RegAAmp = 8,
+        RegBAmp = 9,
+        RegCAmp = 10,
+        RegEnvPeriodFine = 11,
+        RegEnvPeriodCoarse = 12,
+        RegEnvShape = 13,
+        RegPortA = 14,
+        RegPortB = 15
+    };
+
     static constexpr unsigned int DEFAULT_RATE = ayChipExternalToDeviceRate(1774400);
 
-    AyChip(Loudspeaker* loudspeaker,
-            AyChipDataCallback* dataCb = nullptr,
-            AyChipType chipKind = TypeYm,
-            AyChipVolume volumeType = VolumeYm,
-            AyChipPan panType = PanACB);
+    explicit AyChip(Loudspeaker* loudspeaker,
+            AyChipCallback* cb = nullptr,
+            ChipType chipType = TypeYm,
+            VolumeType volumeType = VolumeYm,
+            PanType panType = PanACB);
 
-    ZEMUX_FORCE_INLINE AyChipType getChipType() {
+    [[nodiscard]] ZEMUX_FORCE_INLINE ChipType getChipType() const {
         return chipType;
     }
 
-    ZEMUX_FORCE_INLINE AyChipVolume getVolumeType() {
+    [[nodiscard]] ZEMUX_FORCE_INLINE VolumeType getVolumeType() const {
         return volumeType;
     }
 
-    ZEMUX_FORCE_INLINE AyChipPan getPanType() {
+    [[nodiscard]] ZEMUX_FORCE_INLINE PanType getPanType() const {
         return panType;
     }
 
-    void setChipType(AyChipType type);
-    void setVolumeType(AyChipVolume type);
-    void setPanType(AyChipPan type);
+    void setChipType(ChipType type);
+    void setVolumeType(VolumeType type);
+    void setPanType(PanType type);
 
     void select(uint8_t reg);
     void write(uint8_t value);
@@ -127,10 +127,10 @@ public:
 private:
 
     Loudspeaker* loudspeaker;
-    AyChipDataCallback* dataCb;
-    AyChipType chipType;
-    AyChipVolume volumeType;
-    AyChipPan panType;
+    AyChipCallback* cb;
+    ChipType chipType;
+    VolumeType volumeType;
+    PanType panType;
 
     std::pair<uint32_t, uint32_t> volumes[3][32];
     uint8_t regs[0x10] = { 0 };

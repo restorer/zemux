@@ -26,17 +26,17 @@
  */
 
 #include <mutex>
-#include "z80cpu.h"
-#include "z80cpu_core.h"
+#include "z80_chip.h"
+#include "z80_chip_core.h"
 
 namespace zemux {
 
 static bool isSharedDataInitialized = false;
 static std::mutex initSharedDataMutex;
 
-uint8_t Z80Cpu::parityLookup[0x100];
+uint8_t Z80Chip::parityLookup[0x100];
 
-void Z80Cpu::initSharedData() {
+void Z80Chip::initSharedData() {
     std::lock_guard _ { initSharedDataMutex };
 
     if (isSharedDataInitialized) {
@@ -53,13 +53,16 @@ void Z80Cpu::initSharedData() {
                 ((i & 0x02) >> 1) ^
                 (i & 0x01);
 
-        Z80Cpu::parityLookup[i] = (p ? 0 : Z80Cpu::FLAG_PV);
+        Z80Chip::parityLookup[i] = (p ? 0 : Z80Chip::FLAG_PV);
     }
 
     isSharedDataInitialized = true;
 }
 
-Z80Cpu::Z80Cpu(Z80CpuCallback* cb, Z80CpuType chipType) : cb { cb }, chipType { chipType } {
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
+
+Z80Chip::Z80Chip(Z80ChipCallback* cb, ChipType chipType) : cb { cb }, chipType { chipType } {
     initSharedData();
 
     regs.BC = 0xFFFF;
@@ -77,11 +80,13 @@ Z80Cpu::Z80Cpu(Z80CpuCallback* cb, Z80CpuType chipType) : cb { cb }, chipType { 
     reset();
 }
 
-void Z80Cpu::setChipType(Z80CpuType type) {
+#pragma clang diagnostic pop
+
+void Z80Chip::setChipType(ChipType type) {
     chipType = type;
 }
 
-void Z80Cpu::reset() {
+void Z80Chip::reset() {
     // From "Z80 CPU User Manual":
     //
     // Reset (input, active Low). RESET initializes the CPU as follows: it resets the
@@ -97,7 +102,7 @@ void Z80Cpu::reset() {
     regs.IFF2 = false;
     regs.IM = 0;
 
-    optable = z80CpuOptable_00;
+    optable = z80ChipOptable_00;
     isHalted = false;
     shouldResetPv = false;
     isProcessingInstruction = false;
@@ -107,7 +112,7 @@ void Z80Cpu::reset() {
     tstate = 0;
 }
 
-unsigned int Z80Cpu::step() {
+unsigned int Z80Chip::step() {
     shouldResetPv = false;
     shouldSkipNextInterrupt = false;
     tstate = 0;
@@ -119,7 +124,7 @@ unsigned int Z80Cpu::step() {
     return tstate;
 }
 
-unsigned int Z80Cpu::doInt() {
+unsigned int Z80Chip::doInt() {
     tstate = 0;
 
     if (!regs.IFF1 || shouldSkipNextInterrupt) {
@@ -172,7 +177,7 @@ unsigned int Z80Cpu::doInt() {
             // Note that when doing programmed I/O the CPU will ignore any data put onto
             // the data bus during the interrupt acknowledge cycle.
 
-            z80CpuOptable_00[0xFF](this); // RST #38
+            z80ChipOptable_00[0xFF](this); // RST #38
             break;
         }
 
@@ -197,7 +202,7 @@ unsigned int Z80Cpu::doInt() {
     return tstate;
 }
 
-unsigned int Z80Cpu::doNmi() {
+unsigned int Z80Chip::doNmi() {
     tstate = 0;
 
     if (isProcessingInstruction || prefix || shouldSkipNextInterrupt) {

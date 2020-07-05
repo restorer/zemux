@@ -1,5 +1,5 @@
-#ifndef ZEMUX_CORE__LOUDSPEAKER
-#define ZEMUX_CORE__LOUDSPEAKER
+#ifndef ZEMUX_CORE__DATA_IO
+#define ZEMUX_CORE__DATA_IO
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,19 +25,64 @@
  * THE SOFTWARE.
  */
 
+#include <stdexcept>
 #include <cstdint>
+#include <vector>
+#include "error.h"
 
 namespace zemux {
 
-class Loudspeaker {
+class DataReader {
 public:
 
-    virtual void onLoudspeakerStep(uint16_t left, uint16_t right, unsigned int ticks = 1) = 0;
+    static const char* ERROR_TOO_LARGE_FILE;
+
+    enum SeekDirection {
+        Begin,
+        Current,
+        End,
+    };
+
+    virtual bool isEof() = 0;
+    virtual uint8_t readByte() = 0;
+    virtual uintmax_t readBlock(void* buffer, uintmax_t size) = 0;
+    virtual uintmax_t tell() = 0;
+    virtual void seek(intmax_t offset, SeekDirection direction) = 0;
+
+    inline uint16_t readWord() {
+        return readByte() | (static_cast<uint16_t>(readByte()) << 8);
+    }
+
+    inline uint32_t readDword() {
+        return readWord() | (static_cast<uint32_t>(readWord()) << 16);
+    }
+
+    inline void seek(intmax_t offset) {
+        seek(offset, Begin);
+    }
+
+    inline void skip(uintmax_t size) {
+        seek(size, Current);
+    }
+
+    uintmax_t totalSize();
+    std::vector<uint8_t> readEntire(uintmax_t maxSize);
 
 protected:
 
-    constexpr Loudspeaker() = default;
-    ~Loudspeaker() = default;
+    constexpr DataReader() = default;
+    ~DataReader() = default;
+
+    bool isTotalSizeCached = false;
+    uintmax_t cachedTotalSize = 0;
+
+};
+
+class DataIoError final : public AbstractRuntimeError<DataIoError> {
+public:
+
+    explicit DataIoError(const std::string& key) : AbstractRuntimeError { key } {
+    }
 };
 
 }

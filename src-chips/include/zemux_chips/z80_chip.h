@@ -1,5 +1,5 @@
-#ifndef ZEMUX__Z80__Z80CPU
-#define ZEMUX__Z80__Z80CPU
+#ifndef ZEMUX_CHIPS__Z80_CHIP
+#define ZEMUX_CHIPS__Z80_CHIP
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -33,7 +33,7 @@
 
 namespace zemux {
 
-class Z80CpuCallback {
+class Z80ChipCallback {
 public:
 
     virtual uint8_t onZ80MreqRd(uint16_t address, bool isM1) = 0;
@@ -55,16 +55,11 @@ public:
 
 protected:
 
-    constexpr Z80CpuCallback() = default;
-    ~Z80CpuCallback() = default;
+    constexpr Z80ChipCallback() = default;
+    ~Z80ChipCallback() = default;
 };
 
-enum Z80CpuType {
-    TypeNmos,
-    TypeCmos
-};
-
-struct Z80CpuRegs {
+struct Z80ChipRegs {
     union {
         uint16_t BC = 0;
 
@@ -210,17 +205,20 @@ struct Z80CpuRegs {
     int IM = 0;
 };
 
-class Z80Cpu;
-
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnusedStructInspection"
-class Z80CpuCore;
+class Z80ChipCore;
 #pragma clang diagnostic pop
 
-using Z80CpuOpcode = void (*)(Z80Cpu*);
-
-class Z80Cpu final : private NonCopyable {
+class Z80Chip final : private NonCopyable {
 public:
+
+    using Opcode = void (*)(Z80Chip*);
+
+    enum ChipType {
+        TypeNmos,
+        TypeCmos
+    };
 
     static constexpr unsigned int FLAG_C = 0x01; // carry
     static constexpr unsigned int FLAG_N = 0x02; // subtract
@@ -231,11 +229,11 @@ public:
     static constexpr unsigned int FLAG_Z = 0x40; // zero
     static constexpr unsigned int FLAG_S = 0x80; // sign
 
-    explicit Z80Cpu(Z80CpuCallback* cb, Z80CpuType chipType = TypeNmos);
+    explicit Z80Chip(Z80ChipCallback* cb, ChipType chipType = TypeNmos);
 
-    Z80CpuRegs regs;
+    Z80ChipRegs regs;
 
-    ZEMUX_FORCE_INLINE Z80CpuType getChipType() {
+    [[nodiscard]] ZEMUX_FORCE_INLINE ChipType getChipType() const {
         return chipType;
     };
 
@@ -262,15 +260,13 @@ public:
         tstate += cycles;
     }
 
-    void setChipType(Z80CpuType type);
+    void setChipType(ChipType type);
     void reset();
     unsigned int step();
     unsigned int doInt();
     unsigned int doNmi();
 
-#ifndef ZEMUX__Z80__ALL_PUBLIC
 private:
-#endif
 
     static constexpr unsigned int FLAG_C_M16 = 0x10000;
     static constexpr unsigned int FLAG_C_S16 = 0x10;
@@ -292,9 +288,9 @@ private:
 
     static void initSharedData();
 
-    Z80CpuCallback* cb;
-    Z80CpuType chipType;
-    Z80CpuOpcode* optable;
+    Z80ChipCallback* cb;
+    ChipType chipType;
+    Opcode* optable;
     bool isHalted;
     bool shouldResetPv;
     bool isProcessingInstruction;
@@ -384,7 +380,7 @@ private:
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnusedStructInspection"
-    friend class Z80CpuCore;
+    friend class Z80ChipCore;
 #pragma clang diagnostic pop
 };
 

@@ -29,12 +29,17 @@
 
 namespace zemux {
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
+
 Chronometer::Chronometer(
         unsigned int systemClockRate,
         unsigned int deviceClockRate
 ) : systemClockRate { systemClockRate }, deviceClockRate { deviceClockRate } {
     update();
 }
+
+#pragma clang diagnostic pop
 
 void Chronometer::setClockRatioFixedSystem(int ratio) {
     clockRatio = ratio;

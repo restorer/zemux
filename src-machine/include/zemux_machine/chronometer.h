@@ -1,5 +1,5 @@
-#ifndef ZEMUX__MACHINE__CHRONOMETER
-#define ZEMUX__MACHINE__CHRONOMETER
+#ifndef ZEMUX_MACHINE__CHRONOMETER
+#define ZEMUX_MACHINE__CHRONOMETER
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)

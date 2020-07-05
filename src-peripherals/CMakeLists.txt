@@ -22,24 +22,19 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-add_library (zemux_z80 SHARED
-        src/z80cpu.cpp
-        src/z80cpu_optable_00.cpp
-        src/z80cpu_optable_CB.cpp
-        src/z80cpu_optable_DD.cpp
-        src/z80cpu_optable_ED.cpp
-        src/z80cpu_optable_FD.cpp
-        src/z80cpu_optable_DD_CB.cpp
-        src/z80cpu_optable_FD_CB.cpp)
+add_library (zemux_peripherals SHARED
+        src/tape.cpp
+        src/tape_tap.cpp
+        src/tape_wav.cpp)
 
-target_include_directories (zemux_z80
+target_include_directories (zemux_peripherals
         PUBLIC include
-        PRIVATE src include/zemux_z80)
+        PRIVATE src include/zemux_peripherals)
 
-target_link_libraries (zemux_z80 PRIVATE zemux_core)
-target_compile_features (zemux_z80 PRIVATE cxx_std_17)
+target_link_libraries (zemux_peripherals PRIVATE zemux_core)
+target_compile_features (zemux_peripherals PRIVATE cxx_std_17)
 
-target_compile_options (zemux_z80 PRIVATE
+target_compile_options (zemux_peripherals PRIVATE
         -Wall
         -Wextra
         -Werror

@@ -1,5 +1,5 @@
-#ifndef TEST__Z80_CORRECTNESS_TEST
-#define TEST__Z80_CORRECTNESS_TEST
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,36 +25,36 @@
  * THE SOFTWARE.
  */
 
-#include <cstdint>
-#include <string>
-#include <zemux_chips/z80_chip.h>
+#include <iostream>
+#include "data_io.h"
 
-extern "C" {
-#include <lib_z80/cpu.h>
+namespace zemux {
+
+const char* DataReader::ERROR_TOO_LARGE_FILE = /* @i18n */ "data_reader.too_large_file";
+
+uintmax_t DataReader::totalSize() {
+    if (!isTotalSizeCached) {
+        auto position = tell();
+        seek(0, End);
+        cachedTotalSize = tell();
+        seek(position, Begin);
+    }
+
+    return cachedTotalSize;
 }
 
-class Z80CorrectnessTest : public zemux::Z80ChipCallback {
-public:
+std::vector<uint8_t> DataReader::readEntire(uintmax_t maxSize) {
+    auto size = totalSize();
 
-    Z80CorrectnessTest();
-    ~Z80CorrectnessTest();
+    if (size > maxSize) {
+        throw DataIoError(ERROR_TOO_LARGE_FILE) << std::to_string(size) << std::to_string(maxSize);
+    }
 
-    uint8_t onZ80MreqRd(uint16_t address, bool /* isM1 */) override;
-    void onZ80MreqWr(uint16_t address, uint8_t value) override;
-    uint8_t onZ80IorqRd(uint16_t /* port */) override;
-    void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override;
+    std::vector<uint8_t> buffer;
+    buffer.resize(size);
 
-    void execute(const char* path);
+    readBlock(buffer.data(), size);
+    return buffer;
+}
 
-private:
-
-    zemux::Z80Chip testCpu;
-    s_Cpu* ethalonCpu;
-    std::string bdosBuffer;
-
-    void compareState();
-    void bdosChar(char ch);
-    void bdosFlush();
-};
-
-#endif
+}

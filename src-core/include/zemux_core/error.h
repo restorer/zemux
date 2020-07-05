@@ -1,5 +1,5 @@
-#ifndef TEST__Z80_CORRECTNESS_TEST
-#define TEST__Z80_CORRECTNESS_TEST
+#ifndef ZEMUX_CORE__ERROR
+#define ZEMUX_CORE__ERROR
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,36 +25,45 @@
  * THE SOFTWARE.
  */
 
-#include <cstdint>
+#include <stdexcept>
 #include <string>
-#include <zemux_chips/z80_chip.h>
+#include <vector>
 
-extern "C" {
-#include <lib_z80/cpu.h>
-}
+namespace zemux {
 
-class Z80CorrectnessTest : public zemux::Z80ChipCallback {
+class RuntimeError : public std::runtime_error {
 public:
 
-    Z80CorrectnessTest();
-    ~Z80CorrectnessTest();
+    explicit RuntimeError(const std::string& key) : runtime_error { key }, key { key } {
+    }
 
-    uint8_t onZ80MreqRd(uint16_t address, bool /* isM1 */) override;
-    void onZ80MreqWr(uint16_t address, uint8_t value) override;
-    uint8_t onZ80IorqRd(uint16_t /* port */) override;
-    void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override;
+    inline const std::string& getKey() const {
+        return key;
+    }
 
-    void execute(const char* path);
+    inline const std::vector<std::string>& getArguments() const {
+        return arguments;
+    }
 
-private:
+protected:
 
-    zemux::Z80Chip testCpu;
-    s_Cpu* ethalonCpu;
-    std::string bdosBuffer;
-
-    void compareState();
-    void bdosChar(char ch);
-    void bdosFlush();
+    std::string key;
+    std::vector<std::string> arguments;
 };
+
+template<typename Concrete>
+class AbstractRuntimeError : public RuntimeError {
+public:
+
+    explicit AbstractRuntimeError(const std::string& key) : RuntimeError { key } {
+    }
+
+    Concrete& operator<<(const std::string& arg) {
+        arguments.push_back(arg);
+        return static_cast<Concrete&>(*this);
+    }
+};
+
+}
 
 #endif

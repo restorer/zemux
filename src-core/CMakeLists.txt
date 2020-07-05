@@ -22,7 +22,8 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-add_library (zemux_core INTERFACE)
+add_library (zemux_core SHARED
+        src/data_io.cpp)
 
 include (TestBigEndian)
 test_big_endian (ZEMUX_BIG_ENDIAN)
@@ -31,6 +32,17 @@ configure_file (
         template/config.h.in
         "${PROJECT_BINARY_DIR}/zemux_core__template/zemux_core/config.h")
 
-target_include_directories (zemux_core INTERFACE
-        include
-        "${PROJECT_BINARY_DIR}/zemux_core__template")
+target_include_directories (zemux_core
+        PUBLIC include "${PROJECT_BINARY_DIR}/zemux_core__template"
+        PRIVATE src include/zemux_core)
+
+target_compile_features (zemux_core PRIVATE cxx_std_17)
+
+target_compile_options (zemux_core PRIVATE
+        -Wall
+        -Wextra
+        -Werror
+        -Wno-unknown-pragmas
+        "$<$<NOT:$<CONFIG:RELEASE>>:-O1>"
+        "$<$<NOT:$<CONFIG:RELEASE>>:-fstack-protector>"
+        "$<$<CONFIG:RELEASE>:-Ofast>")

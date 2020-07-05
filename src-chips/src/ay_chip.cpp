@@ -1,3 +1,6 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
  *
@@ -62,12 +65,12 @@ namespace zemux {
 
 AyChip::AyChip(
         Loudspeaker* loudspeaker,
-        AyChipDataCallback* dataCb,
-        AyChipType chipType,
-        AyChipVolume volumeType,
-        AyChipPan panType
+        AyChipCallback* cb,
+        ChipType chipType,
+        VolumeType volumeType,
+        PanType panType
 ) : loudspeaker { loudspeaker },
-        dataCb { dataCb },
+        cb { cb },
         chipType { chipType },
         volumeType { volumeType },
         panType { panType } {
@@ -76,16 +79,16 @@ AyChip::AyChip(
     reset();
 }
 
-void AyChip::setChipType(AyChipType type) {
+void AyChip::setChipType(ChipType type) {
     chipType = type;
 }
 
-void AyChip::setVolumeType(AyChipVolume type) {
+void AyChip::setVolumeType(VolumeType type) {
     volumeType = type;
     updateVolumes();
 }
 
-void AyChip::setPanType(AyChipPan type) {
+void AyChip::setPanType(PanType type) {
     panType = type;
     updateVolumes();
 }
@@ -201,11 +204,11 @@ void AyChip::write(uint8_t value) {
             [[fallthrough]];
 
         case RegPortB:
-            if (dataCb != nullptr) {
+            if (cb != nullptr) {
                 uint8_t port = selectedReg - RegPortA;
 
                 if (isPortModeOut[port]) {
-                    dataCb->onAyDataOut(port, value);
+                    cb->onAyDataOut(port, value);
                 }
             }
 
@@ -218,11 +221,11 @@ uint8_t AyChip::read() {
         return 0xFF;
     }
 
-    if (selectedReg >= RegPortA && dataCb != nullptr) {
+    if (selectedReg >= RegPortA && cb != nullptr) {
         uint8_t port = selectedReg - RegPortA;
 
         if (!isPortModeOut[port]) {
-            return dataCb->onAyDataIn(0);
+            return cb->onAyDataIn(0);
         }
     }
 
