@@ -23,7 +23,7 @@
 cmake_minimum_required (VERSION 3.10)
 
 add_library (zemux_machine SHARED
-        src/chronometer.cpp)
+        src/dummy.cpp)
 
 target_include_directories (zemux_machine
         PUBLIC include

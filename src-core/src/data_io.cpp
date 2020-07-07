@@ -44,7 +44,7 @@ uintmax_t DataReader::totalSize() {
 }
 
 std::vector<uint8_t> DataReader::readEntire(uintmax_t maxSize) {
-    auto size = totalSize();
+    auto size = avail();
 
     if (size > maxSize) {
         throw DataIoError(ERROR_TOO_LARGE_FILE) << std::to_string(size) << std::to_string(maxSize);

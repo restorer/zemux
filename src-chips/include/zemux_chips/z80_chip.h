@@ -60,6 +60,7 @@ protected:
 };
 
 struct Z80ChipRegs {
+#pragma pack(push, 1)
     union {
         uint16_t BC = 0;
 
@@ -199,6 +200,7 @@ struct Z80ChipRegs {
         struct { uint8_t R; uint8_t I; };
 #endif
     };
+#pragma pack(pop)
 
     bool IFF1 = false;
     bool IFF2 = false;

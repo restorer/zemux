@@ -28,6 +28,7 @@
 #include <stdexcept>
 #include <cstdint>
 #include <vector>
+#include "force_inline.h"
 #include "error.h"
 
 namespace zemux {
@@ -44,25 +45,41 @@ public:
     };
 
     virtual bool isEof() = 0;
-    virtual uint8_t readByte() = 0;
+    virtual uint8_t readUInt8() = 0;
     virtual uintmax_t readBlock(void* buffer, uintmax_t size) = 0;
     virtual uintmax_t tell() = 0;
     virtual void seek(intmax_t offset, SeekDirection direction) = 0;
 
-    inline uint16_t readWord() {
-        return readByte() | (static_cast<uint16_t>(readByte()) << 8);
+    ZEMUX_FORCE_INLINE int8_t readInt8() {
+        return static_cast<int8_t>(readUInt8());
     }
 
-    inline uint32_t readDword() {
-        return readWord() | (static_cast<uint32_t>(readWord()) << 16);
+    inline uint16_t readUInt16() {
+        return readUInt8() | (static_cast<uint16_t>(readUInt8()) << 8);
     }
 
-    inline void seek(intmax_t offset) {
+    ZEMUX_FORCE_INLINE int16_t readInt16() {
+        return static_cast<int16_t>(readUInt16());
+    }
+
+    inline uint32_t readUInt32() {
+        return readUInt16() | (static_cast<uint32_t>(readUInt16()) << 16);
+    }
+
+    ZEMUX_FORCE_INLINE int32_t readInt32() {
+        return static_cast<int32_t>(readUInt32());
+    }
+
+    ZEMUX_FORCE_INLINE void seek(intmax_t offset) {
         seek(offset, Begin);
     }
 
-    inline void skip(uintmax_t size) {
+    ZEMUX_FORCE_INLINE void skip(uintmax_t size) {
         seek(size, Current);
+    }
+
+    inline uintmax_t avail() {
+        return totalSize() - tell();
     }
 
     uintmax_t totalSize();

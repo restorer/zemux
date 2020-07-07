@@ -37,13 +37,19 @@ const char* TapeTap::ERROR_CHUNK_TOO_SMALL = /* @i18n */ "tape_tap.chunk_too_sma
 const char* TapeTap::ERROR_INVALID_CHECKSUM = /* @i18n */ "tape_tap.invalid_checksum";
 const char* TapeTap::ERROR_NO_CHUNKS = /* @i18n */ "tape_tap.no_chunks";
 
-TapeTap::TapeTap(DataReader* reader, Loudspeaker* loudspeaker, bool shouldValidate) : Tape { reader, loudspeaker } {
+TapeTap::TapeTap(
+        DataReader* reader,
+        Loudspeaker* loudspeaker,
+        bool shouldValidateStrict
+) : Tape { reader, loudspeaker } {
     data = reader->readEntire(MAX_TAP_SIZE);
-    parseChunks(shouldValidate);
+    parseChunks(shouldValidateStrict);
 }
 
 void TapeTap::step(unsigned int micros) {
     if (currentChunkIndex >= totalChunks) {
+        volumeBit = false;
+        loudspeakerStep(micros);
         return;
     }
 
@@ -175,7 +181,7 @@ void TapeTap::rewindToNearest(unsigned int micros) {
     elapsedMicros = currentProcessedMicros;
 }
 
-void TapeTap::parseChunks(bool shouldValidate) {
+void TapeTap::parseChunks(bool shouldValidateStrict) {
     unsigned int totalSize = data.size();
     unsigned int position = 0;
 
@@ -191,7 +197,7 @@ void TapeTap::parseChunks(bool shouldValidate) {
             throw TapeError(ERROR_MALFORMED);
         }
 
-        if (shouldValidate && chunkSize < 2) {
+        if (shouldValidateStrict && chunkSize < 2) {
             throw TapeError(ERROR_CHUNK_TOO_SMALL);
         }
 
@@ -201,7 +207,7 @@ void TapeTap::parseChunks(bool shouldValidate) {
 
         unsigned int chunkLast = position + chunkSize - 1;
 
-        if (shouldValidate) {
+        if (shouldValidateStrict) {
             uint8_t checksum = data[position];
 
             for (unsigned int chunkPos = position + 1; chunkPos < chunkLast; ++chunkPos) {
@@ -231,7 +237,7 @@ void TapeTap::parseChunks(bool shouldValidate) {
 
     if (totalChunks) {
         initPilotState();
-    } else if (shouldValidate) {
+    } else if (shouldValidateStrict) {
         throw TapeError(ERROR_NO_CHUNKS);
     }
 }

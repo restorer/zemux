@@ -42,7 +42,7 @@ public:
     static const char* ERROR_INVALID_CHECKSUM;
     static const char* ERROR_NO_CHUNKS;
 
-    TapeTap(DataReader* reader, Loudspeaker* loudspeaker, bool shouldValidate);
+    TapeTap(DataReader* reader, Loudspeaker* loudspeaker, bool shouldValidateStrict);
     ~TapeTap() = default;
 
     void step(unsigned int micros) override;
@@ -102,7 +102,7 @@ private:
         currentWaitMicros = getHalfMicrosForBit(currentValue & currentMask);
     }
 
-    void parseChunks(bool shouldValidate);
+    void parseChunks(bool shouldValidateStrict);
     void initPilotState();
     void initValueState();
     unsigned int computeMicrosForValue(uint8_t value);

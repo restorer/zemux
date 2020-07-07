@@ -28,7 +28,7 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="OCResolveContextSettings">
-    <option name="configuration" value="0-Debug-zemux_tape" />
+    <option name="configuration" value="0-Debug-zemux_test" />
   </component>
   <component name="ProjectId" id="1cxjjXhUy5p3TniFgPflodDT3VY" />
   <component name="ProjectViewState">
@@ -117,18 +117,20 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="176" y="0" width="1141" height="728" key="SettingsEditor/0.0.1366.728@0.0.1366.728" timestamp="1591541517953" />
-    <state x="389" y="0" width="587" height="731" key="find.popup" timestamp="1593966451306">
+    <state x="389" y="0" width="587" height="731" key="find.popup" timestamp="1594049295992">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
     <state x="389" y="0" width="587" height="728" key="find.popup/0.0.1366.728@0.0.1366.728" timestamp="1591539711610" />
-    <state x="389" y="0" width="587" height="731" key="find.popup/0.0.1366.731@0.0.1366.731" timestamp="1593966451306" />
-    <state x="347" y="160" key="run.anything.popup" timestamp="1591604669153">
-      <screen x="0" y="0" width="1366" height="728" />
+    <state x="389" y="0" width="587" height="731" key="find.popup/0.0.1366.731@0.0.1366.731" timestamp="1594049295992" />
+    <state x="347" y="161" key="run.anything.popup" timestamp="1594034477285">
+      <screen x="0" y="0" width="1366" height="731" />
     </state>
     <state x="347" y="160" key="run.anything.popup/0.0.1366.728@0.0.1366.728" timestamp="1591604669153" />
-    <state x="346" y="49" width="672" height="678" key="search.everywhere.popup" timestamp="1591619763491">
-      <screen x="0" y="0" width="1366" height="728" />
+    <state x="347" y="161" key="run.anything.popup/0.0.1366.731@0.0.1366.731" timestamp="1594034477285" />
+    <state x="346" y="49" width="672" height="681" key="search.everywhere.popup" timestamp="1594042890693">
+      <screen x="0" y="0" width="1366" height="731" />
     </state>
     <state x="346" y="49" width="672" height="678" key="search.everywhere.popup/0.0.1366.728@0.0.1366.728" timestamp="1591619763491" />
+    <state x="346" y="49" width="672" height="681" key="search.everywhere.popup/0.0.1366.731@0.0.1366.731" timestamp="1594042890693" />
   </component>
 </project>

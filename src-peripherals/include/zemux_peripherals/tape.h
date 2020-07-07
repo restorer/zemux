@@ -40,6 +40,7 @@ ZEMUX_FORCE_INLINE constexpr unsigned int tapeTicksToMicros(unsigned int ticks) 
 class Tape {
 public:
 
+    static constexpr unsigned int SECOND_MICROS = 1000000;
     static constexpr uint16_t LOW_BIT_VOLUME = 0x0000;
     static constexpr uint16_t HIGH_BIT_VOLUME = 0xFFFF;
 
@@ -70,8 +71,14 @@ protected:
     ~Tape() = default;
 
     inline void loudspeakerStep(unsigned int micros) {
-        uint16_t volume = volumeBit ? HIGH_BIT_VOLUME : LOW_BIT_VOLUME;
-        loudspeaker->onLoudspeakerStep(volume, volume, micros);
+        loudspeakerStep(volumeBit, micros);
+    }
+
+    inline void loudspeakerStep(bool outputBit, unsigned int micros) {
+        if (micros) {
+            uint16_t volume = outputBit ? HIGH_BIT_VOLUME : LOW_BIT_VOLUME;
+            loudspeaker->onLoudspeakerStep(volume, volume, micros);
+        }
     }
 };
 
