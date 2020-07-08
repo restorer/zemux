@@ -98,7 +98,7 @@ protected:
 class DataIoError final : public AbstractRuntimeError<DataIoError> {
 public:
 
-    explicit DataIoError(const std::string& key) : AbstractRuntimeError { key } {
+    explicit DataIoError(const std::string& key) noexcept: AbstractRuntimeError { key } {
     }
 };
 

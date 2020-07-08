@@ -30,10 +30,10 @@
 static std::string idToString(uint32_t id) {
     char buffer[5];
 
-    buffer[0] = id & 0xFF;
-    buffer[1] = (id >> 8) & 0xFF;
-    buffer[2] = (id >> 16) & 0xFF;
-    buffer[3] = id >> 24;
+    buffer[0] = static_cast<char>(id & 0xFF);
+    buffer[1] = static_cast<char>((id >> 8) & 0xFF);
+    buffer[2] = static_cast<char>((id >> 16) & 0xFF);
+    buffer[3] = static_cast<char>(id >> 24);
     buffer[4] = '\0';
 
     return std::string(buffer);
@@ -57,7 +57,7 @@ TapeWav::TapeWav(
         DataReader* reader,
         Loudspeaker* loudspeaker,
         bool shouldValidateStrict,
-        uint32_t threshold
+        uint16_t threshold
 ) : Tape { reader, loudspeaker }, threshold { threshold } {
     parseRiffChunk(shouldValidateStrict);
     parseFmtAndData(shouldValidateStrict);
@@ -75,33 +75,39 @@ void TapeWav::step(unsigned int micros) {
     }
 
     elapsedMicros += micros;
-    int64_t sampleSum = 0;
-    int64_t numSamples = 0;
 
-    while (chronometer.getSrcTicksPassed() < elapsedMicros) {
-        if (currentDataOffset + fmt.blockAlign > dataSize) {
-            elapsedMicros = totalMicros;
-            return;
+    int64_t sampleThreshold = static_cast<uint64_t>(threshold) *
+            static_cast<uint64_t>(fmt.bitsPerSample / 8) *
+            static_cast<uint64_t>(fmt.numChannels);
+
+    while (micros--) {
+        unsigned int numSamples = chronometer.srcAdvanceByDelta(1);
+        ++currentSampleMicros;
+
+        if (!numSamples) {
+            continue;
         }
 
-        unsigned int sampleMicros = chronometer.dstAdvanceBy(1);
-        int64_t sample = (this->*readSamplePtr)();
+        int64_t sample = 0;
+        int64_t divider = numSamples;
 
-        if (blockPadding) {
-            reader->skip(blockPadding);
+        while (numSamples--) {
+            if (currentDataOffset + fmt.blockAlign > dataSize) {
+                elapsedMicros = totalMicros;
+                return;
+            }
+
+            currentDataOffset += fmt.blockAlign;
+            sample += (this->*readSamplePtr)();
+
+            if (blockPadding) {
+                reader->skip(blockPadding);
+            }
         }
 
-        currentDataOffset += fmt.blockAlign;
-        sampleSum += sample;
-        ++numSamples;
-
-        if (sampleMicros) {
-            loudspeakerStep(std::abs(sample) > threshold, sampleMicros);
-        }
-    }
-
-    if (numSamples) {
-        volumeBit = std::abs(sampleSum / numSamples) > threshold;
+        volumeBit = std::abs(sample / divider) >= sampleThreshold;
+        loudspeakerStep(currentSampleMicros);
+        currentSampleMicros = 0;
     }
 }
 
@@ -113,6 +119,7 @@ void TapeWav::rewindToNearest(unsigned int micros) {
     elapsedMicros = micros;
     chronometer.setSrcTicksPassed(micros);
     currentDataOffset = chronometer.getDstTicksPassed() * fmt.blockAlign;
+    currentSampleMicros = 0;
 
     if (currentDataOffset + fmt.blockAlign > dataSize) {
         elapsedMicros = totalMicros;
@@ -199,7 +206,7 @@ void TapeWav::parseFmtAndData(bool shouldValidateStrict) {
     }
 
     if (!isFmtFound) {
-        throw TapeError(ERROR_CHUNK_MISSING) << idToString(FMT_ID);
+        throw std::move(TapeError(ERROR_CHUNK_MISSING) << idToString(FMT_ID));
     }
 
     if (!isDataFound) {
@@ -341,7 +348,7 @@ int64_t TapeWav::readSampleB8() {
         result += reader->readInt8();
     }
 
-    return result / fmt.numChannels;
+    return result;
 }
 
 int64_t TapeWav::readSampleB8C1() {
@@ -349,7 +356,7 @@ int64_t TapeWav::readSampleB8C1() {
 }
 
 int64_t TapeWav::readSampleB8C2() {
-    return (static_cast<int64_t>(reader->readInt8()) + static_cast<int64_t>(reader->readInt8())) / 2;
+    return static_cast<int64_t>(reader->readInt8()) + static_cast<int64_t>(reader->readInt8());
 }
 
 int64_t TapeWav::readSampleB16() {
@@ -359,7 +366,7 @@ int64_t TapeWav::readSampleB16() {
         result += reader->readInt16();
     }
 
-    return result / fmt.numChannels;
+    return result;
 }
 
 int64_t TapeWav::readSampleB16C1() {
@@ -367,26 +374,25 @@ int64_t TapeWav::readSampleB16C1() {
 }
 
 int64_t TapeWav::readSampleB16C2() {
-    return (static_cast<int64_t>(reader->readInt16()) + static_cast<int64_t>(reader->readInt16())) / 2;
+    return static_cast<int64_t>(reader->readInt16()) + static_cast<int64_t>(reader->readInt16());
 }
 
 int64_t TapeWav::readSampleB24() {
     int64_t result = 0;
 
     for (uint16_t channels = fmt.numChannels; channels--;) {
-        result += static_cast<int64_t>(reader->readUInt16() | (static_cast<uint32_t>(reader->readUInt8()) << 16));
+        result += readSampleB24Inline();
     }
 
-    return result / fmt.numChannels;
+    return result;
 }
 
 int64_t TapeWav::readSampleB24C1() {
-    return reader->readUInt16() | (static_cast<uint32_t>(reader->readUInt8()) << 16);
+    return readSampleB24Inline();
 }
 
 int64_t TapeWav::readSampleB24C2() {
-    return (static_cast<int64_t>(reader->readUInt16() | (static_cast<uint32_t>(reader->readUInt8()) << 16)) +
-            static_cast<int64_t>(reader->readUInt16() | (static_cast<uint32_t>(reader->readUInt8()) << 16))) / 2;
+    return readSampleB24Inline() + readSampleB24Inline();
 }
 
 int64_t TapeWav::readSampleB32() {
@@ -396,7 +402,7 @@ int64_t TapeWav::readSampleB32() {
         result += reader->readInt32();
     }
 
-    return result / fmt.numChannels;
+    return result;
 }
 
 int64_t TapeWav::readSampleB32C1() {
@@ -404,7 +410,7 @@ int64_t TapeWav::readSampleB32C1() {
 }
 
 int64_t TapeWav::readSampleB32C2() {
-    return (static_cast<int64_t>(reader->readInt32()) + static_cast<int64_t>(reader->readInt32())) / 2;
+    return static_cast<int64_t>(reader->readInt32()) + static_cast<int64_t>(reader->readInt32());
 }
 
 }

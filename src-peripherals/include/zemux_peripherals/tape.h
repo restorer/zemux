@@ -85,7 +85,7 @@ protected:
 class TapeError final : public AbstractRuntimeError<TapeError> {
 public:
 
-    explicit TapeError(const std::string& key) : AbstractRuntimeError { key } {
+    explicit TapeError(const std::string& key) noexcept: AbstractRuntimeError { key } {
     }
 };
 

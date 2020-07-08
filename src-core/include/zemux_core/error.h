@@ -27,22 +27,31 @@
 
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace zemux {
 
-class RuntimeError : public std::runtime_error {
+class RuntimeError : public std::exception {
 public:
 
-    explicit RuntimeError(const std::string& key) : runtime_error { key }, key { key } {
+    explicit RuntimeError(std::string key) noexcept: key { std::move(key) } {
     }
 
-    inline const std::string& getKey() const {
+    RuntimeError(const RuntimeError& other) noexcept
+            : key { other.key }, arguments { other.arguments } {
+    }
+
+    [[nodiscard]] inline const std::string& getKey() const noexcept {
         return key;
     }
 
-    inline const std::vector<std::string>& getArguments() const {
+    [[nodiscard]] inline const std::vector<std::string>& getArguments() const noexcept {
         return arguments;
+    }
+
+    [[nodiscard]] const char* what() const noexcept override {
+        return key.c_str();
     }
 
 protected:
@@ -58,9 +67,9 @@ public:
     explicit AbstractRuntimeError(const std::string& key) : RuntimeError { key } {
     }
 
-    Concrete& operator<<(const std::string& arg) {
+    Concrete&& operator<<(const std::string& arg) noexcept {
         arguments.push_back(arg);
-        return static_cast<Concrete&>(*this);
+        return static_cast<Concrete&&>(*this);
     }
 };
 

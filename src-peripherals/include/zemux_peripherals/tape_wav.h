@@ -26,6 +26,8 @@
  */
 
 #include <zemux_core/non_copyable.h>
+#include <zemux_core/force_inline.h>
+#include <zemux_core/math_ext.h>
 #include <zemux_core/data_io.h>
 #include <zemux_core/chronometer.h>
 #include "tape.h"
@@ -35,7 +37,7 @@ namespace zemux {
 class TapeWav final : public Tape, private NonCopyable {
 public:
 
-    static constexpr uint32_t DEFAULT_THRESHOLD = 140;
+    static constexpr uint16_t DEFAULT_THRESHOLD = 140;
 
     static const char* ERROR_MALFORMED;
     static const char* ERROR_CHUNK_MISSING;
@@ -52,15 +54,15 @@ public:
     TapeWav(DataReader* reader,
             Loudspeaker* loudspeaker,
             bool shouldValidateStrict,
-            uint32_t threshold = DEFAULT_THRESHOLD);
+            uint16_t threshold = DEFAULT_THRESHOLD);
 
     ~TapeWav() = default;
 
-    inline uint32_t getThreshold() {
+    inline uint16_t getThreshold() const {
         return threshold;
     }
 
-    inline void setThreshold(uint32_t value) {
+    inline void setThreshold(uint16_t value) {
         threshold = value;
     }
 
@@ -104,7 +106,7 @@ private:
 
     static constexpr unsigned int TOTAL_MIN_SIZE = sizeof(ChunkHeader) + RIFF_MIN_SIZE;
 
-    int64_t threshold;
+    uint16_t threshold;
     uintmax_t lastPosition;
     FmtContent fmt;
     uintmax_t dataPosition;
@@ -113,6 +115,11 @@ private:
     unsigned int blockPadding;
     int64_t (TapeWav::* readSamplePtr)();
     uintmax_t currentDataOffset = 0;
+    unsigned int currentSampleMicros = 0;
+
+    ZEMUX_FORCE_INLINE int64_t readSampleB24Inline() {
+        return extend24To32(reader->readUInt16() | (static_cast<uint32_t>(reader->readUInt8()) << 16));
+    }
 
     void parseRiffChunk(bool shouldValidateStrict);
     void parseFmtAndData(bool shouldValidateStrict);
