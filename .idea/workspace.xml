@@ -3,11 +3,11 @@
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="ZemuX" targetName="zemux_test" />
-      <config projectName="ZemuX" targetName="zemux" />
-      <config projectName="ZemuX" targetName="zemux_machine" />
+      <config projectName="ZemuX" targetName="zemux_peripherals" />
       <config projectName="ZemuX" targetName="z80ex_wrapper" />
       <config projectName="ZemuX" targetName="zemux_core" />
-      <config projectName="ZemuX" targetName="zemux_peripherals" />
+      <config projectName="ZemuX" targetName="zemux_machine" />
+      <config projectName="ZemuX" targetName="zemux" />
       <config projectName="ZemuX" targetName="zemux_chips" />
     </generated>
   </component>
@@ -27,9 +27,6 @@
     <option name="formatViaClangd" value="false" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
-  <component name="OCResolveContextSettings">
-    <option name="configuration" value="0-Debug-zemux_peripherals" />
-  </component>
   <component name="ProjectId" id="1cxjjXhUy5p3TniFgPflodDT3VY" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -50,7 +47,13 @@
       <recent name="$PROJECT_DIR$/src-ay/src" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.zemux">
+  <component name="RunManager" selected="Boost.Test.TapeTapTest">
+    <configuration name="TapeTapTest" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" temporary="true" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux_test" TEST_METHOD="TapeTapTest" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="zemux_test" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux_test" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -95,7 +98,13 @@
       <item itemvalue="CMake Application.zemux_peripherals" />
       <item itemvalue="CMake Application.zemux" />
       <item itemvalue="CMake Application.z80ex_wrapper" />
+      <item itemvalue="Boost.Test.TapeTapTest" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Boost.Test.TapeTapTest" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="2" />
@@ -109,6 +118,38 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="529" y="93" width="424" height="536" key="FileChooserDialogImpl/0.0.1366.728@0.0.1366.728" timestamp="1591517597801" />
+    <state width="1345" height="218" key="GridCell.Tab.0.bottom" timestamp="1594225704109">
+      <screen x="0" y="0" width="1366" height="731" />
+    </state>
+    <state width="1345" height="218" key="GridCell.Tab.0.bottom/0.0.1366.731@0.0.1366.731" timestamp="1594225704109" />
+    <state width="1345" height="218" key="GridCell.Tab.0.center" timestamp="1594225704108">
+      <screen x="0" y="0" width="1366" height="731" />
+    </state>
+    <state width="1345" height="218" key="GridCell.Tab.0.center/0.0.1366.731@0.0.1366.731" timestamp="1594225704108" />
+    <state width="1345" height="218" key="GridCell.Tab.0.left" timestamp="1594225704108">
+      <screen x="0" y="0" width="1366" height="731" />
+    </state>
+    <state width="1345" height="218" key="GridCell.Tab.0.left/0.0.1366.731@0.0.1366.731" timestamp="1594225704108" />
+    <state width="1345" height="218" key="GridCell.Tab.0.right" timestamp="1594225704109">
+      <screen x="0" y="0" width="1366" height="731" />
+    </state>
+    <state width="1345" height="218" key="GridCell.Tab.0.right/0.0.1366.731@0.0.1366.731" timestamp="1594225704109" />
+    <state width="1345" height="218" key="GridCell.Tab.1.bottom" timestamp="1594225704112">
+      <screen x="0" y="0" width="1366" height="731" />
+    </state>
+    <state width="1345" height="218" key="GridCell.Tab.1.bottom/0.0.1366.731@0.0.1366.731" timestamp="1594225704112" />
+    <state width="1345" height="218" key="GridCell.Tab.1.center" timestamp="1594225704111">
+      <screen x="0" y="0" width="1366" height="731" />
+    </state>
+    <state width="1345" height="218" key="GridCell.Tab.1.center/0.0.1366.731@0.0.1366.731" timestamp="1594225704110" />
+    <state width="1345" height="218" key="GridCell.Tab.1.left" timestamp="1594225704110">
+      <screen x="0" y="0" width="1366" height="731" />
+    </state>
+    <state width="1345" height="218" key="GridCell.Tab.1.left/0.0.1366.731@0.0.1366.731" timestamp="1594225704110" />
+    <state width="1345" height="218" key="GridCell.Tab.1.right" timestamp="1594225704111">
+      <screen x="0" y="0" width="1366" height="731" />
+    </state>
+    <state width="1345" height="218" key="GridCell.Tab.1.right/0.0.1366.731@0.0.1366.731" timestamp="1594225704111" />
     <state x="266" y="109" width="824" height="503" key="IDE.errors.dialog" timestamp="1591477321887">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
@@ -121,11 +162,11 @@
       <screen x="0" y="0" width="1366" height="731" />
     </state>
     <state width="498" height="445" key="SwitcherDM/0.0.1366.731@0.0.1366.731" timestamp="1594199612424" />
-    <state x="389" y="0" width="587" height="731" key="find.popup" timestamp="1594201254734">
+    <state x="389" y="0" width="587" height="731" key="find.popup" timestamp="1594220077233">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
     <state x="389" y="0" width="587" height="728" key="find.popup/0.0.1366.728@0.0.1366.728" timestamp="1591539711610" />
-    <state x="389" y="0" width="587" height="731" key="find.popup/0.0.1366.731@0.0.1366.731" timestamp="1594201254734" />
+    <state x="389" y="0" width="587" height="731" key="find.popup/0.0.1366.731@0.0.1366.731" timestamp="1594220077233" />
     <state x="347" y="161" key="run.anything.popup" timestamp="1594034477285">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
@@ -136,5 +177,14 @@
     </state>
     <state x="346" y="49" width="672" height="678" key="search.everywhere.popup/0.0.1366.728@0.0.1366.728" timestamp="1591619763491" />
     <state x="346" y="49" width="672" height="681" key="search.everywhere.popup/0.0.1366.731@0.0.1366.731" timestamp="1594042890693" />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="CMakeBoostTestRunConfigurationType">
+        <watch expression="data" language="ObjectiveC" />
+        <watch expression="totalMicros" language="ObjectiveC" />
+        <watch expression="currentProcessedMicros" language="ObjectiveC" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

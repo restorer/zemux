@@ -25,12 +25,18 @@
  * THE SOFTWARE.
  */
 
+#include <cstdint>
+#include <string>
 #include <iomanip>
 #include <fstream>
 #include <cstring>
 #include <chrono>
 #include <boost/test/unit_test.hpp>
-#include "z80_speed_test.h"
+#include <zemux_chips/z80_chip.h>
+
+extern "C" {
+#include <lib_z80/cpu.h>
+}
 
 static const char* ZEXALL_PATH = "../test-extras/zexall.com";
 static constexpr int MAX_BDOS_STRING_LEN = 128;
@@ -61,21 +67,69 @@ static uint8_t onEthalonReadInt(void* /* data */) {
     return 0xFF;
 }
 
-Z80SpeedTest::Z80SpeedTest() : testCpu { this, zemux::Z80Chip::TypeNmos } {
-    ethalonCpu = __ns_Cpu__new(
-            onEthalonRead, nullptr,
-            onEthalonWrite, nullptr,
-            onEthalonIn, nullptr,
-            onEthalonOut, nullptr,
-            onEthalonReadInt, nullptr
-    );
-}
+class Z80SpeedTestCase : public zemux::Z80ChipCallback {
+public:
 
-Z80SpeedTest::~Z80SpeedTest() {
-    __ns_Cpu__free(ethalonCpu);
-}
+    Z80SpeedTestCase() : testCpu { this, zemux::Z80Chip::TypeNmos } {
+        ethalonCpu = __ns_Cpu__new(
+                onEthalonRead, nullptr,
+                onEthalonWrite, nullptr,
+                onEthalonIn, nullptr,
+                onEthalonOut, nullptr,
+                onEthalonReadInt, nullptr
+        );
+    }
 
-void Z80SpeedTest::measure(const char* path) {
+    ~Z80SpeedTestCase() override {
+        __ns_Cpu__free(ethalonCpu);
+    }
+
+    void measure(const char* path);
+
+    uint8_t onZ80MreqRd(uint16_t address, bool /* isM1 */) override {
+        return memory[address];
+    }
+
+    void onZ80MreqWr(uint16_t address, uint8_t value) override {
+        memory[address] = value;
+    }
+
+    uint8_t onZ80IorqRd(uint16_t /* port */) override {
+        return 0x00;
+    }
+
+    void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override {
+    }
+
+private:
+
+    zemux::Z80Chip testCpu;
+    s_Cpu* ethalonCpu;
+    std::string bdosBuffer;
+
+    static void prepare(const char* path);
+
+    void executeTest();
+    void executeEthalon();
+    uint16_t bdos(uint16_t bc, uint16_t de, uint16_t sp);
+
+    void bdosChar(char ch) {
+        if (ch == '\r' || ch == '\n') {
+            bdosFlush();
+        } else {
+            bdosBuffer += ch;
+        }
+    }
+
+    void bdosFlush() {
+        if (!bdosBuffer.empty()) {
+            BOOST_TEST_MESSAGE(bdosBuffer);
+            bdosBuffer.clear();
+        }
+    }
+};
+
+void Z80SpeedTestCase::measure(const char* path) {
     prepare(path);
     BOOST_TEST_MESSAGE("Measuring ZemuX Z80 (test)...");
     int64_t startMillis = steadyClockNowMillis();
@@ -110,22 +164,7 @@ void Z80SpeedTest::measure(const char* path) {
     }
 }
 
-uint8_t Z80SpeedTest::onZ80MreqRd(uint16_t address, bool /* isM1 */) {
-    return memory[address];
-}
-
-void Z80SpeedTest::onZ80MreqWr(uint16_t address, uint8_t value) {
-    memory[address] = value;
-}
-
-uint8_t Z80SpeedTest::onZ80IorqRd(uint16_t /* port */) {
-    return 0x00;
-}
-
-void Z80SpeedTest::onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) {
-}
-
-void Z80SpeedTest::prepare(const char* path) {
+void Z80SpeedTestCase::prepare(const char* path) {
     BOOST_TEST_MESSAGE("Loading \"" << path << "\"...");
 
     std::ifstream ifs;
@@ -137,7 +176,7 @@ void Z80SpeedTest::prepare(const char* path) {
     ifs.read(reinterpret_cast<char*>(&memory[0x0100]), 0x10000 - 0x0100);
 }
 
-void Z80SpeedTest::executeTest() {
+void Z80SpeedTestCase::executeTest() {
     testCpu.reset();
     testCpu.regs.BC = 0xFFFF;
     testCpu.regs.DE = 0xFFFF;
@@ -176,7 +215,7 @@ void Z80SpeedTest::executeTest() {
     bdosFlush();
 }
 
-void Z80SpeedTest::executeEthalon() {
+void Z80SpeedTestCase::executeEthalon() {
     __ns_Cpu__reset(ethalonCpu);
     __ns_Cpu__set_reg(ethalonCpu, CPU_BC, 0xFFFF);
     __ns_Cpu__set_reg(ethalonCpu, CPU_DE, 0xFFFF);
@@ -215,7 +254,7 @@ void Z80SpeedTest::executeEthalon() {
     bdosFlush();
 }
 
-uint16_t Z80SpeedTest::bdos(uint16_t bc, uint16_t de, uint16_t sp) {
+uint16_t Z80SpeedTestCase::bdos(uint16_t bc, uint16_t de, uint16_t sp) {
     switch (static_cast<uint8_t>(bc)) {
         case 2: {
             bdosChar(static_cast<uint8_t>(de));
@@ -238,26 +277,11 @@ uint16_t Z80SpeedTest::bdos(uint16_t bc, uint16_t de, uint16_t sp) {
     return memory[sp] | (static_cast<uint16_t>(memory[static_cast<uint16_t>(sp + 1)]) << 8);
 }
 
-void Z80SpeedTest::bdosChar(char ch) {
-    if (ch == '\r' || ch == '\n') {
-        bdosFlush();
-    } else {
-        bdosBuffer += ch;
-    }
-}
-
-void Z80SpeedTest::bdosFlush() {
-    if (!bdosBuffer.empty()) {
-        BOOST_TEST_MESSAGE(bdosBuffer);
-        bdosBuffer.clear();
-    }
-}
-
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-BOOST_AUTO_TEST_CASE(Z80Speed) {
-    Z80SpeedTest test;
+BOOST_AUTO_TEST_CASE(Z80SpeedTest) {
+    Z80SpeedTestCase test;
     test.measure(ZEXALL_PATH);
 }
 

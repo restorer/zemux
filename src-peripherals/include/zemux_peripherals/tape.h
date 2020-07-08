@@ -68,7 +68,7 @@ protected:
     unsigned int elapsedMicros = 0;
 
     Tape(DataReader* reader, Loudspeaker* loudspeaker);
-    ~Tape() = default;
+    virtual ~Tape() = default;
 
     inline void loudspeakerStep(unsigned int micros) {
         loudspeakerStep(volumeBit, micros);

@@ -1,5 +1,5 @@
-#ifndef TEST__Z80_CORRECTNESS_TEST
-#define TEST__Z80_CORRECTNESS_TEST
+#ifndef ZEMUX_TEST__STUB_DATA_IO
+#define ZEMUX_TEST__STUB_DATA_IO
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,36 +25,54 @@
  * THE SOFTWARE.
  */
 
-#include <cstdint>
 #include <string>
-#include <zemux_chips/z80_chip.h>
+#include <cstdint>
+#include <fstream>
+#include <stdexcept>
+#include <boost/format.hpp>
+#include <zemux_core/non_copyable.h>
+#include <zemux_core/data_io.h>
 
-extern "C" {
-#include <lib_z80/cpu.h>
-}
-
-class Z80CorrectnessTest : public zemux::Z80ChipCallback {
+class FileDataReader final : public zemux::DataReader, private zemux::NonCopyable {
 public:
 
-    Z80CorrectnessTest();
-    ~Z80CorrectnessTest();
+    explicit FileDataReader(const std::string& path) {
+        ifs.open(path, std::ifstream::in | std::ifstream::binary);
 
-    uint8_t onZ80MreqRd(uint16_t address, bool /* isM1 */) override;
-    void onZ80MreqWr(uint16_t address, uint8_t value) override;
-    uint8_t onZ80IorqRd(uint16_t /* port */) override;
-    void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override;
+        if (ifs.fail()) {
+            ifs.close();
+            throw std::runtime_error((boost::format("Failed to read from \"%s\"") % path).str());
+        }
+    }
 
-    void execute(const char* path);
+    ~FileDataReader() override {
+        ifs.close();
+    }
+
+    bool isEof() override {
+        return ifs.eof();
+    }
+
+    uint8_t readUInt8() override {
+        return ifs.get();
+    }
+
+    uintmax_t readBlock(void* buffer, uintmax_t maxSize) override {
+        ifs.read(static_cast<char*>(buffer), maxSize);
+        return ifs.gcount();
+    }
+
+    uintmax_t tell() override {
+        return ifs.tellg();
+    }
+
+    void seek(intmax_t offset, SeekDirection direction) override {
+        ifs.seekg(offset, direction == Begin ? std::ios::beg : (direction == End ? std::ios::end : std::ios::cur));
+    }
 
 private:
 
-    zemux::Z80Chip testCpu;
-    s_Cpu* ethalonCpu;
-    std::string bdosBuffer;
-
-    void compareState();
-    void bdosChar(char ch);
-    void bdosFlush();
+    std::ifstream ifs;
 };
 
 #endif

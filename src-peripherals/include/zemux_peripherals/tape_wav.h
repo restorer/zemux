@@ -56,7 +56,7 @@ public:
             bool shouldValidateStrict,
             uint16_t threshold = DEFAULT_THRESHOLD);
 
-    ~TapeWav() = default;
+    ~TapeWav() override = default;
 
     inline uint16_t getThreshold() const {
         return threshold;

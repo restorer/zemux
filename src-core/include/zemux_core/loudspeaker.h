@@ -26,18 +26,23 @@
  */
 
 #include <cstdint>
+#include "force_inline.h"
 
 namespace zemux {
 
 class Loudspeaker {
 public:
 
-    virtual void onLoudspeakerStep(uint16_t left, uint16_t right, unsigned int ticks = 1) = 0;
+    virtual void onLoudspeakerStep(uint16_t left, uint16_t right, unsigned int ticks) = 0;
+
+    ZEMUX_FORCE_INLINE void onLoudspeakerStep(uint16_t left, uint16_t right) {
+        onLoudspeakerStep(left, right, 1);
+    }
 
 protected:
 
     constexpr Loudspeaker() = default;
-    ~Loudspeaker() = default;
+    virtual ~Loudspeaker() = default;
 };
 
 }

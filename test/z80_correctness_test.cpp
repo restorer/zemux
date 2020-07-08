@@ -25,11 +25,17 @@
  * THE SOFTWARE.
  */
 
+#include <cstdint>
+#include <string>
 #include <iomanip>
 #include <fstream>
 #include <cstring>
 #include <boost/test/unit_test.hpp>
-#include "z80_correctness_test.h"
+#include <zemux_chips/z80_chip.h>
+
+extern "C" {
+#include <lib_z80/cpu.h>
+}
 
 // #define DUMP_EXECUTION
 
@@ -40,8 +46,6 @@ static const char* ERROR_PHRASE = "ERROR";
 
 static uint8_t testMemory[0x10000];
 static uint8_t ethalonMemory[0x10000];
-
-// NB. BOOST_TEST_MESSAGE output uint8_t as char, so cast all the uint8_t to uint16_t in output messages.
 
 static void compareAndOutputByte(const char* name, uint8_t test, uint8_t ethalon) {
     BOOST_TEST_MESSAGE(std::hex << std::setfill('0') << std::uppercase
@@ -82,36 +86,65 @@ static uint8_t onEthalonReadInt(void* /* data */) {
     return 0xFF;
 }
 
-Z80CorrectnessTest::Z80CorrectnessTest() : testCpu { this, zemux::Z80Chip::TypeNmos } {
-    ethalonCpu = __ns_Cpu__new(
-            onEthalonRead, nullptr,
-            onEthalonWrite, nullptr,
-            onEthalonIn, nullptr,
-            onEthalonOut, nullptr,
-            onEthalonReadInt, nullptr
-    );
-}
+class Z80CorrectnessTestCase : public zemux::Z80ChipCallback {
+public:
 
-Z80CorrectnessTest::~Z80CorrectnessTest() {
-    __ns_Cpu__free(ethalonCpu);
-}
+    Z80CorrectnessTestCase() : testCpu { this, zemux::Z80Chip::TypeNmos } {
+        ethalonCpu = __ns_Cpu__new(
+                onEthalonRead, nullptr,
+                onEthalonWrite, nullptr,
+                onEthalonIn, nullptr,
+                onEthalonOut, nullptr,
+                onEthalonReadInt, nullptr
+        );
+    }
 
-uint8_t Z80CorrectnessTest::onZ80MreqRd(uint16_t address, bool /* isM1 */) {
-    return testMemory[address];
-}
+    ~Z80CorrectnessTestCase() override {
+        __ns_Cpu__free(ethalonCpu);
+    }
 
-void Z80CorrectnessTest::onZ80MreqWr(uint16_t address, uint8_t value) {
-    testMemory[address] = value;
-}
+    void execute(const char* path);
 
-uint8_t Z80CorrectnessTest::onZ80IorqRd(uint16_t /* port */) {
-    return 0x00;
-}
+    uint8_t onZ80MreqRd(uint16_t address, bool /* isM1 */) override {
+        return testMemory[address];
+    }
 
-void Z80CorrectnessTest::onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) {
-}
+    void onZ80MreqWr(uint16_t address, uint8_t value) override {
+        testMemory[address] = value;
+    }
 
-void Z80CorrectnessTest::execute(const char* path) {
+    uint8_t onZ80IorqRd(uint16_t /* port */) override {
+        return 0x00;
+    }
+
+    void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override {
+    }
+
+private:
+
+    zemux::Z80Chip testCpu;
+    s_Cpu* ethalonCpu;
+    std::string bdosBuffer;
+
+    void compareState();
+
+    void bdosChar(char ch) {
+        if (ch == '\r' || ch == '\n') {
+            bdosFlush();
+        } else {
+            bdosBuffer += ch;
+        }
+    }
+
+    void bdosFlush() {
+        if (!bdosBuffer.empty()) {
+            BOOST_TEST_MESSAGE(bdosBuffer);
+            bdosBuffer.clear();
+        }
+    }
+};
+
+void Z80CorrectnessTestCase::execute(const char* path) {
     BOOST_TEST_MESSAGE("Loading \"" << path << "\"...");
 
     std::ifstream ifs;
@@ -310,7 +343,7 @@ void Z80CorrectnessTest::execute(const char* path) {
     bdosFlush();
 }
 
-void Z80CorrectnessTest::compareState() {
+void Z80CorrectnessTestCase::compareState() {
     uint16_t testBC = testCpu.regs.BC;
     uint16_t testDE = testCpu.regs.DE;
     uint16_t testHL = testCpu.regs.HL;
@@ -440,31 +473,16 @@ void Z80CorrectnessTest::compareState() {
     }
 }
 
-void Z80CorrectnessTest::bdosChar(char ch) {
-    if (ch == '\r' || ch == '\n') {
-        bdosFlush();
-    } else {
-        bdosBuffer += ch;
-    }
-}
-
-void Z80CorrectnessTest::bdosFlush() {
-    if (!bdosBuffer.empty()) {
-        BOOST_TEST_MESSAGE(bdosBuffer);
-        bdosBuffer.clear();
-    }
-}
-
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-BOOST_AUTO_TEST_CASE(Z80CorrectnessZexall) {
-    Z80CorrectnessTest test;
+BOOST_AUTO_TEST_CASE(Z80CorrectnessZexallTest) {
+    Z80CorrectnessTestCase test;
     test.execute(ZEXALL_PATH);
 }
 
-BOOST_AUTO_TEST_CASE(Z80CorrectnessZexdoc) {
-    Z80CorrectnessTest test;
+BOOST_AUTO_TEST_CASE(Z80CorrectnessZexdocTest) {
+    Z80CorrectnessTestCase test;
     test.execute(ZEXDOC_PATH);
 }
 

@@ -110,11 +110,14 @@ add_executable (zemux_test WIN32
         test/runner.cpp
         test/chronometer_test.cpp
         test/z80_correctness_test.cpp
-        test/z80_speed_test.cpp)
+        test/z80_speed_test.cpp
+        test/tape_tap_test.cpp
+        test/tape_wav_test.cpp)
 
 target_link_libraries (zemux_test PRIVATE
         zemux_core
         zemux_chips
+        zemux_peripherals
         zemux_machine
         z80ex_wrapper
         ${Boost_LIBRARIES})

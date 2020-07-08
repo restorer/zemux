@@ -45,7 +45,7 @@ public:
 protected:
 
     constexpr AyChipCallback() = default;
-    ~AyChipCallback() = default;
+    virtual ~AyChipCallback() = default;
 };
 
 ZEMUX_FORCE_INLINE constexpr unsigned int ayChipExternalToDeviceRate(unsigned int externalClockRate) {

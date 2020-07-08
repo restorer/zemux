@@ -141,10 +141,10 @@ void TapeTap::rewindToNearest(unsigned int micros) {
     unsigned int endMicros = currentProcessedMicros + currentPilotCount * PILOT_MAIN_HALF_MICROS * 2;
 
     if (micros < endMicros) {
-        unsigned int pilotPassed = (endMicros - micros) / (PILOT_MAIN_HALF_MICROS * 2);
+        unsigned int pilotLeft = (endMicros - micros) / (PILOT_MAIN_HALF_MICROS * 2);
 
-        currentProcessedMicros += pilotPassed * (PILOT_MAIN_HALF_MICROS * 2);
-        currentPilotCount -= pilotPassed;
+        currentProcessedMicros += (currentPilotCount - pilotLeft) * (PILOT_MAIN_HALF_MICROS * 2);
+        currentPilotCount = pilotLeft;
         elapsedMicros = currentProcessedMicros;
         return;
     }
@@ -231,6 +231,8 @@ void TapeTap::parseChunks(bool shouldValidateStrict) {
                 .offset = position,
                 .size = chunkSize,
                 .endMicros = totalMicros });
+
+        position += chunkSize;
     }
 
     totalChunks = chunks.size();

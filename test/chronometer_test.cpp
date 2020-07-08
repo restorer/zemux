@@ -31,7 +31,7 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-BOOST_AUTO_TEST_CASE(Chronometer) {
+BOOST_AUTO_TEST_CASE(ChronometerTest) {
     zemux::Chronometer chrono(1, 3);
 
     BOOST_TEST_MESSAGE("Initial");

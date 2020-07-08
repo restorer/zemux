@@ -56,7 +56,7 @@ public:
 protected:
 
     constexpr Z80ChipCallback() = default;
-    ~Z80ChipCallback() = default;
+    virtual ~Z80ChipCallback() = default;
 };
 
 struct Z80ChipRegs {

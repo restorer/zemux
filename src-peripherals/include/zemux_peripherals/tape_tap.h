@@ -43,7 +43,7 @@ public:
     static const char* ERROR_NO_CHUNKS;
 
     TapeTap(DataReader* reader, Loudspeaker* loudspeaker, bool shouldValidateStrict);
-    ~TapeTap() = default;
+    ~TapeTap() override = default;
 
     void step(unsigned int micros) override;
     void rewindToNearest(unsigned int micros) override;
@@ -57,7 +57,7 @@ private:
     static constexpr unsigned int PILOT_CAP_HIGH_MICROS = tapeTicksToMicros(735);
     static constexpr unsigned int BIT_ZERO_HALF_MICROS = tapeTicksToMicros(855);
     static constexpr unsigned int BIT_ONE_HALF_MICROS = tapeTicksToMicros(1710);
-    static constexpr unsigned int DELAY_MICROS = tapeTicksToMicros(2168 * 1000);
+    static constexpr unsigned int DELAY_MICROS = tapeTicksToMicros(2168) * 1000;
 
     struct Chunk {
         unsigned int offset;

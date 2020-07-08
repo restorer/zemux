@@ -46,7 +46,7 @@ public:
 
     virtual bool isEof() = 0;
     virtual uint8_t readUInt8() = 0;
-    virtual uintmax_t readBlock(void* buffer, uintmax_t size) = 0;
+    virtual uintmax_t readBlock(void* buffer, uintmax_t maxSize) = 0;
     virtual uintmax_t tell() = 0;
     virtual void seek(intmax_t offset, SeekDirection direction) = 0;
 
@@ -88,11 +88,10 @@ public:
 protected:
 
     constexpr DataReader() = default;
-    ~DataReader() = default;
+    virtual ~DataReader() = default;
 
     bool isTotalSizeCached = false;
     uintmax_t cachedTotalSize = 0;
-
 };
 
 class DataIoError final : public AbstractRuntimeError<DataIoError> {
