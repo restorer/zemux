@@ -149,6 +149,7 @@ static void testCaseHeaderBytes(zemux::TapeTap& tapeTap,
     testCaseByte(tapeTap, nameFirst);
 
     BOOST_TEST_MESSAGE("- name spaces");
+
     for (int i = 9; i--;) {
         testCaseByte(tapeTap, 32);
     }
@@ -217,7 +218,7 @@ BOOST_AUTO_TEST_CASE(TapeTapTest) {
     BOOST_TEST_MESSAGE("First data delay");
     testCaseDelay(tapeTap);
 
-    BOOST_TEST_MESSAGE("Second header pilot");
+    BOOST_TEST_MESSAGE("Second header pilot in middle");
 
     tapeTap.rewindToNearest(PART_1_MICROS +
             PILOT_MAIN_HEADER_MICROS / 2 +
@@ -226,6 +227,54 @@ BOOST_AUTO_TEST_CASE(TapeTapTest) {
 
     BOOST_REQUIRE(tapeTap.getElapsedMicros() ==
             PART_1_MICROS + PILOT_MAIN_HEADER_MICROS / 2 + PILOT_MAIN_HALF_MICROS * 2);
+
+    tapeTap.step(50);
+    testCasePilot(tapeTap, PILOT_MAIN_HEADER_MICROS / 2 - PILOT_MAIN_HALF_MICROS * 2);
+
+    BOOST_TEST_MESSAGE("Second header bytes");
+    testCaseHeaderBytes(tapeTap, 3, 'B', 1, 32768, 32768, 96);
+
+    BOOST_TEST_MESSAGE("Second header data in middle");
+
+    tapeTap.rewindToNearest(PART_1_MICROS +
+            PILOT_HEADER_MICROS +
+            BYTE_0_MICROS +
+            BYTE_3_MICROS +
+            BYTE_66_MICROS +
+            BYTE_32_MICROS * 4 +
+            BYTE_32_MICROS / 2);
+
+    BOOST_REQUIRE(tapeTap.getElapsedMicros() == PART_1_MICROS +
+            PILOT_HEADER_MICROS +
+            BYTE_0_MICROS +
+            BYTE_3_MICROS +
+            BYTE_66_MICROS +
+            BYTE_32_MICROS * 4);
+
+    BOOST_TEST_MESSAGE("- name spaces");
+
+    for (int i = 5; i--;) {
+        testCaseByte(tapeTap, 32);
+    }
+
+    BOOST_TEST_MESSAGE("- data size");
+    testCaseByte(tapeTap, 1 & 0xFF);
+    testCaseByte(tapeTap, 1 >> 8);
+
+    BOOST_TEST_MESSAGE("- param 1");
+    testCaseByte(tapeTap, 32768 & 0xFF);
+    testCaseByte(tapeTap, 32768 >> 8);
+
+    BOOST_TEST_MESSAGE("- param 2");
+    testCaseByte(tapeTap, 32768 & 0xFF);
+    testCaseByte(tapeTap, 32768 >> 8);
+
+    BOOST_TEST_MESSAGE("- checksum");
+    testCaseByte(tapeTap, 96);
+
+    BOOST_TEST_MESSAGE("Behind");
+    tapeTap.rewindToNearest(TOTAL_MICROS + BYTE_0_MICROS);
+    BOOST_REQUIRE(tapeTap.getElapsedMicros() == TOTAL_MICROS);
 }
 
 #pragma clang diagnostic pop

@@ -118,38 +118,38 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="529" y="93" width="424" height="536" key="FileChooserDialogImpl/0.0.1366.728@0.0.1366.728" timestamp="1591517597801" />
-    <state width="1345" height="218" key="GridCell.Tab.0.bottom" timestamp="1594225704109">
+    <state width="1345" height="218" key="GridCell.Tab.0.bottom" timestamp="1594229739115">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
-    <state width="1345" height="218" key="GridCell.Tab.0.bottom/0.0.1366.731@0.0.1366.731" timestamp="1594225704109" />
-    <state width="1345" height="218" key="GridCell.Tab.0.center" timestamp="1594225704108">
+    <state width="1345" height="218" key="GridCell.Tab.0.bottom/0.0.1366.731@0.0.1366.731" timestamp="1594229739115" />
+    <state width="1345" height="218" key="GridCell.Tab.0.center" timestamp="1594229739114">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
-    <state width="1345" height="218" key="GridCell.Tab.0.center/0.0.1366.731@0.0.1366.731" timestamp="1594225704108" />
-    <state width="1345" height="218" key="GridCell.Tab.0.left" timestamp="1594225704108">
+    <state width="1345" height="218" key="GridCell.Tab.0.center/0.0.1366.731@0.0.1366.731" timestamp="1594229739114" />
+    <state width="1345" height="218" key="GridCell.Tab.0.left" timestamp="1594229739114">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
-    <state width="1345" height="218" key="GridCell.Tab.0.left/0.0.1366.731@0.0.1366.731" timestamp="1594225704108" />
-    <state width="1345" height="218" key="GridCell.Tab.0.right" timestamp="1594225704109">
+    <state width="1345" height="218" key="GridCell.Tab.0.left/0.0.1366.731@0.0.1366.731" timestamp="1594229739114" />
+    <state width="1345" height="218" key="GridCell.Tab.0.right" timestamp="1594229739115">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
-    <state width="1345" height="218" key="GridCell.Tab.0.right/0.0.1366.731@0.0.1366.731" timestamp="1594225704109" />
-    <state width="1345" height="218" key="GridCell.Tab.1.bottom" timestamp="1594225704112">
+    <state width="1345" height="218" key="GridCell.Tab.0.right/0.0.1366.731@0.0.1366.731" timestamp="1594229739115" />
+    <state width="1345" height="218" key="GridCell.Tab.1.bottom" timestamp="1594229739116">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
-    <state width="1345" height="218" key="GridCell.Tab.1.bottom/0.0.1366.731@0.0.1366.731" timestamp="1594225704112" />
-    <state width="1345" height="218" key="GridCell.Tab.1.center" timestamp="1594225704111">
+    <state width="1345" height="218" key="GridCell.Tab.1.bottom/0.0.1366.731@0.0.1366.731" timestamp="1594229739116" />
+    <state width="1345" height="218" key="GridCell.Tab.1.center" timestamp="1594229739115">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
-    <state width="1345" height="218" key="GridCell.Tab.1.center/0.0.1366.731@0.0.1366.731" timestamp="1594225704110" />
-    <state width="1345" height="218" key="GridCell.Tab.1.left" timestamp="1594225704110">
+    <state width="1345" height="218" key="GridCell.Tab.1.center/0.0.1366.731@0.0.1366.731" timestamp="1594229739115" />
+    <state width="1345" height="218" key="GridCell.Tab.1.left" timestamp="1594229739115">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
-    <state width="1345" height="218" key="GridCell.Tab.1.left/0.0.1366.731@0.0.1366.731" timestamp="1594225704110" />
-    <state width="1345" height="218" key="GridCell.Tab.1.right" timestamp="1594225704111">
+    <state width="1345" height="218" key="GridCell.Tab.1.left/0.0.1366.731@0.0.1366.731" timestamp="1594229739115" />
+    <state width="1345" height="218" key="GridCell.Tab.1.right" timestamp="1594229739115">
       <screen x="0" y="0" width="1366" height="731" />
     </state>
-    <state width="1345" height="218" key="GridCell.Tab.1.right/0.0.1366.731@0.0.1366.731" timestamp="1594225704111" />
+    <state width="1345" height="218" key="GridCell.Tab.1.right/0.0.1366.731@0.0.1366.731" timestamp="1594229739115" />
     <state x="266" y="109" width="824" height="503" key="IDE.errors.dialog" timestamp="1591477321887">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
@@ -182,7 +182,9 @@
     <watches-manager>
       <configuration name="CMakeBoostTestRunConfigurationType">
         <watch expression="data" language="ObjectiveC" />
+        <watch expression="micros - endMicros" language="ObjectiveC" />
         <watch expression="totalMicros" language="ObjectiveC" />
+        <watch expression="currentOffset" language="ObjectiveC" />
         <watch expression="currentProcessedMicros" language="ObjectiveC" />
       </configuration>
     </watches-manager>
