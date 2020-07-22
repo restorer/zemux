@@ -48,7 +48,7 @@ protected:
     virtual ~AyChipCallback() = default;
 };
 
-ZEMUX_FORCE_INLINE constexpr unsigned int ayChipExternalToDeviceRate(unsigned int externalClockRate) {
+ZEMUX_FORCE_INLINE constexpr uint32_t ayChipExternalToDeviceRate(uint32_t externalClockRate) {
     return externalClockRate >> 3;
 }
 
@@ -94,7 +94,7 @@ public:
         RegPortB = 15
     };
 
-    static constexpr unsigned int DEFAULT_RATE = ayChipExternalToDeviceRate(1774400);
+    static constexpr uint32_t DEFAULT_RATE = ayChipExternalToDeviceRate(1774400);
 
     explicit AyChip(Loudspeaker* loudspeaker,
             AyChipCallback* cb = nullptr,
@@ -122,7 +122,7 @@ public:
     void write(uint8_t value);
     uint8_t read();
     void reset();
-    void step(unsigned int ticks);
+    void step(uint32_t ticks);
 
 private:
 
@@ -136,40 +136,40 @@ private:
     uint8_t regs[0x10] = { 0 };
     uint8_t selectedReg = 0;
 
-    unsigned int toneAPeriod = 0;
-    unsigned int toneBPeriod = 0;
-    unsigned int toneCPeriod = 0;
-    unsigned int noisePeriod = 0;
+    uint_fast16_t toneAPeriod = 0;
+    uint_fast16_t toneBPeriod = 0;
+    uint_fast16_t toneCPeriod = 0;
+    uint_fast16_t noisePeriod = 0;
 
-    unsigned int toneAMute = 0;
-    unsigned int toneBMute = 0;
-    unsigned int toneCMute = 0;
-    unsigned int noiseAMute = 0;
-    unsigned int noiseBMute = 0;
-    unsigned int noiseCMute = 0;
+    uint_fast8_t toneAMute = 0;
+    uint_fast8_t toneBMute = 0;
+    uint_fast8_t toneCMute = 0;
+    uint_fast8_t noiseAMute = 0;
+    uint_fast8_t noiseBMute = 0;
+    uint_fast8_t noiseCMute = 0;
     bool isPortModeOut[2] = { false };
 
-    unsigned int toneAAmp = 0;
-    unsigned int envAMask = 0;
-    unsigned int toneBAmp = 0;
-    unsigned int envBMask = 0;
-    unsigned int toneCAmp = 0;
-    unsigned int envCMask = 0;
-    unsigned int envPeriod = 0;
-    unsigned int envShape = 0;
+    uint_fast8_t toneAAmp = 0;
+    uint_fast8_t envAMask = 0;
+    uint_fast8_t toneBAmp = 0;
+    uint_fast8_t envBMask = 0;
+    uint_fast8_t toneCAmp = 0;
+    uint_fast8_t envCMask = 0;
+    uint_fast16_t envPeriod = 0;
+    uint_fast16_t envShape = 0;
 
-    unsigned int toneATick = 0;
-    unsigned int toneACurrent = 0;
-    unsigned int toneBTick = 0;
-    unsigned int toneBCurrent = 0;
-    unsigned int toneCTick = 0;
-    unsigned int toneCCurrent = 0;
-    unsigned int noiseTick = 0;
-    unsigned int noiseValue = 0;
-    unsigned int noiseCurrent = 0;
-    unsigned int envTick = 0;
-    int envDelta = 0;
-    unsigned int envCurrent = 0;
+    uint_fast16_t toneATick = 0;
+    uint_fast8_t toneACurrent = 0;
+    uint_fast16_t toneBTick = 0;
+    uint_fast8_t toneBCurrent = 0;
+    uint_fast16_t toneCTick = 0;
+    uint_fast8_t toneCCurrent = 0;
+    uint_fast16_t noiseTick = 0;
+    uint_fast16_t noiseValue = 0;
+    uint_fast8_t noiseCurrent = 0;
+    uint_fast16_t envTick = 0;
+    int_fast8_t envDelta = 0;
+    uint_fast8_t envCurrent = 0;
 
     void updateVolumes();
 };

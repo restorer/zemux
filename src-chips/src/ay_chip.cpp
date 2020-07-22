@@ -131,58 +131,58 @@ void AyChip::write(uint8_t value) {
             [[fallthrough]];
 
         case RegAPeriodCoarse:
-            toneAPeriod = regs[RegAPeriodFine] | (static_cast<unsigned int>(regs[RegAPeriodCoarse]) << 8);
+            toneAPeriod = regs[RegAPeriodFine] | (static_cast<uint_fast16_t>(regs[RegAPeriodCoarse]) << 8);
             break;
 
         case RegBPeriodFine:
             [[fallthrough]];
 
         case RegBPeriodCoarse:
-            toneBPeriod = regs[RegBPeriodFine] | (static_cast<unsigned int>(regs[RegBPeriodCoarse]) << 8);
+            toneBPeriod = regs[RegBPeriodFine] | (static_cast<uint_fast16_t>(regs[RegBPeriodCoarse]) << 8);
             break;
 
         case RegCPeriodFine:
             [[fallthrough]];
 
         case RegCPeriodCoarse:
-            toneCPeriod = regs[RegCPeriodFine] | (static_cast<unsigned int>(regs[RegCPeriodCoarse]) << 8);
+            toneCPeriod = regs[RegCPeriodFine] | (static_cast<uint_fast16_t>(regs[RegCPeriodCoarse]) << 8);
             break;
 
         case RegNoisePeriod:
-            noisePeriod = static_cast<unsigned int>(value) << 1;
+            noisePeriod = static_cast<uint_fast16_t>(value) << 1;
             break;
 
         case RegControl:
-            toneAMute = 0 - (static_cast<unsigned int>(value >> 0) & 1);
-            toneBMute = 0 - (static_cast<unsigned int>(value >> 1) & 1);
-            toneCMute = 0 - (static_cast<unsigned int>(value >> 2) & 1);
-            noiseAMute = 0 - (static_cast<unsigned int>(value >> 3) & 1);
-            noiseBMute = 0 - (static_cast<unsigned int>(value >> 4) & 1);
-            noiseCMute = 0 - (static_cast<unsigned int>(value >> 5) & 1);
+            toneAMute = 0 - (static_cast<uint_fast8_t>(value >> 0) & 1);
+            toneBMute = 0 - (static_cast<uint_fast8_t>(value >> 1) & 1);
+            toneCMute = 0 - (static_cast<uint_fast8_t>(value >> 2) & 1);
+            noiseAMute = 0 - (static_cast<uint_fast8_t>(value >> 3) & 1);
+            noiseBMute = 0 - (static_cast<uint_fast8_t>(value >> 4) & 1);
+            noiseCMute = 0 - (static_cast<uint_fast8_t>(value >> 5) & 1);
             isPortModeOut[0] = (value >> 6) & 1;
             isPortModeOut[1] = (value >> 6) & 1;
             break;
 
         case RegAAmp:
-            envAMask = 0 - static_cast<unsigned int>((value & 0x10) >> 4);
-            toneAAmp = ((static_cast<unsigned int>(value & 0x0F) << 1) + 1) & ~envAMask;
+            envAMask = 0 - static_cast<uint_fast8_t>((value & 0x10) >> 4);
+            toneAAmp = ((static_cast<uint_fast8_t>(value & 0x0F) << 1) + 1) & ~envAMask;
             break;
 
         case RegBAmp:
-            envBMask = 0 - static_cast<unsigned int>((value & 0x10) >> 4);
-            toneBAmp = ((static_cast<unsigned int>(value & 0x0F) << 1) + 1) & ~envBMask;
+            envBMask = 0 - static_cast<uint_fast8_t>((value & 0x10) >> 4);
+            toneBAmp = ((static_cast<uint_fast8_t>(value & 0x0F) << 1) + 1) & ~envBMask;
             break;
 
         case RegCAmp:
-            envCMask = 0 - static_cast<unsigned int>((value & 0x10) >> 4);
-            toneCAmp = ((static_cast<unsigned int>(value & 0x0F) << 1) + 1) & ~envCMask;
+            envCMask = 0 - static_cast<uint_fast8_t>((value & 0x10) >> 4);
+            toneCAmp = ((static_cast<uint_fast8_t>(value & 0x0F) << 1) + 1) & ~envCMask;
             break;
 
         case RegEnvPeriodFine:
             [[fallthrough]];
 
         case RegEnvPeriodCoarse:
-            envPeriod = regs[RegEnvPeriodFine] | (static_cast<unsigned int>(regs[RegEnvPeriodCoarse]) << 8);
+            envPeriod = regs[RegEnvPeriodFine] | (static_cast<uint_fast16_t>(regs[RegEnvPeriodCoarse]) << 8);
             break;
 
         case RegEnvShape:
@@ -241,7 +241,7 @@ void AyChip::reset() {
     selectedReg = 0;
 }
 
-void AyChip::step(unsigned int ticks) {
+void AyChip::step(uint32_t ticks) {
     while (ticks--) {
         if (++toneATick >= toneAPeriod) {
             toneATick = 0;
@@ -261,7 +261,7 @@ void AyChip::step(unsigned int ticks) {
         if (++noiseTick >= noisePeriod) {
             noiseTick = 0;
             noiseValue = ((noiseValue << 1) + 1) ^ (((noiseValue >> 16) ^ (noiseValue >> 13)) & 1);
-            noiseCurrent = 0 - ((noiseValue >> 16) & 1);
+            noiseCurrent = 0 - (static_cast<uint_fast8_t>(noiseValue >> 16) & 1);
         }
 
         if (++envTick >= envPeriod) {
@@ -285,7 +285,7 @@ void AyChip::step(unsigned int ticks) {
             }
         }
 
-        unsigned int amp = ((envAMask & envCurrent) | toneAAmp) &
+        uint_fast16_t amp = ((envAMask & envCurrent) | toneAAmp) &
                 (toneACurrent | toneAMute) &
                 (noiseCurrent | noiseAMute);
 

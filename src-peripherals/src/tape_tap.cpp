@@ -37,16 +37,21 @@ const char* TapeTap::ERROR_CHUNK_TOO_SMALL = /* @i18n */ "tape_tap.chunk_too_sma
 const char* TapeTap::ERROR_INVALID_CHECKSUM = /* @i18n */ "tape_tap.invalid_checksum";
 const char* TapeTap::ERROR_NO_CHUNKS = /* @i18n */ "tape_tap.no_chunks";
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
+
 TapeTap::TapeTap(
         DataReader* reader,
         Loudspeaker* loudspeaker,
-        bool shouldValidateStrict
-) : Tape { reader, loudspeaker } {
+        bool shouldValidateStrict) : Tape { reader, loudspeaker } {
+
     data = reader->readEntire(MAX_TAP_SIZE);
     parseChunks(shouldValidateStrict);
 }
 
-void TapeTap::step(unsigned int micros) {
+#pragma clang diagnostic pop
+
+void TapeTap::step(uint32_t micros) {
     if (currentChunkIndex >= totalChunks) {
         volumeBit = false;
         loudspeakerStep(micros);
@@ -55,49 +60,37 @@ void TapeTap::step(unsigned int micros) {
 
     elapsedMicros += micros;
 
-    while (currentProcessedMicros < elapsedMicros) {
-        if (currentWaitMicros > elapsedMicros - currentProcessedMicros) {
-            return;
-        }
-
-        loudspeakerStep(currentWaitMicros);
-        currentProcessedMicros += currentWaitMicros;
+    while (chronometer.getDstTicksPassed() < elapsedMicros) {
+        loudspeakerStep(chronometer.srcAdvanceByDelta(currentWaitTicks));
 
         switch (currentState) {
-            case StatePilotMainLow:
-                volumeBit = true;
-                currentState = StatePilotMainHigh;
-                break;
+            case StatePilot:
+                volumeBit = !volumeBit;
 
-            case StatePilotMainHigh:
-                volumeBit = false;
-
-                if (--currentPilotCount) {
-                    currentState = StatePilotMainLow;
-                } else {
-                    currentState = StatePilotCapLow;
-                    currentWaitMicros = PILOT_CAP_LOW_MICROS;
+                if (!(--currentPilotPulsesLeft)) {
+                    currentState = StateSyncFirst;
+                    currentWaitTicks = SYNC_PULSE_FIRST_TICKS;
                 }
                 break;
 
-            case StatePilotCapLow:
-                volumeBit = true;
-                currentState = StatePilotCapHigh;
-                currentWaitMicros = PILOT_CAP_HIGH_MICROS;
+            case StateSyncFirst:
+                volumeBit = !volumeBit;
+                currentState = StateSyncSecond;
+                currentWaitTicks = SYNC_PULSE_SECOND_TICKS;
                 break;
 
-            case StatePilotCapHigh:
-                volumeBit = false;
+            case StateSyncSecond:
+                volumeBit = !volumeBit;
                 initValueState();
                 break;
 
-            case StateBitLow:
-                volumeBit = true;
-                currentState = StateBitHigh;
+            case StateBitFirst:
+                volumeBit = !volumeBit;
+                currentState = StateBitSecond;
                 break;
 
-            case StateBitHigh:
-                volumeBit = false;
+            case StateBitSecond:
+                volumeBit = !volumeBit;
                 currentMask >>= 1;
 
                 if (currentMask) {
@@ -106,12 +99,18 @@ void TapeTap::step(unsigned int micros) {
                     ++currentOffset;
                     initValueState();
                 } else {
-                    currentState = StateDelay;
-                    currentWaitMicros = DELAY_MICROS;
+                    currentState = StateDelayFirst;
+                    currentWaitTicks = DELAY_FIRST_TICKS;
                 }
                 break;
 
-            case StateDelay:
+            case StateDelayFirst:
+                volumeBit = false;
+                currentState = StateDelaySecond;
+                currentWaitTicks = DELAY_SECOND_TICKS;
+                break;
+
+            case StateDelaySecond:
                 if (++currentChunkIndex >= totalChunks) {
                     elapsedMicros = totalMicros;
                 } else {
@@ -122,13 +121,14 @@ void TapeTap::step(unsigned int micros) {
     }
 }
 
-void TapeTap::rewindToNearest(unsigned int micros) {
+void TapeTap::rewindToNearest(uint64_t micros) {
     volumeBit = false;
     currentChunkIndex = 0;
-    currentProcessedMicros = 0;
+    currentProcessedTicks = 0;
+    auto desiredTicks = chronometer.dstToSrcCeil(micros);
 
-    while (currentChunkIndex < totalChunks && chunks[currentChunkIndex].endMicros <= micros) {
-        currentProcessedMicros = chunks[currentChunkIndex].endMicros;
+    while (currentChunkIndex < totalChunks && chunks[currentChunkIndex].endTicks <= desiredTicks) {
+        currentProcessedTicks = chunks[currentChunkIndex].endTicks;
         currentChunkIndex++;
     }
 
@@ -138,52 +138,68 @@ void TapeTap::rewindToNearest(unsigned int micros) {
     }
 
     initPilotState();
-    unsigned int endMicros = currentProcessedMicros + currentPilotCount * PILOT_MAIN_HALF_MICROS * 2;
+    uint64_t endTicks = currentProcessedTicks + currentPilotPulsesLeft * PILOT_PULSE_TICKS;
 
-    if (micros < endMicros) {
-        unsigned int pilotLeft = (endMicros - micros) / (PILOT_MAIN_HALF_MICROS * 2);
+    if (desiredTicks < endTicks) {
+        unsigned int pulsesLeft = (endTicks - desiredTicks) / PILOT_PULSE_TICKS;
+        unsigned int pulsesProcessed = currentPilotPulsesLeft - pulsesLeft;
 
-        currentProcessedMicros += (currentPilotCount - pilotLeft) * (PILOT_MAIN_HALF_MICROS * 2);
-        currentPilotCount = pilotLeft;
-        elapsedMicros = currentProcessedMicros;
+        volumeBit = (pulsesProcessed % 2) == 0;
+        currentProcessedTicks += pulsesProcessed * PILOT_PULSE_TICKS;
+        currentPilotPulsesLeft = pulsesLeft;
+        elapsedMicros = chronometer.srcToDstCeil(currentProcessedTicks);
         return;
     }
 
-    currentProcessedMicros = endMicros;
-    endMicros += PILOT_CAP_LOW_MICROS + PILOT_CAP_HIGH_MICROS;
+    volumeBit = (currentPilotPulsesLeft % 2) == 0;
+    currentProcessedTicks = endTicks;
+    endTicks += SYNC_PULSE_FIRST_TICKS + SYNC_PULSE_SECOND_TICKS;
 
-    if (micros < endMicros) {
-        currentState = StatePilotCapLow;
-        currentWaitMicros = PILOT_CAP_LOW_MICROS;
-        elapsedMicros = currentProcessedMicros;
+    if (desiredTicks < endTicks) {
+        currentState = StateSyncFirst;
+        currentWaitTicks = SYNC_PULSE_FIRST_TICKS;
+        elapsedMicros = chronometer.srcToDstCeil(currentProcessedTicks);
         return;
     }
 
-    currentProcessedMicros = endMicros;
+    // volumeBit remains the same after sync
+    currentProcessedTicks = endTicks;
 
     while (currentSizeLeft) {
-        endMicros += computeMicrosForValue(data[currentOffset]);
+        endTicks += computeTicksForValue(data[currentOffset]);
 
-        if (micros < endMicros) {
+        if (desiredTicks < endTicks) {
             initValueState();
-            elapsedMicros = currentProcessedMicros;
+            elapsedMicros = chronometer.srcToDstCeil(currentProcessedTicks);
             return;
         }
 
-        currentProcessedMicros = endMicros;
+        currentProcessedTicks = endTicks;
         ++currentOffset;
         --currentSizeLeft;
     }
 
-    currentState = StateDelay;
-    currentWaitMicros = DELAY_MICROS - (micros - endMicros);
-    currentProcessedMicros = micros;
-    elapsedMicros = currentProcessedMicros;
+    // volumeBit remains the same after bytes
+    endTicks += DELAY_FIRST_TICKS;
+
+    if (desiredTicks < endTicks) {
+        currentState = StateDelayFirst;
+        currentWaitTicks = DELAY_FIRST_TICKS;
+        elapsedMicros = chronometer.srcToDstCeil(currentProcessedTicks);
+        return;
+    }
+
+    volumeBit = false;
+    currentState = StateDelaySecond;
+    currentWaitTicks = DELAY_SECOND_TICKS - (desiredTicks - endTicks);
+    currentProcessedTicks = desiredTicks;
+    elapsedMicros = chronometer.srcToDstCeil(currentProcessedTicks);
 }
 
 void TapeTap::parseChunks(bool shouldValidateStrict) {
     unsigned int totalSize = data.size();
     unsigned int position = 0;
+    uint64_t totalTicks = 0;
 
     while (position < totalSize) {
         if (position + 2 > totalSize) {
@@ -219,22 +235,23 @@ void TapeTap::parseChunks(bool shouldValidateStrict) {
             }
         }
 
-        totalMicros += (getPilotCount(data[position]) * PILOT_MAIN_HALF_MICROS * 2) +
-                (PILOT_CAP_LOW_MICROS + PILOT_CAP_HIGH_MICROS) +
-                DELAY_MICROS;
+        totalTicks += (getPilotPulses(data[position]) * PILOT_PULSE_TICKS) +
+                (SYNC_PULSE_FIRST_TICKS + SYNC_PULSE_SECOND_TICKS) +
+                (DELAY_FIRST_TICKS + DELAY_SECOND_TICKS);
 
         for (unsigned int chunkPos = position; chunkPos <= chunkLast; ++chunkPos) {
-            totalMicros += computeMicrosForValue(data[chunkPos]);
+            totalTicks += computeTicksForValue(data[chunkPos]);
         }
 
         chunks.push_back(Chunk {
                 .offset = position,
                 .size = chunkSize,
-                .endMicros = totalMicros });
+                .endTicks = totalTicks });
 
         position += chunkSize;
     }
 
+    totalMicros = chronometer.dstToSrcCeil(totalTicks);
     totalChunks = chunks.size();
 
     if (totalChunks) {
@@ -249,26 +266,25 @@ void TapeTap::initPilotState() {
 
     currentOffset = chunk.offset;
     currentSizeLeft = chunk.size;
-    currentState = StatePilotMainLow;
-    currentWaitMicros = PILOT_MAIN_HALF_MICROS;
-    currentPilotCount = getPilotCount(data[currentOffset]);
+    currentState = StatePilot;
+    currentWaitTicks = PILOT_PULSE_TICKS;
+    currentPilotPulsesLeft = getPilotPulses(data[currentOffset]);
 }
 
 void TapeTap::initValueState() {
     currentValue = data[currentOffset];
     currentMask = 0x80;
-
     initCurrentBitState();
 }
 
-unsigned int TapeTap::computeMicrosForValue(uint8_t value) {
-    unsigned int micros = 0;
+uint64_t TapeTap::computeTicksForValue(uint8_t value) {
+    uint64_t ticks = 0;
 
     for (uint8_t mask = 0x80; mask; mask >>= 1) {
-        micros += getHalfMicrosForBit(value & mask) * 2;
+        ticks += getPulseTicksForBit(value & mask) * 2;
     }
 
-    return micros;
+    return ticks;
 }
 
 }

@@ -23,7 +23,6 @@
 cmake_minimum_required (VERSION 3.10)
 
 add_library (zemux_core SHARED
-        src/chronometer.cpp
         src/data_io.cpp)
 
 include (TestBigEndian)

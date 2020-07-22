@@ -29,6 +29,7 @@
 #include <vector>
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/force_inline.h>
+#include <zemux_core/chronometer.h>
 #include <zemux_core/data_io.h>
 #include "tape.h"
 
@@ -45,67 +46,70 @@ public:
     TapeTap(DataReader* reader, Loudspeaker* loudspeaker, bool shouldValidateStrict);
     ~TapeTap() override = default;
 
-    void step(unsigned int micros) override;
-    void rewindToNearest(unsigned int micros) override;
+    void step(uint32_t micros) override;
+    void rewindToNearest(uint64_t micros) override;
 
 private:
 
-    static constexpr unsigned int PILOT_HEADER_COUNT = 4032;
-    static constexpr unsigned int PILOT_DATA_COUNT = 1611;
-    static constexpr unsigned int PILOT_MAIN_HALF_MICROS = tapeTicksToMicros(2168);
-    static constexpr unsigned int PILOT_CAP_LOW_MICROS = tapeTicksToMicros(667);
-    static constexpr unsigned int PILOT_CAP_HIGH_MICROS = tapeTicksToMicros(735);
-    static constexpr unsigned int BIT_ZERO_HALF_MICROS = tapeTicksToMicros(855);
-    static constexpr unsigned int BIT_ONE_HALF_MICROS = tapeTicksToMicros(1710);
-    static constexpr unsigned int DELAY_MICROS = tapeTicksToMicros(2168) * 1000;
+    static constexpr uint64_t PILOT_PULSE_TICKS = 2168;
+    static constexpr unsigned int PILOT_HEADER_PULSES = 8063;
+    static constexpr unsigned int PILOT_DATA_PULSES = 3223;
+    static constexpr uint64_t SYNC_PULSE_FIRST_TICKS = 667;
+    static constexpr uint64_t SYNC_PULSE_SECOND_TICKS = 735;
+    static constexpr uint64_t BIT_ZERO_PULSE_TICKS = 855;
+    static constexpr uint64_t BIT_ONE_PULSE_TICKS = 1710;
+    static constexpr uint64_t DELAY_FIRST_TICKS = tapeMicrosToTicks(MILLIS_MICROS);
+    static constexpr uint64_t DELAY_SECOND_TICKS = tapeMicrosToTicks(SECOND_MICROS - MILLIS_MICROS);
 
     struct Chunk {
         unsigned int offset;
         unsigned int size;
-        unsigned int endMicros;
+        uint64_t endTicks;
     };
 
     enum State {
-        StatePilotMainLow,
-        StatePilotMainHigh,
-        StatePilotCapLow,
-        StatePilotCapHigh,
-        StateBitLow,
-        StateBitHigh,
-        StateDelay
+        StatePilot,
+        StateSyncFirst,
+        StateSyncSecond,
+        StateBitFirst,
+        StateBitSecond,
+        StateDelayFirst,
+        StateDelaySecond
     };
+
+    ChronometerWide chronometer { FRAME_TICKS, FRAME_MICROS };
 
     std::vector<uint8_t> data;
     std::vector<Chunk> chunks;
     unsigned int totalChunks;
 
-    unsigned int currentProcessedMicros = 0;
+    uint64_t currentProcessedTicks = 0;
     unsigned int currentChunkIndex = 0;
     unsigned int currentOffset;
     unsigned int currentSizeLeft;
     State currentState;
-    unsigned int currentWaitMicros;
-    unsigned int currentPilotCount;
+    uint64_t currentWaitTicks;
+    unsigned int currentPilotPulsesLeft;
     uint8_t currentMask;
     uint8_t currentValue;
 
-    ZEMUX_FORCE_INLINE unsigned int getPilotCount(uint8_t flagValue) {
-        return (flagValue ? PILOT_DATA_COUNT : PILOT_HEADER_COUNT);
+    ZEMUX_FORCE_INLINE unsigned int getPilotPulses(uint8_t flagValue) {
+        return (flagValue ? PILOT_DATA_PULSES : PILOT_HEADER_PULSES);
     }
 
-    ZEMUX_FORCE_INLINE unsigned int getHalfMicrosForBit(uint8_t maskedValue) {
-        return (maskedValue ? BIT_ONE_HALF_MICROS : BIT_ZERO_HALF_MICROS);
+    ZEMUX_FORCE_INLINE uint64_t getPulseTicksForBit(uint8_t maskedValue) {
+        return (maskedValue ? BIT_ONE_PULSE_TICKS : BIT_ZERO_PULSE_TICKS);
     }
 
     ZEMUX_FORCE_INLINE void initCurrentBitState() {
-        currentState = StateBitLow;
-        currentWaitMicros = getHalfMicrosForBit(currentValue & currentMask);
+        currentState = StateBitFirst;
+        currentWaitTicks = getPulseTicksForBit(currentValue & currentMask);
     }
 
     void parseChunks(bool shouldValidateStrict);
     void initPilotState();
     void initValueState();
-    unsigned int computeMicrosForValue(uint8_t value);
+    uint64_t computeTicksForValue(uint8_t value);
 };
 
 }

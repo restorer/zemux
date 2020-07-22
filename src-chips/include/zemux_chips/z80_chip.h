@@ -50,7 +50,7 @@ public:
     }
 
     // To handle contended memory with original ULA.
-    virtual void onZ80PutAddress(uint16_t /* address */, unsigned int /* cycles */) {
+    virtual void onZ80PutAddress(uint16_t /* address */, uint_fast32_t /* cycles */) {
     }
 
 protected:
@@ -254,19 +254,19 @@ public:
         return !isProcessingInstruction && !prefix && !shouldSkipNextInterrupt;
     }
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int getTstate() const {
+    [[nodiscard]] ZEMUX_FORCE_INLINE uint_fast32_t getTstate() const {
         return tstate;
     }
 
-    ZEMUX_FORCE_INLINE void wait(unsigned int cycles) {
+    ZEMUX_FORCE_INLINE void wait(uint_fast32_t cycles) {
         tstate += cycles;
     }
 
     void setChipType(ChipType type);
     void reset();
-    unsigned int step();
-    unsigned int doInt();
-    unsigned int doNmi();
+    uint_fast32_t step();
+    uint_fast32_t doInt();
+    uint_fast32_t doNmi();
 
 private:
 
@@ -300,13 +300,13 @@ private:
     uint16_t pcIncrement = 1;
     uint8_t prefix;
     int8_t cbOffset = 0;
-    unsigned int tstate = 0;
+    uint_fast32_t tstate = 0;
 
     ZEMUX_FORCE_INLINE void incR() {
         regs.R = (regs.R & 0x80) | ((regs.R + 1) & 0x7Fu);
     }
 
-    ZEMUX_FORCE_INLINE void putAddressOnBus(uint16_t address, unsigned int cycles) {
+    ZEMUX_FORCE_INLINE void putAddressOnBus(uint16_t address, uint_fast32_t cycles) {
         cb->onZ80PutAddress(address, cycles);
         tstate += cycles;
     }

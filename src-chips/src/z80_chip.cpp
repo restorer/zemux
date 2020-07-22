@@ -112,7 +112,7 @@ void Z80Chip::reset() {
     tstate = 0;
 }
 
-unsigned int Z80Chip::step() {
+uint_fast32_t Z80Chip::step() {
     shouldResetPv = false;
     shouldSkipNextInterrupt = false;
     tstate = 0;
@@ -124,7 +124,7 @@ unsigned int Z80Chip::step() {
     return tstate;
 }
 
-unsigned int Z80Chip::doInt() {
+uint_fast32_t Z80Chip::doInt() {
     tstate = 0;
 
     if (!regs.IFF1 || shouldSkipNextInterrupt) {
@@ -202,7 +202,7 @@ unsigned int Z80Chip::doInt() {
     return tstate;
 }
 
-unsigned int Z80Chip::doNmi() {
+uint_fast32_t Z80Chip::doNmi() {
     tstate = 0;
 
     if (isProcessingInstruction || prefix || shouldSkipNextInterrupt) {

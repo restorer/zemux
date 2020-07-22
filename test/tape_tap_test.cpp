@@ -24,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+/*
 
 #include <boost/test/unit_test.hpp>
 #include <zemux_peripherals/tape_tap.h>
@@ -278,3 +279,5 @@ BOOST_AUTO_TEST_CASE(TapeTapTest) {
 }
 
 #pragma clang diagnostic pop
+
+*/

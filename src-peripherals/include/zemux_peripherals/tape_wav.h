@@ -58,7 +58,7 @@ public:
 
     ~TapeWav() override = default;
 
-    inline uint16_t getThreshold() const {
+    [[nodiscard]] inline uint16_t getThreshold() const {
         return threshold;
     }
 
@@ -66,8 +66,8 @@ public:
         threshold = value;
     }
 
-    void step(unsigned int micros) override;
-    void rewindToNearest(unsigned int micros) override;
+    void step(uint32_t micros) override;
+    void rewindToNearest(uint64_t micros) override;
 
 private:
 
@@ -111,11 +111,11 @@ private:
     FmtContent fmt;
     uintmax_t dataPosition;
     uintmax_t dataSize;
-    Chronometer chronometer { SECOND_MICROS, SECOND_MICROS };
+    ChronometerWide chronometer { SECOND_MICROS, SECOND_MICROS };
     unsigned int blockPadding;
     int64_t (TapeWav::* readSamplePtr)();
     uintmax_t currentDataOffset = 0;
-    unsigned int currentSampleMicros = 0;
+    uint64_t currentSampleMicros = 0;
 
     ZEMUX_FORCE_INLINE int64_t readSampleB24Inline() {
         return extend24To32(reader->readUInt16() | (static_cast<uint32_t>(reader->readUInt8()) << 16));

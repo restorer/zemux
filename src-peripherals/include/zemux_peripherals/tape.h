@@ -33,48 +33,48 @@
 
 namespace zemux {
 
-ZEMUX_FORCE_INLINE constexpr unsigned int tapeTicksToMicros(unsigned int ticks) {
-    return ticks * 20000 / 71680;
-}
-
 class Tape {
 public:
+    static constexpr uint64_t MILLIS_MICROS = 1000;
+    static constexpr uint64_t SECOND_MICROS = 1000 * MILLIS_MICROS;
 
-    static constexpr unsigned int SECOND_MICROS = 1000000;
+    static constexpr uint64_t FRAME_TICKS = 71680;
+    static constexpr uint64_t FRAME_MICROS = 20000;
+
     static constexpr uint16_t LOW_BIT_VOLUME = 0x0000;
     static constexpr uint16_t HIGH_BIT_VOLUME = 0xFFFF;
 
-    inline bool getVolumeBit() const {
+    [[nodiscard]] inline bool getVolumeBit() const {
         return volumeBit;
     }
 
-    inline unsigned int getTotalMicros() {
+    [[nodiscard]] inline uint64_t getTotalMicros() const {
         return totalMicros;
     }
 
-    inline unsigned int getElapsedMicros() {
+    [[nodiscard]] inline uint64_t getElapsedMicros() const {
         return elapsedMicros;
     }
 
-    virtual void step(unsigned int micros) = 0;
-    virtual void rewindToNearest(unsigned int micros) = 0;
+    virtual void step(uint32_t micros) = 0;
+    virtual void rewindToNearest(uint64_t micros) = 0;
 
 protected:
 
     DataReader* reader;
     Loudspeaker* loudspeaker;
     bool volumeBit = false;
-    unsigned int totalMicros = 0;
-    unsigned int elapsedMicros = 0;
+    uint64_t totalMicros = 0;
+    uint64_t elapsedMicros = 0;
 
     Tape(DataReader* reader, Loudspeaker* loudspeaker);
     virtual ~Tape() = default;
 
-    inline void loudspeakerStep(unsigned int micros) {
+    inline void loudspeakerStep(uint32_t micros) {
         loudspeakerStep(volumeBit, micros);
     }
 
-    inline void loudspeakerStep(bool outputBit, unsigned int micros) {
+    inline void loudspeakerStep(bool outputBit, uint32_t micros) {
         if (micros) {
             uint16_t volume = outputBit ? HIGH_BIT_VOLUME : LOW_BIT_VOLUME;
             loudspeaker->onLoudspeakerStep(volume, volume, micros);
@@ -88,6 +88,14 @@ public:
     explicit TapeError(const std::string& key) noexcept: AbstractRuntimeError { key } {
     }
 };
+
+ZEMUX_FORCE_INLINE constexpr uint64_t tapeTicksToMicros(uint64_t ticks) {
+    return ticks * Tape::FRAME_MICROS / Tape::FRAME_TICKS;
+}
+
+ZEMUX_FORCE_INLINE constexpr uint64_t tapeMicrosToTicks(uint64_t micros) {
+    return micros * Tape::FRAME_TICKS / Tape::FRAME_MICROS;
+}
 
 }
 

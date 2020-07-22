@@ -21,11 +21,11 @@ public:
         return numSteps;
     }
 
-    inline unsigned int getNumTicks() {
+    inline uint32_t getNumTicks() {
         return numTicks;
     }
 
-    void onLoudspeakerStep(uint16_t left, uint16_t right, unsigned int ticks) override {
+    void onLoudspeakerStep(uint16_t left, uint16_t right, uint32_t ticks) override {
         leftSum += left;
         rightSum += right;
         ++numSteps;
@@ -44,7 +44,7 @@ private:
     uint32_t leftSum = 0;
     uint32_t rightSum = 0;
     unsigned int numSteps = 0;
-    unsigned int numTicks = 0;
+    uint32_t numTicks = 0;
 };
 
 #endif

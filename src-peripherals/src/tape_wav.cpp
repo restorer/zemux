@@ -63,8 +63,8 @@ TapeWav::TapeWav(
     parseFmtAndData(shouldValidateStrict);
 }
 
-void TapeWav::step(unsigned int micros) {
-    if (elapsedMicros + micros >= totalMicros) {
+void TapeWav::step(uint32_t micros) {
+    if (elapsedMicros + static_cast<uint64_t>(micros) >= totalMicros) {
         micros = totalMicros - elapsedMicros;
     }
 
@@ -111,7 +111,7 @@ void TapeWav::step(unsigned int micros) {
     }
 }
 
-void TapeWav::rewindToNearest(unsigned int micros) {
+void TapeWav::rewindToNearest(uint64_t micros) {
     if (micros > totalMicros) {
         micros = totalMicros;
     }

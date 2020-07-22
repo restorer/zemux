@@ -255,7 +255,7 @@ void Z80CorrectnessTestCase::execute(const char* path) {
             __ns_Cpu__set_reg(ethalonCpu, CPU_SP, ethalonSP + 2);
         }
 
-        unsigned int testTicks = testCpu.step();
+        uint_fast32_t testTicks = testCpu.step();
         unsigned int ethalonTicks = __ns_Cpu__tick(ethalonCpu);
 
         compareState();
@@ -277,7 +277,7 @@ void Z80CorrectnessTestCase::execute(const char* path) {
         __ns_Cpu__set_reg(ethalonCpu, CPU_IFF2, 0);
         __ns_Cpu__set_reg(ethalonCpu, CPU_IM, im);
 
-        unsigned int testTicks = testCpu.doInt();
+        uint_fast32_t testTicks = testCpu.doInt();
         unsigned int ethalonTicks = __ns_Cpu__do_int(ethalonCpu);
 
         compareState();
@@ -313,7 +313,7 @@ void Z80CorrectnessTestCase::execute(const char* path) {
         __ns_Cpu__set_reg(ethalonCpu, CPU_IFF1, 0);
         __ns_Cpu__set_reg(ethalonCpu, CPU_IFF2, 0);
 
-        unsigned int testTicks = testCpu.doNmi();
+        uint_fast32_t testTicks = testCpu.doNmi();
         unsigned int ethalonTicks = __ns_Cpu__do_nmi(ethalonCpu);
 
         compareState();

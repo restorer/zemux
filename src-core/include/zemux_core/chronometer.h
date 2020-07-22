@@ -32,113 +32,241 @@
 
 namespace zemux {
 
-class Chronometer final : private NonCopyable {
+template<typename TNarrow, typename TWide, unsigned int FpMathShift>
+class AbstractChronometer : private NonCopyable {
 public:
 
-    Chronometer(unsigned int srcClockRate, unsigned int dstClockRate);
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
+
+    AbstractChronometer(
+            TNarrow srcClockRate,
+            TNarrow dstClockRate) : srcClockRate { srcClockRate }, dstClockRate { dstClockRate } {
+
+        update();
+    }
+
+#pragma clang diagnostic pop
 
     [[nodiscard]] ZEMUX_FORCE_INLINE int getClockRatio() const {
         return clockRatio;
     }
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int getSrcClockRate() const {
+    [[nodiscard]] ZEMUX_FORCE_INLINE TNarrow getSrcClockRate() const {
         return srcClockRate;
     }
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int getDstClockRate() const {
+    [[nodiscard]] ZEMUX_FORCE_INLINE TNarrow getDstClockRate() const {
         return dstClockRate;
     }
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int getSrcTicksPassed() const {
+    [[nodiscard]] ZEMUX_FORCE_INLINE TNarrow getSrcTicksPassed() const {
         return srcTicksPassed;
     }
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int getDstTicksPassed() const {
+    [[nodiscard]] ZEMUX_FORCE_INLINE TNarrow getDstTicksPassed() const {
         return dstTicksPassed;
     }
 
-    ZEMUX_FORCE_INLINE unsigned int srcForwardToDelta(unsigned int srcTicks) {
-        unsigned int prevDstTicksPassed = dstTicksPassed;
+    ZEMUX_FORCE_INLINE TNarrow srcForwardToDelta(TNarrow srcTicks) {
+        auto prevDstTicksPassed = dstTicksPassed;
         return srcForwardTo(srcTicks) - prevDstTicksPassed;
     }
 
-    ZEMUX_FORCE_INLINE unsigned int srcAdvanceBy(unsigned int srcTicksDelta) {
+    ZEMUX_FORCE_INLINE TNarrow srcAdvanceBy(TNarrow srcTicksDelta) {
         return srcForwardTo(srcTicksPassed + srcTicksDelta);
     }
 
-    ZEMUX_FORCE_INLINE unsigned int srcAdvanceByDelta(unsigned int srcTicksDelta) {
-        unsigned int prevDstTicksPassed = dstTicksPassed;
+    ZEMUX_FORCE_INLINE TNarrow srcAdvanceByDelta(TNarrow srcTicksDelta) {
+        auto prevDstTicksPassed = dstTicksPassed;
         return srcAdvanceBy(srcTicksDelta) - prevDstTicksPassed;
     }
 
-    ZEMUX_FORCE_INLINE unsigned int dstForwardToDelta(unsigned int dstTicks) {
-        unsigned int prevSrcTicksPassed = srcTicksPassed;
+    ZEMUX_FORCE_INLINE TNarrow dstForwardToDelta(TNarrow dstTicks) {
+        auto prevSrcTicksPassed = srcTicksPassed;
         return dstForwardTo(dstTicks) - prevSrcTicksPassed;
     }
 
-    ZEMUX_FORCE_INLINE unsigned int dstAdvanceBy(unsigned int dstTicksDelta) {
+    ZEMUX_FORCE_INLINE TNarrow dstAdvanceBy(TNarrow dstTicksDelta) {
         return dstForwardTo(dstTicksPassed + dstTicksDelta);
     }
 
-    ZEMUX_FORCE_INLINE unsigned int dstAdvanceByDelta(unsigned int dstTicksDelta) {
-        unsigned int prevSrcTicksPassed = srcTicksPassed;
+    ZEMUX_FORCE_INLINE TNarrow dstAdvanceByDelta(TNarrow dstTicksDelta) {
+        auto prevSrcTicksPassed = srcTicksPassed;
         return dstAdvanceBy(dstTicksDelta) - prevSrcTicksPassed;
     }
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int srcToDstCeil(unsigned int srcTicks) const {
-        return (static_cast<uint_fast64_t>(srcTicks) * srcToDstMultiplier + FP_MATH_CEIL_ADDENT) >> FP_MATH_SHIFT;
+    [[nodiscard]] ZEMUX_FORCE_INLINE TNarrow srcToDstCeil(TNarrow srcTicks) const {
+        return (static_cast<TWide>(srcTicks) * srcToDstMultiplier + FpMathCeilAddent) >> FpMathShift;
     }
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int dstToSrcCeil(unsigned int dstTicks) const {
-        return (static_cast<uint_fast64_t>(dstTicks) * dstToSrcMultiplier + FP_MATH_CEIL_ADDENT) >> FP_MATH_SHIFT;
+    [[nodiscard]] ZEMUX_FORCE_INLINE TNarrow dstToSrcCeil(TNarrow dstTicks) const {
+        return (static_cast<TWide>(dstTicks) * dstToSrcMultiplier + FpMathCeilAddent) >> FpMathShift;
     }
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int srcToDstLoops(unsigned int srcTicksDelta) const {
-        return std::max(1u, srcToDstCeil(srcTicksDelta));
+    [[nodiscard]] ZEMUX_FORCE_INLINE TNarrow srcToDstLoops(TNarrow srcTicksDelta) const {
+        return std::max(static_cast<TNarrow>(1), srcToDstCeil(srcTicksDelta));
     }
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int dstToSrcLoops(unsigned int dstTicksDelta) const {
-        return std::max(1u, dstToSrcCeil(dstTicksDelta));
+    [[nodiscard]] ZEMUX_FORCE_INLINE TNarrow dstToSrcLoops(TNarrow dstTicksDelta) const {
+        return std::max(static_cast<TNarrow>(1), dstToSrcCeil(dstTicksDelta));
     }
 
-    void setClockRatioFixedSrc(int ratio);
-    void setClockRatioFixedDst(int ratio);
-    void setSrcClockRateFixedSrc(unsigned int srcRate);
-    void setSrcClockRateFixedDst(unsigned int srcRate);
-    void setDstClockRateFixedSrc(unsigned int dstRate);
-    void setDstClockRateFixedDst(unsigned int dstRate);
-    unsigned int setSrcTicksPassed(unsigned int srcTicks);
-    unsigned int setDstTicksPassed(unsigned int dstTicks);
-    unsigned int srcForwardTo(unsigned int srcTicks);
-    unsigned int dstForwardTo(unsigned int dstTicks);
-    void srcConsume(unsigned int srcTicks);
-    void dstConsume(unsigned int dstTicks);
-    void reset();
+    void setClockRatioFixedSrc(int ratio) {
+        clockRatio = ratio;
+        update();
+        dstTicksPassed = srcToDstCeil(srcTicksPassed);
+    }
+
+    void setClockRatioFixedDst(int ratio) {
+        clockRatio = ratio;
+        update();
+        srcTicksPassed = dstToSrcCeil(dstTicksPassed);
+    }
+
+    void setSrcClockRateFixedSrc(TNarrow srcRate) {
+        srcClockRate = srcRate;
+        update();
+        dstTicksPassed = srcToDstCeil(srcTicksPassed);
+    }
+
+    void setSrcClockRateFixedDst(TNarrow srcRate) {
+        srcClockRate = srcRate;
+        update();
+        srcTicksPassed = dstToSrcCeil(dstTicksPassed);
+    }
+
+    void setDstClockRateFixedSrc(TNarrow dstRate) {
+        dstClockRate = dstRate;
+        update();
+        dstTicksPassed = srcToDstCeil(srcTicksPassed);
+    }
+
+    void setDstClockRateFixedDst(TNarrow dstRate) {
+        dstClockRate = dstRate;
+        update();
+        srcTicksPassed = dstToSrcCeil(dstTicksPassed);
+    }
+
+    TNarrow setSrcTicksPassed(TNarrow srcTicks) {
+        srcTicksPassed = srcTicks;
+        dstTicksPassed = srcToDstCeil(srcTicks);
+        return dstTicksPassed;
+    }
+
+    TNarrow setDstTicksPassed(TNarrow dstTicks) {
+        dstTicksPassed = dstTicks;
+        srcTicksPassed = dstToSrcCeil(dstTicks);
+        return srcTicksPassed;
+    }
+
+    TNarrow srcForwardTo(TNarrow srcTicks) {
+        if (srcTicks > srcTicksPassed) {
+            srcTicksPassed = srcTicks;
+            dstTicksPassed = std::max(dstTicksPassed, srcToDstCeil(srcTicks));
+        }
+
+        return dstTicksPassed;
+    }
+
+    TNarrow dstForwardTo(TNarrow dstTicks) {
+        if (dstTicks > dstTicksPassed) {
+            dstTicksPassed = dstTicks;
+            srcTicksPassed = std::max(srcTicksPassed, dstToSrcCeil(dstTicks));
+        }
+
+        return srcTicksPassed;
+    }
+
+    void srcConsume(TNarrow srcTicks) {
+        auto dstTicksConsumed = std::min(
+                dstTicksPassed,
+                srcToDstFloor(std::min(srcTicks, dstToSrcFloor(dstTicksPassed))));
+
+        srcTicksPassed -= dstToSrcCeil(dstTicksConsumed);
+        dstTicksPassed -= dstTicksConsumed;
+    }
+
+    void dstConsume(TNarrow dstTicks) {
+        auto srcTicksConsumed = std::min(
+                srcTicksPassed,
+                dstToSrcFloor(std::min(dstTicks, srcToDstFloor(srcTicksPassed))));
+
+        srcTicksPassed -= srcTicksConsumed;
+        dstTicksPassed -= srcToDstCeil(srcTicksConsumed);
+    }
+
+    void reset() {
+        srcTicksPassed = 0;
+        dstTicksPassed = 0;
+    }
 
 private:
 
-    static constexpr unsigned int FP_MATH_SHIFT = 24;
+    static constexpr TWide FpMathCeilAddent = (static_cast<TWide>(1) << FpMathShift) - static_cast<TWide>(1);
 
-    static constexpr uint_fast64_t FP_MATH_CEIL_ADDENT = (static_cast<uint_fast64_t>(1) << FP_MATH_SHIFT) -
-            static_cast<uint_fast64_t>(1);
-
-    unsigned int srcClockRate;
-    unsigned int dstClockRate;
+    TNarrow srcClockRate;
+    TNarrow dstClockRate;
     int clockRatio = 0;
-    unsigned int srcTicksPassed = 0;
-    unsigned int dstTicksPassed = 0;
-    uint_fast64_t srcToDstMultiplier;
-    uint_fast64_t dstToSrcMultiplier;
+    TNarrow srcTicksPassed = 0;
+    TNarrow dstTicksPassed = 0;
+    TWide srcToDstMultiplier;
+    TWide dstToSrcMultiplier;
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int srcToDstFloor(unsigned int srcTicks) const {
-        return (static_cast<uint_fast64_t>(srcTicks) * srcToDstMultiplier + srcTicks) >> FP_MATH_SHIFT;
+    [[nodiscard]] ZEMUX_FORCE_INLINE TNarrow srcToDstFloor(TNarrow srcTicks) const {
+        auto srcTicksWide = static_cast<TWide>(srcTicks);
+        return (srcTicksWide * srcToDstMultiplier + srcTicksWide) >> FpMathShift;
     }
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE unsigned int dstToSrcFloor(unsigned int dstTicks) const {
-        return (static_cast<uint_fast64_t>(dstTicks) * dstToSrcMultiplier + dstTicks) >> FP_MATH_SHIFT;
+    [[nodiscard]] ZEMUX_FORCE_INLINE TNarrow dstToSrcFloor(TNarrow dstTicks) const {
+        auto dstTicksWide = static_cast<TWide>(dstTicks);
+        return (dstTicksWide * dstToSrcMultiplier + dstTicksWide) >> FpMathShift;
     }
 
-    void update();
+    void update() {
+        if (!srcClockRate || !dstClockRate) {
+            srcToDstMultiplier = 0;
+            dstToSrcMultiplier = 0;
+            return;
+        }
+
+        uint_fast64_t srcActualRate;
+        uint_fast64_t dstActualRate;
+
+        if (clockRatio < -1) {
+            srcActualRate = srcClockRate * (-clockRatio);
+            dstActualRate = dstClockRate;
+        } else if (clockRatio > 1) {
+            srcActualRate = srcClockRate;
+            dstActualRate = dstClockRate * clockRatio;
+        } else {
+            srcActualRate = srcClockRate;
+            dstActualRate = dstClockRate;
+        }
+
+        srcToDstMultiplier = (dstActualRate << FpMathShift) / srcActualRate;
+        dstToSrcMultiplier = (srcActualRate << FpMathShift) / dstActualRate;
+    }
+};
+
+// Precise, but can handle only narrow values (up to 32 bits).
+class ChronometerNarrow final : public AbstractChronometer<uint_fast32_t, uint_fast64_t, 32> {
+public:
+
+    ChronometerNarrow(
+            uint_fast32_t srcClockRate,
+            uint_fast32_t dstClockRate) : AbstractChronometer { srcClockRate, dstClockRate } {
+    }
+};
+
+// Can handle wider values (up to 48 bits), but has lower calculations accuracy.
+class ChronometerWide final : public AbstractChronometer<uint_fast64_t, uint_fast64_t, 16> {
+public:
+
+    ChronometerWide(
+            uint_fast64_t srcClockRate,
+            uint_fast64_t dstClockRate) : AbstractChronometer { srcClockRate, dstClockRate } {
+    }
 };
 
 }
