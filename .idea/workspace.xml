@@ -3,11 +3,11 @@
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="ZemuX" targetName="zemux_test" />
-      <config projectName="ZemuX" targetName="zemux" />
-      <config projectName="ZemuX" targetName="zemux_machine" />
+      <config projectName="ZemuX" targetName="zemux_peripherals" />
       <config projectName="ZemuX" targetName="z80ex_wrapper" />
       <config projectName="ZemuX" targetName="zemux_core" />
-      <config projectName="ZemuX" targetName="zemux_peripherals" />
+      <config projectName="ZemuX" targetName="zemux_machine" />
+      <config projectName="ZemuX" targetName="zemux" />
       <config projectName="ZemuX" targetName="zemux_chips" />
     </generated>
   </component>
