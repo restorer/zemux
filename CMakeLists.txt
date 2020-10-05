@@ -111,8 +111,7 @@ add_executable (zemux_test WIN32
         test/chronometer_test.cpp
         test/z80_correctness_test.cpp
         test/z80_speed_test.cpp
-        test/tape_tap_test.cpp
-        test/tape_wav_test.cpp)
+        test/tape_test.cpp)
 
 target_link_libraries (zemux_test PRIVATE
         zemux_core

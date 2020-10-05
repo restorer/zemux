@@ -50,7 +50,8 @@ public:
     }
 
     bool isEof() override {
-        return ifs.eof();
+        // ifs.eof() work in a different way.
+        return tell() >= totalSize();
     }
 
     uint8_t readUInt8() override {
