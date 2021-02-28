@@ -58,11 +58,11 @@ public:
 
     ~TapeWav() override = default;
 
-    [[nodiscard]] inline uint16_t getThreshold() const {
+    [[nodiscard]] ZEMUX_FORCE_INLINE uint16_t getThreshold() const {
         return threshold;
     }
 
-    inline void setThreshold(uint16_t value) {
+    ZEMUX_FORCE_INLINE void setThreshold(uint16_t value) {
         threshold = value;
     }
 

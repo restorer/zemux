@@ -54,7 +54,7 @@ public:
         return static_cast<int8_t>(readUInt8());
     }
 
-    inline uint16_t readUInt16() {
+    ZEMUX_FORCE_INLINE uint16_t readUInt16() {
         return readUInt8() | (static_cast<uint16_t>(readUInt8()) << 8);
     }
 
@@ -62,7 +62,7 @@ public:
         return static_cast<int16_t>(readUInt16());
     }
 
-    inline uint32_t readUInt32() {
+    ZEMUX_FORCE_INLINE uint32_t readUInt32() {
         return readUInt16() | (static_cast<uint32_t>(readUInt16()) << 16);
     }
 
@@ -78,7 +78,7 @@ public:
         seek(size, Current);
     }
 
-    inline uintmax_t avail() {
+    ZEMUX_FORCE_INLINE uintmax_t avail() {
         return totalSize() - tell();
     }
 

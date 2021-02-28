@@ -58,8 +58,8 @@ private:
     static constexpr uint64_t SYNC_PULSE_SECOND_TICKS = 735;
     static constexpr uint64_t BIT_ZERO_PULSE_TICKS = 855;
     static constexpr uint64_t BIT_ONE_PULSE_TICKS = 1710;
-    static constexpr uint64_t DELAY_FIRST_TICKS = tapeMicrosToTicks(MILLIS_MICROS);
-    static constexpr uint64_t DELAY_SECOND_TICKS = tapeMicrosToTicks(SECOND_MICROS - MILLIS_MICROS);
+    static constexpr uint64_t DELAY_FIRST_TICKS = tapeMicrosToTicks(MILLIS_MICROS); // 3584
+    static constexpr uint64_t DELAY_SECOND_TICKS = tapeMicrosToTicks(SECOND_MICROS - MILLIS_MICROS); // 3580416
 
     struct Chunk {
         unsigned int offset;
@@ -83,15 +83,17 @@ private:
     std::vector<Chunk> chunks;
     unsigned int totalChunks;
 
-    uint64_t currentProcessedTicks = 0;
-    unsigned int currentChunkIndex = 0;
-    unsigned int currentOffset;
-    unsigned int currentSizeLeft;
-    State currentState;
-    uint64_t currentWaitTicks;
-    unsigned int currentPilotPulsesLeft;
-    uint8_t currentMask;
-    uint8_t currentValue;
+    unsigned int chunkIndex = 0;
+    unsigned int chunkOffset;
+    unsigned int chunkSizeLeft;
+
+    State nextState;
+    uint64_t nextWaitTicks;
+    bool nextVolumeBit = false;
+
+    unsigned int pilotPulsesLeft;
+    uint8_t bitsMask;
+    uint8_t bitsValue;
 
     ZEMUX_FORCE_INLINE unsigned int getPilotPulses(uint8_t flagValue) {
         return (flagValue ? PILOT_DATA_PULSES : PILOT_HEADER_PULSES);
@@ -102,13 +104,13 @@ private:
     }
 
     ZEMUX_FORCE_INLINE void initCurrentBitState() {
-        currentState = StateBitFirst;
-        currentWaitTicks = getPulseTicksForBit(currentValue & currentMask);
+        nextState = StateBitFirst;
+        nextWaitTicks = getPulseTicksForBit(bitsValue & bitsMask);
     }
 
     void parseChunks(bool shouldValidateStrict);
     void initPilotState();
-    void initValueState();
+    void initBitsState();
     uint64_t computeTicksForValue(uint8_t value);
 };
 

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 project (zame_z80)
 
 find_program (RUBY_COMMAND "ruby")

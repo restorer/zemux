@@ -69,8 +69,7 @@ void TapeWav::step(uint32_t micros) {
     }
 
     if (!micros) {
-        volumeBit = false;
-        loudspeakerStep(micros);
+        volumeStep(false, micros);
         return;
     }
 
@@ -105,8 +104,7 @@ void TapeWav::step(uint32_t micros) {
             }
         }
 
-        volumeBit = std::abs(sample / divider) >= sampleThreshold;
-        loudspeakerStep(currentSampleMicros);
+        volumeStep(std::abs(sample / divider) >= sampleThreshold, currentSampleMicros);
         currentSampleMicros = 0;
     }
 }

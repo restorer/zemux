@@ -44,15 +44,15 @@ public:
     static constexpr uint16_t LOW_BIT_VOLUME = 0x0000;
     static constexpr uint16_t HIGH_BIT_VOLUME = 0xFFFF;
 
-    [[nodiscard]] inline bool getVolumeBit() const {
+    [[nodiscard]] ZEMUX_FORCE_INLINE bool getVolumeBit() const {
         return volumeBit;
     }
 
-    [[nodiscard]] inline uint64_t getTotalMicros() const {
+    [[nodiscard]] ZEMUX_FORCE_INLINE uint64_t getTotalMicros() const {
         return totalMicros;
     }
 
-    [[nodiscard]] inline uint64_t getElapsedMicros() const {
+    [[nodiscard]] ZEMUX_FORCE_INLINE uint64_t getElapsedMicros() const {
         return elapsedMicros;
     }
 
@@ -63,23 +63,24 @@ protected:
 
     DataReader* reader;
     Loudspeaker* loudspeaker;
-    bool volumeBit = false;
     uint64_t totalMicros = 0;
     uint64_t elapsedMicros = 0;
 
     Tape(DataReader* reader, Loudspeaker* loudspeaker);
     virtual ~Tape() = default;
 
-    inline void loudspeakerStep(uint32_t micros) {
-        loudspeakerStep(volumeBit, micros);
-    }
+    void volumeStep(bool outputBit, uint32_t micros) {
+        volumeBit = outputBit;
 
-    inline void loudspeakerStep(bool outputBit, uint32_t micros) {
         if (micros) {
             uint16_t volume = outputBit ? HIGH_BIT_VOLUME : LOW_BIT_VOLUME;
             loudspeaker->onLoudspeakerStep(volume, volume, micros);
         }
     }
+
+private:
+
+    bool volumeBit = false;
 };
 
 class TapeError final : public AbstractRuntimeError<TapeError> {

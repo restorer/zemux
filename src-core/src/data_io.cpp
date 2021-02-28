@@ -25,7 +25,6 @@
  * THE SOFTWARE.
  */
 
-#include <iostream>
 #include "data_io.h"
 
 namespace zemux {

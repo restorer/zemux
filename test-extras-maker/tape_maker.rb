@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-# 17834152
+# 63992484 * 20000 / 71680 = 17855045.758929
 
 class TapeMaker
     FRAME_TICKS = 71680
@@ -8,6 +8,10 @@ class TapeMaker
 
     MILLIS_MICROS = 1000
     SECOND_MICROS = 1000 * MILLIS_MICROS
+
+    def self.micros_to_ticks(ticks)
+        return ticks * FRAME_TICKS / FRAME_MICROS
+    end
 
     def self.ticks_to_micros(ticks)
         return ticks * FRAME_MICROS / FRAME_TICKS
@@ -21,15 +25,15 @@ class TapeMaker
     TYPE_CHARACTER_ARRAY = 2
     TYPE_BYTES = 3
 
-    PILOT_PULSE_MICROS = ticks_to_micros(2168) # 604 ms
-    PILOT_HEADER_PULSES = 8063
-    PILOT_DATA_PULSES = 3223
-    SYNC_PULSE_FIRST_MICROS = ticks_to_micros(667) # 186 ms
-    SYNC_PULSE_SECOND_MICROS = ticks_to_micros(735) # 205 ms
-    BIT_ZERO_PULSE_MICROS = ticks_to_micros(855) # 238 ms
-    BIT_ONE_PULSE_MICROS = ticks_to_micros(1710) # 477 ms
-    DELAY_FIRST_MICROS = MILLIS_MICROS # 1000 ms
-    DELAY_SECOND_MICROS = SECOND_MICROS - MILLIS_MICROS # 999000 ms
+    PILOT_PULSE_TICKS = 2168 # about 605 micros
+    PILOT_HEADER_PULSES = 8063 # about 2250 micros
+    PILOT_DATA_PULSES = 3223 # about 900 micros
+    SYNC_PULSE_FIRST_TICKS = 667 # about 186 micros
+    SYNC_PULSE_SECOND_TICKS = 735 # about 205 micros
+    BIT_ZERO_PULSE_TICKS = 855 # about 239 micros
+    BIT_ONE_PULSE_TICKS = 1710 # about 477 micros
+    DELAY_FIRST_TICKS = micros_to_ticks(MILLIS_MICROS) # 3584 ticks, 1000 micros
+    DELAY_SECOND_TICKS = micros_to_ticks(SECOND_MICROS - MILLIS_MICROS) # 3580416 ticks, 999000 micros
 
     def initialize
         @chunks = []
@@ -50,23 +54,60 @@ class TapeMaker
 
     def save_pulses(file_name)
         @data = []
-        @pulse_bit = false
+        @total_ticks = 0
+        is_first_pilot = true
 
-        @chunks.each do |chunk|
-            push_pilot_pulses(chunk[:flag])
+        puts "Pulses"
 
+        @chunks.each_with_index do |chunk, index|
+            @pulse_bit = false # start every pilot with low bit
+            puts " - Chunk #{index + 1}"
+
+            @block_ticks = 0
+            push_pilot_pulses(chunk[:flag], is_first_pilot)
+            puts '   - Pilot:    %-8d | %-8d' % [@block_ticks, @total_ticks]
+
+            @block_ticks = 0
+            push_sync_pulses
+            puts '   - Sync:     %-8d | %-8d' % [@block_ticks, @total_ticks]
+
+            @block_ticks = 0
             push_value_pulses(chunk[:flag])
+            puts '   - Flag:     %-8d | %-8d' % [@block_ticks, @total_ticks]
+
+            @block_ticks = 0
             chunk[:data].each { |v| push_value_pulses(v) }
+            puts '   - Data:     %-8d | %-8d' % [@block_ticks, @total_ticks]
+
+            @block_ticks = 0
             push_value_pulses(chunk[:checksum])
+            puts '   - Checksum: %-8d | %-8d' % [@block_ticks, @total_ticks]
+
+            @block_ticks = 0
+            is_first_pilot = false
+
+            unless index + 1 == @chunks.size
+                ticks_add = PILOT_PULSE_TICKS
+                msg_append = ', pilot pulse'
+            else
+                ticks_add = 0
+                msg_append = ''
+            end
 
             if @pulse_bit
-                push_pulse(DELAY_FIRST_MICROS)
-                push_pulse(DELAY_SECOND_MICROS)
+                push_pulse(DELAY_FIRST_TICKS)
+                puts '   - Delay:    %-8d | %-8d | first' % [@block_ticks, @total_ticks]
+
+                @block_ticks = 0
+                push_pulse(DELAY_SECOND_TICKS + ticks_add)
+                puts '   - Delay:    %-8d | %-8d | second%s' % [@block_ticks, @total_ticks, msg_append]
             else
-                push_pulse(DELAY_FIRST_MICROS + DELAY_SECOND_MICROS)
+                push_pulse(DELAY_FIRST_TICKS + DELAY_SECOND_TICKS + ticks_add)
+                puts '   - Delay:    %-8d | %-8d | first, second%s' % [@block_ticks, @total_ticks, msg_append]
             end
         end
 
+        puts '  - Micros: %d' % [TapeMaker.ticks_to_micros(@total_ticks)]
         save_data(file_name)
     end
 
@@ -125,28 +166,40 @@ class TapeMaker
         puts "#{value} > 0xFFFFFFFF" unless (value >> 32) == 0
     end
 
-    def push_pulse(micros)
-        push_uint32(micros)
+    def push_pulse(ticks)
+        push_uint32(ticks)
         @pulse_bit = !@pulse_bit
+
+        @block_ticks += ticks
+        @total_ticks += ticks
     end
 
-    def push_pilot_pulses(flag)
-        (flag == FLAG_HEADER ? PILOT_HEADER_PULSES : PILOT_DATA_PULSES).times.each do
-            push_pulse(PILOT_PULSE_MICROS)
+    def push_pilot_pulses(flag, is_first_pilot)
+        pulses = (flag == FLAG_HEADER ? PILOT_HEADER_PULSES : PILOT_DATA_PULSES)
+
+        unless is_first_pilot
+            pulses -= 1
+            @pulse_bit = !@pulse_bit
         end
 
-        push_pulse(SYNC_PULSE_FIRST_MICROS)
-        push_pulse(SYNC_PULSE_SECOND_MICROS)
+        pulses.times.each do
+            push_pulse(PILOT_PULSE_TICKS)
+        end
+    end
+
+    def push_sync_pulses
+        push_pulse(SYNC_PULSE_FIRST_TICKS)
+        push_pulse(SYNC_PULSE_SECOND_TICKS)
     end
 
     def push_value_pulses(value)
         mask = 0x80
 
         while mask != 0
-            micros = ((value & mask) != 0) ? BIT_ONE_PULSE_MICROS : BIT_ZERO_PULSE_MICROS
+            ticks = ((value & mask) != 0) ? BIT_ONE_PULSE_TICKS : BIT_ZERO_PULSE_TICKS
 
-            push_pulse(micros)
-            push_pulse(micros)
+            push_pulse(ticks)
+            push_pulse(ticks)
 
             mask = mask / 2
         end

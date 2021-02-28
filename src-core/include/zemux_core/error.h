@@ -29,6 +29,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <zemux_core/force_inline.h>
 
 namespace zemux {
 
@@ -42,11 +43,11 @@ public:
             : key { other.key }, arguments { other.arguments } {
     }
 
-    [[nodiscard]] inline const std::string& getKey() const noexcept {
+    [[nodiscard]] ZEMUX_FORCE_INLINE const std::string& getKey() const noexcept {
         return key;
     }
 
-    [[nodiscard]] inline const std::vector<std::string>& getArguments() const noexcept {
+    [[nodiscard]] ZEMUX_FORCE_INLINE const std::vector<std::string>& getArguments() const noexcept {
         return arguments;
     }
 

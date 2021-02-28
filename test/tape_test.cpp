@@ -33,57 +33,123 @@
 #include "stub_data_io.h"
 #include "stub_loudspeaker.h"
 
-static constexpr uint32_t STEP_TOLERANCE_MICROS = 32;
-static constexpr uint32_t REWIND_TOLERANCE_MICROS = 1000 * 1000;
+static constexpr uint32_t TOTAL_TOLERANCE_MICROS = 1000; // 1/1000 of a second
+static constexpr uint32_t REWIND_TOLERANCE_MICROS = 1000 * 100; // 1/10 of a second
+static constexpr uint32_t STEP_SHORT_TOLERANCE_MICROS = 30; // about 1/8 of 855 ticks (zero bit pulse)
+static constexpr uint32_t STEP_WIDE_TOLERANCE_MICROS = 100; // 1/10000 of a second
+static constexpr uint32_t STEP_WIDE_THRESHOLD_MICROS = 100000; // larger than all short pulses, but shorter than second delay phase
 
 static const char* TAPE_PULSES_PATH = "../test-extras/tape.pulses";
 static const char* TAPE_TAP_PATH = "../test-extras/tape.tap";
 
 static void testTotalMicros(zemux::Tape& tape, zemux::DataReader& pulsesReader) {
     pulsesReader.seek(0);
-    uint64_t totalMicros = 0;
+    uint64_t totalTicks = 0;
 
     while (!pulsesReader.isEof()) {
-        totalMicros += pulsesReader.readUInt32();
+        totalTicks += pulsesReader.readUInt32();
     }
 
-    BOOST_TEST_MESSAGE(">>>> tape.getTotalMicros() = " << tape.getTotalMicros() << ", totalMicros = " << totalMicros);
-    BOOST_REQUIRE(tape.getTotalMicros() == totalMicros);
+    uint64_t totalMicros = zemux::tapeTicksToMicros(totalTicks);
+    uint32_t diffMicros = std::abs(static_cast<int64_t>(totalMicros) - static_cast<int64_t>(tape.getTotalMicros()));
+
+    BOOST_TEST_MESSAGE("-- totalMicros = " << totalMicros
+            << ", tape.getTotalMicros() = " << tape.getTotalMicros()
+            << ", diffMicros = " << diffMicros
+            << " (of " << TOTAL_TOLERANCE_MICROS << " allowed)");
+
+    BOOST_REQUIRE(diffMicros < TOTAL_TOLERANCE_MICROS);
 }
 
 static void testPulses(zemux::Tape& tape, zemux::DataReader& pulsesReader, uint64_t startMicros = 0) {
     if (startMicros > 0) {
         tape.rewindToNearest(startMicros);
-        BOOST_REQUIRE(std::abs(static_cast<int64_t>(startMicros) - static_cast<int64_t>(tape.getElapsedMicros())) < REWIND_TOLERANCE_MICROS);
+
+        uint32_t diffMicros = std::abs(static_cast<int64_t>(startMicros) -
+                static_cast<int64_t>(tape.getElapsedMicros()));
+
+        BOOST_TEST_MESSAGE("-- startMicros = " << startMicros
+                << ", tape.getElapsedMicros() = " << tape.getElapsedMicros()
+                << ", diffMicros = " << diffMicros
+                << " (of " << REWIND_TOLERANCE_MICROS << " allowed)");
+
+        BOOST_REQUIRE(diffMicros < REWIND_TOLERANCE_MICROS);
         startMicros = tape.getElapsedMicros();
     }
 
-    bool volumeBit = false;
+    uint64_t ticksPassed = 0;
     pulsesReader.seek(0);
 
+    if (pulsesReader.isEof()) {
+        return;
+    }
+
+    bool volumeBit = false;
+
     while (!pulsesReader.isEof()) {
-        uint32_t pulseMicros = pulsesReader.readUInt32();
+        uint32_t pulseTicks = pulsesReader.readUInt32();
+        bool nextVolumeBit = !pulsesReader.isEof() && !volumeBit;
 
-        if (startMicros > pulseMicros) {
-            startMicros -= pulseMicros;
-        } else {
-            startMicros = 0;
-            pulseMicros += STEP_TOLERANCE_MICROS;
-            BOOST_REQUIRE(tape.getVolumeBit() == volumeBit);
-
-            while (pulseMicros--) {
-                tape.step(1);
-
-                if (tape.getVolumeBit() != volumeBit) {
-                    break;
-                }
-            }
-
-            BOOST_REQUIRE(tape.getVolumeBit() != volumeBit);
-            BOOST_REQUIRE(pulseMicros < STEP_TOLERANCE_MICROS * 2);
+        if (zemux::tapeTicksToMicros(ticksPassed) < startMicros) {
+            volumeBit = nextVolumeBit;
+            ticksPassed += pulseTicks;
+            continue;
         }
 
-        volumeBit = !volumeBit;
+        uint32_t pulseMicros = zemux::tapeTicksToMicros(pulseTicks);
+
+        // printf("*** ticks = %ld, pulseTicks = %d, pulseMicros = %d, volumeBit = %d, nextVolumeBit = %d\n",
+        //         ticksPassed,
+        //         pulseTicks,
+        //         pulseMicros,
+        //         volumeBit,
+        //         nextVolumeBit);
+
+        if (tape.getVolumeBit() != volumeBit) {
+            BOOST_TEST_MESSAGE("-- ticksPassed = " << ticksPassed
+                    << ", pulseTicks = " << pulseTicks
+                    << ", volumeBit [" << volumeBit
+                    << "] != tape.getVolumeBit() [" << tape.getVolumeBit() << "]");
+        }
+
+        BOOST_REQUIRE(tape.getVolumeBit() == volumeBit);
+        uint32_t pulseMicrosOriginal = pulseMicros;
+
+        for (pulseMicros += STEP_SHORT_TOLERANCE_MICROS; pulseMicros > 0; --pulseMicros) {
+            tape.step(1);
+
+            if (tape.getVolumeBit() != volumeBit) {
+                break;
+            }
+        }
+
+        if (tape.getVolumeBit() != nextVolumeBit) {
+            BOOST_TEST_MESSAGE("-- ticksPassed = " << ticksPassed
+                    << ", pulseTicks = " << pulseTicks
+                    << ", pulseMicros (original) = " << pulseMicrosOriginal
+                    << ", pulseMicros (left) = " << pulseMicros
+                    << ", nextVolumeBit [" << nextVolumeBit
+                    << "] != tape.getVolumeBit() [" << tape.getVolumeBit() << "]");
+        }
+
+        BOOST_REQUIRE(tape.getVolumeBit() == nextVolumeBit);
+
+        uint32_t stepTolerance = (pulseMicrosOriginal > STEP_WIDE_THRESHOLD_MICROS
+                ? STEP_WIDE_TOLERANCE_MICROS
+                : STEP_SHORT_TOLERANCE_MICROS);
+
+        if (pulseMicros > stepTolerance * 2) {
+            BOOST_TEST_MESSAGE("-- ticksPassed = " << ticksPassed
+                    << ", pulseTicks = " << pulseTicks
+                    << ", pulseMicros (original) = " << pulseMicrosOriginal
+                    << ", pulseMicros (left) = " << pulseMicros
+                    << " (of " << (stepTolerance * 2) << " allowed)");
+        }
+
+        BOOST_REQUIRE(pulseMicros <= stepTolerance * 2);
+
+        volumeBit = nextVolumeBit;
+        ticksPassed += pulseTicks;
     }
 }
 
@@ -102,8 +168,8 @@ static void testTape(zemux::Tape& tape) {
     BOOST_TEST_MESSAGE("- rewind 50%");
     testPulses(tape, pulsesReader, tape.getTotalMicros() / 2);
 
-    BOOST_TEST_MESSAGE("- rewind 75%");
-    testPulses(tape, pulsesReader, tape.getTotalMicros() * 3 / 4);
+    // BOOST_TEST_MESSAGE("- rewind 75%");
+    // testPulses(tape, pulsesReader, tape.getTotalMicros() * 3 / 4);
 }
 
 #pragma clang diagnostic push
