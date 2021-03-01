@@ -30,6 +30,8 @@
 
 static uintmax_t MAX_TAP_SIZE = 1024 * 1024 * 16;
 
+// #define __VERBOSE
+
 namespace zemux {
 
 const char* TapeTap::ERROR_MALFORMED = /* @i18n */ "tape_tap.malformed";
@@ -52,27 +54,39 @@ TapeTap::TapeTap(
 #pragma clang diagnostic pop
 
 void TapeTap::step(uint32_t micros) {
+#ifdef __VERBOSE
+    if (chunkIndex < totalChunks && chronometer.getDstTicksPassed() < elapsedMicros + micros) {
+        printf("TAP >>> elapsedMicros = %ld, volumeBit = %d, srcTicksPassed = %ld, dstTicksPassed = %ld, chunkIndex = %d, chunkOffset = %d, chunkSizeLeft = %d, nextState = %d, nextWaitTicks = %ld, nextVolumeBit = %d, pilotPulsesLeft = %d, bitsMask = %d, bitsValue = %d, micros = %d\n",
+                elapsedMicros,
+                getVolumeBit(),
+                chronometer.getSrcTicksPassed(),
+                chronometer.getDstTicksPassed(),
+                chunkIndex,
+                chunkOffset,
+                chunkSizeLeft,
+                nextState,
+                nextWaitTicks,
+                nextVolumeBit,
+                pilotPulsesLeft,
+                bitsMask,
+                bitsValue,
+                micros);
+    }
+#endif
+
+    elapsedMicros += micros;
+
+    if (elapsedMicros > totalMicros) {
+        elapsedMicros = totalMicros;
+    }
+
     if (chunkIndex >= totalChunks) {
         volumeStep(false, micros);
         return;
     }
 
-    elapsedMicros += micros;
-
     while (chronometer.getDstTicksPassed() < elapsedMicros) {
-        // auto _srcTicksPassed = chronometer.getSrcTicksPassed();
-        auto _waitMicros = chronometer.srcAdvanceByDelta(nextWaitTicks);
-
-        // printf(">>> srcTicksPassed = %ld, nextWaitTicks = %ld, volumeBit = %d, nextVolumeBit = %d, nextState = %d, pilotPulsesLeft = %d\n",
-        //         _srcTicksPassed,
-        //         nextWaitTicks,
-        //         getVolumeBit(),
-        //         nextVolumeBit,
-        //         nextState,
-        //         pilotPulsesLeft);
-
-        volumeStep(nextVolumeBit, _waitMicros);
-        // volumeStep(nextVolumeBit, chronometer.srcAdvanceByDelta(nextWaitTicks));
+        volumeStep(nextVolumeBit, chronometer.srcAdvanceByDelta(nextWaitTicks));
 
         switch (nextState) {
             case StatePilot:
@@ -82,41 +96,17 @@ void TapeTap::step(uint32_t micros) {
                     nextState = StateSyncFirst;
                     nextWaitTicks = SYNC_PULSE_FIRST_TICKS;
                 }
-
-                // printf("====== srcTicksPassed = %ld, nextWaitTicks = %ld, volumeBit = %d, nextVolumeBit = %d, nextState = %d, pilotPulsesLeft = %d\n",
-                //         chronometer.getSrcTicksPassed(),
-                //         nextWaitTicks,
-                //         getVolumeBit(),
-                //         nextVolumeBit,
-                //         nextState,
-                //         pilotPulsesLeft);
                 break;
 
             case StateSyncFirst:
                 nextVolumeBit = !nextVolumeBit;
                 nextState = StateSyncSecond;
                 nextWaitTicks = SYNC_PULSE_SECOND_TICKS;
-
-                // printf("====== srcTicksPassed = %ld, nextWaitTicks = %ld, volumeBit = %d, nextVolumeBit = %d, nextState = %d, pilotPulsesLeft = %d\n",
-                //         chronometer.getSrcTicksPassed(),
-                //         nextWaitTicks,
-                //         getVolumeBit(),
-                //         nextVolumeBit,
-                //         nextState,
-                //         pilotPulsesLeft);
                 break;
 
             case StateSyncSecond:
                 nextVolumeBit = !nextVolumeBit;
                 initBitsState();
-
-                // printf("====== srcTicksPassed = %ld, nextWaitTicks = %ld, volumeBit = %d, nextVolumeBit = %d, nextState = %d, pilotPulsesLeft = %d\n",
-                //         chronometer.getSrcTicksPassed(),
-                //         nextWaitTicks,
-                //         getVolumeBit(),
-                //         nextVolumeBit,
-                //         nextState,
-                //         pilotPulsesLeft);
                 break;
 
             case StateBitFirst:
@@ -146,9 +136,7 @@ void TapeTap::step(uint32_t micros) {
                 break;
 
             case StateDelaySecond:
-                if (++chunkIndex >= totalChunks) {
-                    elapsedMicros = totalMicros;
-                } else {
+                if (++chunkIndex < totalChunks) {
                     initPilotState();
                 }
                 break;
@@ -157,9 +145,9 @@ void TapeTap::step(uint32_t micros) {
 }
 
 void TapeTap::rewindToNearest(uint64_t micros) {
-    chunkIndex = 0;
-    uint64_t processedTicks = 0;
     uint64_t desiredTicks = chronometer.dstToSrcCeil(micros);
+    uint64_t processedTicks = 0;
+    chunkIndex = 0;
 
     while (chunkIndex < totalChunks && chunks[chunkIndex].endTicks <= desiredTicks) {
         processedTicks = chunks[chunkIndex].endTicks;
@@ -185,13 +173,14 @@ void TapeTap::rewindToNearest(uint64_t micros) {
 
         chronometer.setSrcTicksPassed(processedTicks);
         elapsedMicros = chronometer.getDstTicksPassed();
-        step(1);
+        volumeStep(processedPulses != 0 && !nextVolumeBit, 0);
         return;
     }
 
     processedTicks = endTicks;
     endTicks += SYNC_PULSE_FIRST_TICKS + SYNC_PULSE_SECOND_TICKS;
-    nextVolumeBit = (pilotPulsesLeft % 2) != 0;
+    pilotPulsesLeft = 0;
+    nextVolumeBit = (pilotPulsesLeft % 2) == 0;
 
     if (desiredTicks < endTicks) {
         nextState = StateSyncFirst;
@@ -199,7 +188,7 @@ void TapeTap::rewindToNearest(uint64_t micros) {
 
         chronometer.setSrcTicksPassed(processedTicks);
         elapsedMicros = chronometer.getDstTicksPassed();
-        step(1);
+        volumeStep(!nextVolumeBit, 0); // last pulse of pilot
         return;
     }
 
@@ -214,7 +203,7 @@ void TapeTap::rewindToNearest(uint64_t micros) {
 
             chronometer.setSrcTicksPassed(processedTicks);
             elapsedMicros = chronometer.getDstTicksPassed();
-            step(1);
+            volumeStep(!nextVolumeBit, 0); // last pulse of sync or of previous byte
             return;
         }
 
@@ -223,6 +212,7 @@ void TapeTap::rewindToNearest(uint64_t micros) {
         --chunkSizeLeft;
     }
 
+    --chunkOffset;
     endTicks += DELAY_FIRST_TICKS;
     // nextVolumeBit remains the same after bytes
 
@@ -232,18 +222,17 @@ void TapeTap::rewindToNearest(uint64_t micros) {
 
         chronometer.setSrcTicksPassed(processedTicks);
         elapsedMicros = chronometer.getDstTicksPassed();
-        step(1);
+        volumeStep(!nextVolumeBit, 0); // last pulse of last byte
         return;
     }
 
     nextVolumeBit = false;
     nextState = StateDelaySecond;
     nextWaitTicks = DELAY_SECOND_TICKS - (desiredTicks - endTicks);
-    processedTicks = desiredTicks;
 
-    chronometer.setSrcTicksPassed(processedTicks);
+    chronometer.setSrcTicksPassed(desiredTicks);
     elapsedMicros = chronometer.getDstTicksPassed();
-    step(1);
+    volumeStep((pilotPulsesLeft % 2) == 0, 0); // pulse of "delay first" is the same as pulse of "sync first"
 }
 
 void TapeTap::parseChunks(bool shouldValidateStrict) {

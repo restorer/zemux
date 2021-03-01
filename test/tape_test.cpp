@@ -33,6 +33,8 @@
 #include "stub_data_io.h"
 #include "stub_loudspeaker.h"
 
+// #define __VERBOSE
+
 static constexpr uint32_t TOTAL_TOLERANCE_MICROS = 1000; // 1/1000 of a second
 static constexpr uint32_t REWIND_TOLERANCE_MICROS = 1000 * 100; // 1/10 of a second
 static constexpr uint32_t STEP_SHORT_TOLERANCE_MICROS = 30; // about 1/8 of 855 ticks (zero bit pulse)
@@ -79,18 +81,31 @@ static void testPulses(zemux::Tape& tape, zemux::DataReader& pulsesReader, uint6
 
     uint64_t ticksPassed = 0;
     pulsesReader.seek(0);
+    int startPulseIndex = -1;
 
-    if (pulsesReader.isEof()) {
-        return;
+    while (!pulsesReader.isEof()) {
+        ticksPassed += pulsesReader.readUInt32();
+        ++startPulseIndex;
+
+        if (zemux::tapeTicksToMicros(ticksPassed) + STEP_SHORT_TOLERANCE_MICROS > startMicros) {
+            break;
+        }
     }
 
+    BOOST_TEST_MESSAGE("-- startPulseIndex = " << startPulseIndex);
+
     bool volumeBit = false;
+    int pulseIndex = -1;
+    bool isJustAfterRewind = (startPulseIndex > 0);
+
+    ticksPassed = 0;
+    pulsesReader.seek(0);
 
     while (!pulsesReader.isEof()) {
         uint32_t pulseTicks = pulsesReader.readUInt32();
         bool nextVolumeBit = !pulsesReader.isEof() && !volumeBit;
 
-        if (zemux::tapeTicksToMicros(ticksPassed) < startMicros) {
+        if (++pulseIndex < startPulseIndex) {
             volumeBit = nextVolumeBit;
             ticksPassed += pulseTicks;
             continue;
@@ -98,12 +113,15 @@ static void testPulses(zemux::Tape& tape, zemux::DataReader& pulsesReader, uint6
 
         uint32_t pulseMicros = zemux::tapeTicksToMicros(pulseTicks);
 
-        // printf("*** ticks = %ld, pulseTicks = %d, pulseMicros = %d, volumeBit = %d, nextVolumeBit = %d\n",
-        //         ticksPassed,
-        //         pulseTicks,
-        //         pulseMicros,
-        //         volumeBit,
-        //         nextVolumeBit);
+#ifdef __VERBOSE
+        printf("TEST >>> ticksPassed = %ld, pulseTicks = %d, pulseMicros = %d, volumeBit = %d, nextVolumeBit = %d, microsPassed = %ld\n",
+                ticksPassed,
+                pulseTicks,
+                pulseMicros,
+                volumeBit,
+                nextVolumeBit,
+                zemux::tapeTicksToMicros(ticksPassed));
+#endif
 
         if (tape.getVolumeBit() != volumeBit) {
             BOOST_TEST_MESSAGE("-- ticksPassed = " << ticksPassed
@@ -134,19 +152,25 @@ static void testPulses(zemux::Tape& tape, zemux::DataReader& pulsesReader, uint6
 
         BOOST_REQUIRE(tape.getVolumeBit() == nextVolumeBit);
 
-        uint32_t stepTolerance = (pulseMicrosOriginal > STEP_WIDE_THRESHOLD_MICROS
-                ? STEP_WIDE_TOLERANCE_MICROS
-                : STEP_SHORT_TOLERANCE_MICROS);
+        if (isJustAfterRewind) {
+            // Rewind may set position anywhere in the pulse, so just check volume level,
+            // but ignore pulse length once after rewind.
+            isJustAfterRewind = false;
+        } else {
+            uint32_t stepTolerance = (pulseMicrosOriginal > STEP_WIDE_THRESHOLD_MICROS
+                    ? STEP_WIDE_TOLERANCE_MICROS
+                    : STEP_SHORT_TOLERANCE_MICROS);
 
-        if (pulseMicros > stepTolerance * 2) {
-            BOOST_TEST_MESSAGE("-- ticksPassed = " << ticksPassed
-                    << ", pulseTicks = " << pulseTicks
-                    << ", pulseMicros (original) = " << pulseMicrosOriginal
-                    << ", pulseMicros (left) = " << pulseMicros
-                    << " (of " << (stepTolerance * 2) << " allowed)");
+            if (pulseMicros > stepTolerance * 2) {
+                BOOST_TEST_MESSAGE("-- ticksPassed = " << ticksPassed
+                        << ", pulseTicks = " << pulseTicks
+                        << ", pulseMicros (original) = " << pulseMicrosOriginal
+                        << ", pulseMicros (left) = " << pulseMicros
+                        << " (of " << (stepTolerance * 2) << " allowed)");
+            }
+
+            BOOST_REQUIRE(pulseMicros <= stepTolerance * 2);
         }
-
-        BOOST_REQUIRE(pulseMicros <= stepTolerance * 2);
 
         volumeBit = nextVolumeBit;
         ticksPassed += pulseTicks;
@@ -168,8 +192,8 @@ static void testTape(zemux::Tape& tape) {
     BOOST_TEST_MESSAGE("- rewind 50%");
     testPulses(tape, pulsesReader, tape.getTotalMicros() / 2);
 
-    // BOOST_TEST_MESSAGE("- rewind 75%");
-    // testPulses(tape, pulsesReader, tape.getTotalMicros() * 3 / 4);
+    BOOST_TEST_MESSAGE("- rewind 75%");
+    testPulses(tape, pulsesReader, tape.getTotalMicros() * 3 / 4);
 }
 
 #pragma clang diagnostic push

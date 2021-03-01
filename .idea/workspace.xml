@@ -18,20 +18,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/data_io.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/data_io.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/error.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/error.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/src/data_io.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/src/data_io.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_tap.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_tap.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_wav.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_wav.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape_tap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape_tap.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape_wav.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape_wav.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-extras-maker/tape_maker.rb" beforeDir="false" afterPath="$PROJECT_DIR$/test-extras-maker/tape_maker.rb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-extras/tape.pulses" beforeDir="false" afterPath="$PROJECT_DIR$/test-extras/tape.pulses" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-vendor-zame-z80/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test-vendor-zame-z80/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/tape_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/tape_test.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -148,24 +136,11 @@
       <option name="presentableId" value="Default" />
       <updated>1614435823949</updated>
       <workItem from="1614435825913" duration="349000" />
-      <workItem from="1614436708235" duration="31416000" />
+      <workItem from="1614436708235" duration="45834000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XDebuggerManager">
-    <watches-manager>
-      <configuration name="CMakeBoostTestRunConfigurationType">
-        <watch expression="elapsedMicros" language="ObjectiveC" />
-        <watch expression="chronometer.dstTicksPassed" language="ObjectiveC" />
-        <watch expression="chronometer.srcTicksPassed" language="ObjectiveC" />
-        <watch expression="nextState" language="ObjectiveC" />
-        <watch expression="nextVolumeBit" language="ObjectiveC" />
-        <watch expression="pilotPulsesLeft" language="ObjectiveC" />
-        <watch expression="volumeBit" language="ObjectiveC" />
-      </configuration>
-    </watches-manager>
   </component>
 </project>
