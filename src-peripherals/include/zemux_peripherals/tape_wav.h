@@ -37,7 +37,7 @@ namespace zemux {
 class TapeWav final : public Tape, private NonCopyable {
 public:
 
-    static constexpr uint16_t DEFAULT_THRESHOLD = 140;
+    static constexpr uint8_t DEFAULT_THRESHOLD = 160;
 
     static const char* ERROR_MALFORMED;
     static const char* ERROR_CHUNK_MISSING;
@@ -54,15 +54,15 @@ public:
     TapeWav(DataReader* reader,
             Loudspeaker* loudspeaker,
             bool shouldValidateStrict,
-            uint16_t threshold = DEFAULT_THRESHOLD);
+            uint8_t threshold = DEFAULT_THRESHOLD);
 
     ~TapeWav() override = default;
 
-    [[nodiscard]] ZEMUX_FORCE_INLINE uint16_t getThreshold() const {
+    [[nodiscard]] ZEMUX_FORCE_INLINE uint8_t getThreshold() const {
         return threshold;
     }
 
-    ZEMUX_FORCE_INLINE void setThreshold(uint16_t value) {
+    ZEMUX_FORCE_INLINE void setThreshold(uint8_t value) {
         threshold = value;
     }
 
@@ -106,13 +106,15 @@ private:
 
     static constexpr unsigned int TOTAL_MIN_SIZE = sizeof(ChunkHeader) + RIFF_MIN_SIZE;
 
-    uint16_t threshold;
+    uint8_t threshold;
     uintmax_t lastPosition;
     FmtContent fmt;
     uintmax_t dataPosition;
     uintmax_t dataSize;
     ChronometerWide chronometer { SECOND_MICROS, SECOND_MICROS };
     unsigned int blockPadding;
+    unsigned int thresholdShift;
+    int64_t sampleOffset;
     int64_t (TapeWav::* readSamplePtr)();
     uintmax_t currentDataOffset = 0;
     uint64_t currentSampleMicros = 0;

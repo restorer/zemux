@@ -1,7 +1,5 @@
 #!/usr/bin/ruby
 
-# 63992484 * 20000 / 71680 = 17855045.758929
-
 class TapeMaker
     FRAME_TICKS = 71680
     FRAME_MICROS = 20000
@@ -44,9 +42,9 @@ class TapeMaker
 
         @chunks.each do |chunk|
             push_uint16(chunk[:data].size + 2)
-            @data << chunk[:flag]
+            push_uint8(chunk[:flag])
             @data += chunk[:data]
-            @data << chunk[:checksum]
+            push_uint8(chunk[:checksum])
         end
 
         save_data(file_name)
@@ -54,6 +52,7 @@ class TapeMaker
 
     def save_pulses(file_name)
         @data = []
+        @pulses = []
         @total_ticks = 0
         is_first_pilot = true
 
@@ -111,6 +110,68 @@ class TapeMaker
         save_data(file_name)
     end
 
+    def save_wav(file_name, num_channels, bits_per_sample, sample_rate)
+        puts 'WAV'
+        puts '  - Channels: %d' % [num_channels]
+        puts '  - BPS:      %d' % [bits_per_sample]
+        puts '  - Rate:     %d' % [sample_rate]
+
+        @data = []
+        last_samples = 0
+        current_ticks = 0
+
+        @pulses.each do |pulse|
+            current_ticks += pulse[:ticks]
+            current_samples = TapeMaker.ticks_to_micros(current_ticks) * sample_rate / SECOND_MICROS
+            pulse_samples = current_samples - last_samples
+            last_samples = current_samples
+
+            value = pulse[:bit] ? 96 : -32
+
+            if bits_per_sample == 16
+                value *= 0x100
+            elsif bits_per_sample == 24
+                value *= 0x10000
+            elsif bits_per_sample == 32
+                value *= 0x1000000
+            end
+
+            (num_channels * pulse_samples).times do
+                if bits_per_sample == 8
+                    push_sint8(value)
+                elsif bits_per_sample == 16
+                    push_sint16(value)
+                elsif bits_per_sample == 24
+                    push_sint24(value)
+                elsif bits_per_sample == 32
+                    push_sint32(value)
+                end
+            end
+        end
+
+        inner_data = @data
+        @data = []
+
+        push_uint32(0x46464952) # RIFF id: "RIFF"
+        push_uint32(4 + 24 + 8 + inner_data.size) # RIFF size: RIFF type, FMT, DATA id, DATA size, wav data
+        push_uint32(0x45564157) # RIFF type: "WAVE"
+
+        push_uint32(0x20746D66) # FMT id: "fmt "
+        push_uint32(16) # FMT size
+        push_uint16(1) # FMT audio format: PCM
+        push_uint16(num_channels) # FMT num channels
+        push_uint32(sample_rate) # FMT sample rate
+        push_uint32(num_channels * sample_rate * (bits_per_sample / 8)) # FMT byte rate
+        push_uint16(num_channels * (bits_per_sample / 8)) # FMT block align
+        push_uint16(bits_per_sample) # FMT bits per sample
+
+        push_uint32(0x61746164) # DATA id: "data"
+        push_uint32(inner_data.size) # DATA size
+        @data += inner_data
+
+        save_data(file_name)
+    end
+
     # name
     #   max 10 characters
     # param_1
@@ -146,28 +207,79 @@ class TapeMaker
         return chunk
     end
 
+    def push_sint8(value)
+        value = value.to_i
+
+        raise Error.new("#{value} > 0x7F") if value > 0x7F
+        raise Error.new("#{value} < -0x80") if value < -0x80
+
+        @data << (value & 0xFF)
+    end
+
+    def push_sint16(value)
+        value = value.to_i
+
+        raise Error.new("#{value} > 0x7FFF") if value > 0x7FFF
+        raise Error.new("#{value} < -0x8000") if value < -0x8000
+
+        value &= 0xFFFF
+        @data << (value & 0xFF)
+        @data << ((value >> 8) & 0xFF)
+    end
+
+    def push_sint24(value)
+        value = value.to_i
+
+        puts "#{value} > 0x7FFFFF" if value > 0x7FFFFF
+        puts "#{value} < -0x800000" if value < -0x800000
+
+        value &= 0xFFFFFF
+        @data << (value & 0xFF)
+        @data << ((value >> 8) & 0xFF)
+        @data << ((value >> 16) & 0xFF)
+    end
+
+    def push_sint32(value)
+        value = value.to_i
+
+        raise Error.new("#{value} > 0x7FFFFFFF") if value > 0x7FFFFFFF
+        raise Error.new("#{value} < -0x80000000") if value < -0x80000000
+
+        value &= 0xFFFFFFFF
+        @data << (value & 0xFF)
+        @data << ((value >> 8) & 0xFF)
+        @data << ((value >> 16) & 0xFF)
+        @data << ((value >> 24) & 0xFF)
+    end
+
+    def push_uint8(value)
+        value = value.to_i
+        raise Error.new("#{value} > 0xFF") unless (value >> 8) == 0
+
+        @data << (value & 0xFF)
+    end
+
     def push_uint16(value)
         value = value.to_i
+        raise Error.new("#{value} > 0xFFFF") unless (value >> 16) == 0
 
         @data << (value & 0xFF)
         @data << ((value >> 8) & 0xFF)
-
-        puts "#{value} > 0xFFFF" unless (value >> 16) == 0
     end
 
     def push_uint32(value)
         value = value.to_i
+        raise Error.new("#{value} > 0xFFFFFFFF") unless (value >> 32) == 0
 
         @data << (value & 0xFF)
         @data << ((value >> 8) & 0xFF)
         @data << ((value >> 16) & 0xFF)
         @data << ((value >> 24) & 0xFF)
-
-        puts "#{value} > 0xFFFFFFFF" unless (value >> 32) == 0
     end
 
     def push_pulse(ticks)
         push_uint32(ticks)
+        @pulses << { :bit => @pulse_bit, :ticks => ticks }
         @pulse_bit = !@pulse_bit
 
         @block_ticks += ticks
@@ -215,11 +327,16 @@ end
 def process
     tm = TapeMaker.new
 
-    tm.append_chunk(TapeMaker::TYPE_PROGRAM, 'A', 0, 'a')
-    tm.append_chunk(TapeMaker::TYPE_BYTES, 'B', 32768, 'b')
+    tm.append_chunk(TapeMaker::TYPE_PROGRAM, 'Program', 0, '10 REM Cracked by Bill Gilbert')
+    tm.append_chunk(TapeMaker::TYPE_BYTES, 'Bytes', 32768, 'This is da best bytes in the world')
 
-    tm.save_tap('../test-extras/tape.tap')
-    tm.save_pulses('../test-extras/tape.pulses')
+    tm.save_tap('../test-extras/tape-1.tap')
+    tm.save_pulses('../test-extras/tape-1.pulses')
+
+    tm.save_wav('../test-extras/tape-1-c4b8s44100.wav', 4, 8, 44100)
+    tm.save_wav('../test-extras/tape-1-c2b16s44100.wav', 2, 16, 44100)
+    tm.save_wav('../test-extras/tape-1-c3b24s22050.wav', 3, 24, 22050)
+    tm.save_wav('../test-extras/tape-1-c1b32s22050.wav', 1, 32, 22050)
 
     puts 'Done'
 end

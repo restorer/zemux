@@ -19,7 +19,11 @@
   <component name="ChangeListManager">
     <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape_tap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape_tap.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_wav.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_wav.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape_wav.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape_wav.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test-extras-maker/tape_maker.rb" beforeDir="false" afterPath="$PROJECT_DIR$/test-extras-maker/tape_maker.rb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test-extras/tape.pulses" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test-extras/tape.tap" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/test/tape_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/tape_test.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -65,16 +69,22 @@
       <recent name="$PROJECT_DIR$/src-ay/src" />
     </key>
   </component>
-  <component name="RunManager" selected="Boost.Test.TapeTapTest">
+  <component name="RunManager" selected="Boost.Test.TapeWavTest">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="TapeTapTest" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" temporary="true" PROGRAM_PARAMS="--logger=HRF,test_suite" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux_test" TEST_METHOD="TapeTapTest" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="TapeWavTest" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" temporary="true" PROGRAM_PARAMS="--logger=HRF,test_suite" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux_test" TEST_METHOD="TapeWavTest" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="z80ex_wrapper" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="z80ex_wrapper" CONFIG_NAME="Debug">
@@ -114,6 +124,7 @@
     </configuration>
     <list>
       <item itemvalue="Boost.Test.TapeTapTest" />
+      <item itemvalue="Boost.Test.TapeWavTest" />
       <item itemvalue="CMake Application.zemux" />
       <item itemvalue="CMake Application.zemux_chips" />
       <item itemvalue="CMake Application.zemux_core" />
@@ -123,6 +134,7 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Boost.Test.TapeWavTest" />
         <item itemvalue="Boost.Test.TapeTapTest" />
       </list>
     </recent_temporary>
@@ -136,11 +148,28 @@
       <option name="presentableId" value="Default" />
       <updated>1614435823949</updated>
       <workItem from="1614435825913" duration="349000" />
-      <workItem from="1614436708235" duration="45834000" />
+      <workItem from="1614436708235" duration="46491000" />
+      <workItem from="1615110893220" duration="14158000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="CMakeBoostTestRunConfigurationType">
+        <watch expression="sampleOffset" language="ObjectiveC" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

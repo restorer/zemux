@@ -57,10 +57,11 @@ TapeWav::TapeWav(
         DataReader* reader,
         Loudspeaker* loudspeaker,
         bool shouldValidateStrict,
-        uint16_t threshold
+        uint8_t threshold
 ) : Tape { reader, loudspeaker }, threshold { threshold } {
     parseRiffChunk(shouldValidateStrict);
     parseFmtAndData(shouldValidateStrict);
+    reader->seek(dataPosition);
 }
 
 void TapeWav::step(uint32_t micros) {
@@ -69,14 +70,13 @@ void TapeWav::step(uint32_t micros) {
     }
 
     if (!micros) {
-        volumeStep(false, micros);
+        volumeStep(false, 0);
         return;
     }
 
     elapsedMicros += micros;
 
-    int64_t sampleThreshold = static_cast<uint64_t>(threshold) *
-            static_cast<uint64_t>(fmt.bitsPerSample / 8) *
+    int64_t sampleThreshold = (static_cast<uint64_t>(threshold) << thresholdShift) *
             static_cast<uint64_t>(fmt.numChannels);
 
     while (micros--) {
@@ -104,7 +104,7 @@ void TapeWav::step(uint32_t micros) {
             }
         }
 
-        volumeStep(std::abs(sample / divider) >= sampleThreshold, currentSampleMicros);
+        volumeStep(sample / divider + sampleOffset >= sampleThreshold, currentSampleMicros);
         currentSampleMicros = 0;
     }
 }
@@ -112,6 +112,14 @@ void TapeWav::step(uint32_t micros) {
 void TapeWav::rewindToNearest(uint64_t micros) {
     if (micros > totalMicros) {
         micros = totalMicros;
+    }
+
+    uint32_t postStepMicros = chronometer.dstToSrcCeil(1);
+
+    if (micros >= postStepMicros) {
+        micros -= postStepMicros;
+    } else {
+        postStepMicros = 0;
     }
 
     elapsedMicros = micros;
@@ -123,6 +131,12 @@ void TapeWav::rewindToNearest(uint64_t micros) {
         elapsedMicros = totalMicros;
     } else {
         reader->seek(dataPosition + currentDataOffset);
+    }
+
+    if (postStepMicros) {
+        step(postStepMicros);
+    } else {
+        volumeStep(false, 0);
     }
 }
 
@@ -143,7 +157,7 @@ void TapeWav::parseRiffChunk(bool shouldValidateStrict) {
             throw TapeError(ERROR_CHUNK_SIZE_INVALID) << idToString(RIFF_ID);
         }
 
-        lastPosition = position + header.size;
+        lastPosition = position + sizeof(ChunkHeader) + header.size;
     } else {
         lastPosition = reader->totalSize();
     }
@@ -200,7 +214,7 @@ void TapeWav::parseFmtAndData(bool shouldValidateStrict) {
             return;
         }
 
-        reader->seek(position + header.size);
+        reader->seek(position + sizeof(ChunkHeader) + header.size);
     }
 
     if (!isFmtFound) {
@@ -238,6 +252,9 @@ void TapeWav::parseFmtContent(uint32_t size, bool shouldValidateStrict) {
 
     switch (fmt.bitsPerSample) {
         case FMT_BITS_PER_SAMPLE_8: {
+            thresholdShift = 0;
+            sampleOffset = 0x80;
+
             switch (fmt.numChannels) {
                 case FMT_NUM_CHANNELS_1:
                     readSamplePtr = &TapeWav::readSampleB8C1;
@@ -256,6 +273,9 @@ void TapeWav::parseFmtContent(uint32_t size, bool shouldValidateStrict) {
         }
 
         case FMT_BITS_PER_SAMPLE_16: {
+            thresholdShift = 8;
+            sampleOffset = 0x8000;
+
             switch (fmt.numChannels) {
                 case FMT_NUM_CHANNELS_1:
                     readSamplePtr = &TapeWav::readSampleB16C1;
@@ -274,6 +294,9 @@ void TapeWav::parseFmtContent(uint32_t size, bool shouldValidateStrict) {
         }
 
         case FMT_BITS_PER_SAMPLE_24: {
+            thresholdShift = 16;
+            sampleOffset = 0x800000;
+
             switch (fmt.numChannels) {
                 case FMT_NUM_CHANNELS_1:
                     readSamplePtr = &TapeWav::readSampleB24C1;
@@ -292,6 +315,9 @@ void TapeWav::parseFmtContent(uint32_t size, bool shouldValidateStrict) {
         }
 
         case FMT_BITS_PER_SAMPLE_32: {
+            thresholdShift = 24;
+            sampleOffset = 0x80000000;
+
             switch (fmt.numChannels) {
                 case FMT_NUM_CHANNELS_1:
                     readSamplePtr = &TapeWav::readSampleB32C1;
@@ -313,6 +339,7 @@ void TapeWav::parseFmtContent(uint32_t size, bool shouldValidateStrict) {
             throw TapeError(ERROR_BITS_PER_SAMPLE_NOT_SUPPORTED) << std::to_string(fmt.bitsPerSample);
     }
 
+    sampleOffset *= static_cast<uint64_t>(fmt.numChannels);
     unsigned int minBlockAlign = fmt.numChannels * fmt.bitsPerSample / 8;
 
     if (fmt.blockAlign < minBlockAlign) {

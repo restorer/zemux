@@ -30,19 +30,24 @@
 #include <zemux_core/data_io.h>
 #include <zemux_peripherals/tape.h>
 #include <zemux_peripherals/tape_tap.h>
+#include <zemux_peripherals/tape_wav.h>
 #include "stub_data_io.h"
 #include "stub_loudspeaker.h"
 
 // #define __VERBOSE
 
-static constexpr uint32_t TOTAL_TOLERANCE_MICROS = 1000; // 1/1000 of a second
+static constexpr uint32_t TOTAL_TOLERANCE_MICROS = 1000 * 10; // 1/100 of a second
 static constexpr uint32_t REWIND_TOLERANCE_MICROS = 1000 * 100; // 1/10 of a second
-static constexpr uint32_t STEP_SHORT_TOLERANCE_MICROS = 30; // about 1/8 of 855 ticks (zero bit pulse)
-static constexpr uint32_t STEP_WIDE_TOLERANCE_MICROS = 100; // 1/10000 of a second
+static constexpr uint32_t STEP_SHORT_TOLERANCE_MICROS = 60; // about 1/4 of 855 ticks (zero bit pulse)
+static constexpr uint32_t STEP_WIDE_TOLERANCE_MICROS = 1000; // 1/1000 of a second
 static constexpr uint32_t STEP_WIDE_THRESHOLD_MICROS = 100000; // larger than all short pulses, but shorter than second delay phase
 
-static const char* TAPE_PULSES_PATH = "../test-extras/tape.pulses";
-static const char* TAPE_TAP_PATH = "../test-extras/tape.tap";
+static const char* TAPE_PULSES_PATH = "../test-extras/tape-1.pulses";
+static const char* TAPE_TAP_PATH = "../test-extras/tape-1.tap";
+static const char* TAPE_WAV_1_PATH = "../test-extras/tape-1-c4b8s44100.wav";
+static const char* TAPE_WAV_2_PATH = "../test-extras/tape-1-c2b16s44100.wav";
+static const char* TAPE_WAV_3_PATH = "../test-extras/tape-1-c3b24s22050.wav";
+static const char* TAPE_WAV_4_PATH = "../test-extras/tape-1-c1b32s22050.wav";
 
 static void testTotalMicros(zemux::Tape& tape, zemux::DataReader& pulsesReader) {
     pulsesReader.seek(0);
@@ -123,17 +128,35 @@ static void testPulses(zemux::Tape& tape, zemux::DataReader& pulsesReader, uint6
                 zemux::tapeTicksToMicros(ticksPassed));
 #endif
 
+        if (isJustAfterRewind) {
+            // Rewind may set position with jitter, so give it a chance to normalize.
+
+            for (auto tuneMicros = STEP_WIDE_TOLERANCE_MICROS; tuneMicros > 0; --tuneMicros) {
+                if (tape.getVolumeBit() == volumeBit) {
+                    break;
+                }
+
+                tape.step(1);
+            }
+        }
+
         if (tape.getVolumeBit() != volumeBit) {
             BOOST_TEST_MESSAGE("-- ticksPassed = " << ticksPassed
                     << ", pulseTicks = " << pulseTicks
+                    << ", isJustAfterRewind = " << isJustAfterRewind
                     << ", volumeBit [" << volumeBit
                     << "] != tape.getVolumeBit() [" << tape.getVolumeBit() << "]");
         }
 
         BOOST_REQUIRE(tape.getVolumeBit() == volumeBit);
+
+        uint32_t stepTolerance = (pulseMicros > STEP_WIDE_THRESHOLD_MICROS
+                ? STEP_WIDE_TOLERANCE_MICROS
+                : STEP_SHORT_TOLERANCE_MICROS);
+
         uint32_t pulseMicrosOriginal = pulseMicros;
 
-        for (pulseMicros += STEP_SHORT_TOLERANCE_MICROS; pulseMicros > 0; --pulseMicros) {
+        for (pulseMicros += stepTolerance; pulseMicros > 0; --pulseMicros) {
             tape.step(1);
 
             if (tape.getVolumeBit() != volumeBit) {
@@ -157,10 +180,6 @@ static void testPulses(zemux::Tape& tape, zemux::DataReader& pulsesReader, uint6
             // but ignore pulse length once after rewind.
             isJustAfterRewind = false;
         } else {
-            uint32_t stepTolerance = (pulseMicrosOriginal > STEP_WIDE_THRESHOLD_MICROS
-                    ? STEP_WIDE_TOLERANCE_MICROS
-                    : STEP_SHORT_TOLERANCE_MICROS);
-
             if (pulseMicros > stepTolerance * 2) {
                 BOOST_TEST_MESSAGE("-- ticksPassed = " << ticksPassed
                         << ", pulseTicks = " << pulseTicks
@@ -200,10 +219,42 @@ static void testTape(zemux::Tape& tape) {
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 BOOST_AUTO_TEST_CASE(TapeTapTest) {
-    FileDataReader reader { TAPE_TAP_PATH };
     StubLoudspeaker loudspeaker;
+    FileDataReader reader { TAPE_TAP_PATH };
     zemux::TapeTap tapeTap { &reader, &loudspeaker, true };
     testTape(tapeTap);
+}
+
+BOOST_AUTO_TEST_CASE(TapeWavTest) {
+    StubLoudspeaker loudspeaker;
+
+    {
+        BOOST_TEST_MESSAGE("=== 1");
+        FileDataReader reader { TAPE_WAV_1_PATH };
+        zemux::TapeWav tapeWav { &reader, &loudspeaker, true };
+        testTape(tapeWav);
+    }
+
+    {
+        BOOST_TEST_MESSAGE("=== 2");
+        FileDataReader reader { TAPE_WAV_2_PATH };
+        zemux::TapeWav tapeWav { &reader, &loudspeaker, true };
+        testTape(tapeWav);
+    }
+
+    {
+        BOOST_TEST_MESSAGE("=== 3");
+        FileDataReader reader { TAPE_WAV_3_PATH };
+        zemux::TapeWav tapeWav { &reader, &loudspeaker, true };
+        testTape(tapeWav);
+    }
+
+    {
+        BOOST_TEST_MESSAGE("=== 4");
+        FileDataReader reader { TAPE_WAV_4_PATH };
+        zemux::TapeWav tapeWav { &reader, &loudspeaker, true };
+        testTape(tapeWav);
+    }
 }
 
 #pragma clang diagnostic pop
