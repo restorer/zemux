@@ -26,6 +26,7 @@
  */
 
 #include <stdexcept>
+#include <cstdint>
 #include <zemux_core/error.h>
 #include <zemux_core/force_inline.h>
 #include <zemux_core/loudspeaker.h>
@@ -35,6 +36,7 @@ namespace zemux {
 
 class Tape {
 public:
+
     static constexpr uint64_t MILLIS_MICROS = 1000;
     static constexpr uint64_t SECOND_MICROS = 1000 * MILLIS_MICROS;
 

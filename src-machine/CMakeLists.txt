@@ -23,7 +23,8 @@
 cmake_minimum_required (VERSION 3.10)
 
 add_library (zemux_machine SHARED
-        src/dummy.cpp)
+        src/dummy.cpp
+        src/video_surface.cpp)
 
 target_include_directories (zemux_machine
         PUBLIC include
