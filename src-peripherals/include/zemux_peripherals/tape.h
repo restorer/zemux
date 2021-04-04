@@ -76,7 +76,7 @@ protected:
 
         if (micros) {
             uint16_t volume = outputBit ? HIGH_BIT_VOLUME : LOW_BIT_VOLUME;
-            loudspeaker->onLoudspeakerStep(volume, volume, micros);
+            loudspeaker->onLoudspeakerStepBy(volume, volume, micros);
         }
     }
 

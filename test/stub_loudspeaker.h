@@ -25,11 +25,18 @@ public:
         return numTicks;
     }
 
-    void onLoudspeakerStep(uint16_t left, uint16_t right, uint32_t ticks) override {
+    void onLoudspeakerStepTo(uint16_t left, uint16_t right, uint32_t ticks) override {
         leftSum += left;
         rightSum += right;
         ++numSteps;
-        numTicks += ticks;
+        numTicks = ticks;
+    }
+
+    void onLoudspeakerStepBy(uint16_t left, uint16_t right, uint32_t ticksDelta) override {
+        leftSum += left;
+        rightSum += right;
+        ++numSteps;
+        numTicks += ticksDelta;
     }
 
     void reset() {

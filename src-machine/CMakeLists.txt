@@ -23,7 +23,11 @@
 cmake_minimum_required (VERSION 3.10)
 
 add_library (zemux_machine SHARED
-        src/dummy.cpp
+        src/bus.cpp
+        src/device.cpp
+        src/border_device.cpp
+        src/covox_device.cpp
+        src/machine.cpp
         src/video_surface.cpp)
 
 target_include_directories (zemux_machine

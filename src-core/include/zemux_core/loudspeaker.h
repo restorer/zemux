@@ -33,11 +33,8 @@ namespace zemux {
 class Loudspeaker {
 public:
 
-    virtual void onLoudspeakerStep(uint16_t left, uint16_t right, uint32_t ticks) = 0;
-
-    ZEMUX_FORCE_INLINE void onLoudspeakerStep(uint16_t left, uint16_t right) {
-        onLoudspeakerStep(left, right, 1);
-    }
+    virtual void onLoudspeakerStepTo(uint16_t left, uint16_t right, uint32_t ticks) = 0;
+    virtual void onLoudspeakerStepBy(uint16_t left, uint16_t right, uint32_t ticksDelta) = 0;
 
 protected:
 

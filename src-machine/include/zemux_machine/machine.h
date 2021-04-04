@@ -1,5 +1,5 @@
-#ifndef ZEMUX_MACHINE__VIDEO_SURFACE
-#define ZEMUX_MACHINE__VIDEO_SURFACE
+#ifndef ZEMUX_MACHINE__GUEST_MACHINE
+#define ZEMUX_MACHINE__GUEST_MACHINE
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,49 +25,19 @@
  * THE SOFTWARE.
  */
 
-#include <cstdint>
 #include <memory>
-#include <zemux_core/force_inline.h>
+#include <vector>
 #include <zemux_core/non_copyable.h>
+#include "bus.h"
+#include "video_surface.h"
 
 namespace zemux {
 
-class VideoSurface final : private NonCopyable {
+class Machine final : private NonCopyable {
 public:
 
-    static constexpr int ROWS = 312;
-    static constexpr int COLS = 384 * 2;
-
-    std::unique_ptr<uint32_t[]> canvas;
-    uint32_t* beam;
-
-    ZEMUX_FORCE_INLINE void startFrame() {
-        beam = canvas.get();
-    }
-
-    void finishFrame(uint32_t c) {
-        uint32_t* last = &canvas[ROWS * COLS];
-
-        while (beam != last) {
-            *(beam++) = c;
-        }
-    }
-
-    ZEMUX_FORCE_INLINE static constexpr uint32_t combineRgb(uint8_t r, uint8_t g, uint8_t b) {
-        return (static_cast<uint32_t>(r) << 0x10) | (static_cast<uint32_t>(g) << 8) | static_cast<uint32_t>(b);
-    }
-
-    ZEMUX_FORCE_INLINE static constexpr uint8_t extractR(uint32_t c) {
-        return static_cast<uint8_t>(c >> 0x10);
-    }
-
-    ZEMUX_FORCE_INLINE static constexpr uint8_t extractG(uint32_t c) {
-        return static_cast<uint8_t>(c >> 8);
-    }
-
-    ZEMUX_FORCE_INLINE static constexpr uint8_t extractB(uint32_t c) {
-        return static_cast<uint8_t>(c);
-    }
+    Bus bus;
+    VideoSurface videoSurface;
 };
 
 }

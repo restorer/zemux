@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="ZemuX" targetName="zemux_test" />
@@ -11,17 +14,25 @@
       <config projectName="ZemuX" targetName="zemux_chips" />
     </generated>
   </component>
-  <component name="CMakeSettings">
+  <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
       <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" ENABLED="true" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src-machine/src/machine.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-chips/src/ay_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/ay_chip.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/loudspeaker.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/loudspeaker.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/dummy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/dummy.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/video_surface.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/video_surface.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/dummy.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/video_surface.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/video_surface.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/zemux.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/zemux.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/stub_loudspeaker.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/stub_loudspeaker.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +71,7 @@
     <property name="cf.first.check.clang-format" value="false" />
     <property name="ctest.advertisement.all.test.configuration.is.created" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="preferences.editor" />
+    <property name="settings.editor.selected.configurable" value="CPPToolchains" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -69,7 +80,7 @@
       <recent name="$PROJECT_DIR$/src-ay/src" />
     </key>
   </component>
-  <component name="RunManager" selected="Boost.Test.TapeWavTest">
+  <component name="RunManager" selected="CMake Application.zemux">
     <configuration name="TapeTapTest" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" temporary="true" PROGRAM_PARAMS="--logger=HRF,test_suite" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux_test" TEST_METHOD="TapeTapTest" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -151,6 +162,10 @@
       <workItem from="1614436708235" duration="46491000" />
       <workItem from="1615110893220" duration="14842000" />
       <workItem from="1616337776365" duration="7455000" />
+      <workItem from="1617438268323" duration="1666000" />
+      <workItem from="1617439993465" duration="871000" />
+      <workItem from="1617443921024" duration="9069000" />
+      <workItem from="1617469921803" duration="7251000" />
     </task>
     <servers />
   </component>
@@ -172,5 +187,9 @@
         <watch expression="sampleOffset" language="ObjectiveC" />
       </configuration>
     </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
