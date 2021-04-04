@@ -74,31 +74,31 @@ MemoryDevice::MemoryDevice(Bus* bus) : Device { bus } {
     remap();
 }
 
-uint32_t MemoryDevice::getActionPrefix() {
-    return ActionHandler::PREFIX_MEMORY_DEVICE;
+uint32_t MemoryDevice::getEventPrefix() {
+    return EventHandler::PREFIX_MEMORY_DEVICE;
 }
 
-ActionData MemoryDevice::onAction(uint32_t action, ActionData input) {
+EventData MemoryDevice::onEvent(uint32_t action, EventData input) {
     switch (action) {
-        case ACTION_SET_MODE:
+        case EVENT_SET_MODE:
             mode = static_cast<Mode>(input.value);
             remap();
             break;
 
-        case ACTION_LOAD_ROM_FULL:
+        case EVENT_LOAD_ROM_FULL:
             static_cast<DataReader*>(input.pointer)->readBlock(&rom[0], SIZE_BANK * 2);
             break;
 
-        case ACTION_LOAD_ROM_BANK_0:
+        case EVENT_LOAD_ROM_BANK_0:
             static_cast<DataReader*>(input.pointer)->readBlock(&rom[0], SIZE_BANK);
             break;
 
-        case ACTION_LOAD_ROM_BANK_1:
+        case EVENT_LOAD_ROM_BANK_1:
             static_cast<DataReader*>(input.pointer)->readBlock(&rom[SIZE_BANK], SIZE_BANK);
             break;
     }
 
-    return ActionData {};
+    return EventData {};
 }
 
 void MemoryDevice::onAttach() {

@@ -26,7 +26,7 @@
  */
 
 #include "device.h"
-#include "action_handler.h"
+#include "event_handler.h"
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/force_inline.h>
 #include <cstdint>
@@ -59,10 +59,10 @@ public:
         Mode1024 = 3
     };
 
-    static constexpr uint32_t ACTION_SET_MODE = ActionHandler::PREFIX_MEMORY_DEVICE | 1;
-    static constexpr uint32_t ACTION_LOAD_ROM_FULL = ActionHandler::PREFIX_MEMORY_DEVICE | 2;
-    static constexpr uint32_t ACTION_LOAD_ROM_BANK_0 = ActionHandler::PREFIX_MEMORY_DEVICE | 3;
-    static constexpr uint32_t ACTION_LOAD_ROM_BANK_1 = ActionHandler::PREFIX_MEMORY_DEVICE | 4;
+    static constexpr uint32_t EVENT_SET_MODE = EventHandler::PREFIX_MEMORY_DEVICE | 1;
+    static constexpr uint32_t EVENT_LOAD_ROM_FULL = EventHandler::PREFIX_MEMORY_DEVICE | 2;
+    static constexpr uint32_t EVENT_LOAD_ROM_BANK_0 = EventHandler::PREFIX_MEMORY_DEVICE | 3;
+    static constexpr uint32_t EVENT_LOAD_ROM_BANK_1 = EventHandler::PREFIX_MEMORY_DEVICE | 4;
 
     static constexpr int SIZE_BANK = 0x4000;
     static constexpr int BANKS_ROM = 2;
@@ -82,8 +82,8 @@ public:
     MemoryDevice(Bus* bus);
     virtual ~MemoryDevice() = default;
 
-    uint32_t getActionPrefix() override;
-    ActionData onAction(uint32_t action, ActionData input) override;
+    uint32_t getEventPrefix() override;
+    EventData onEvent(uint32_t action, EventData input) override;
 
     void onAttach() override;
     void onDetach() override;

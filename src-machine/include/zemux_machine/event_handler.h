@@ -29,29 +29,29 @@
 
 namespace zemux {
 
-union ActionData {
+union EventData {
     uint32_t value;
     void* pointer;
 };
 
-class ActionHandler {
+class EventHandler {
 public:
 
     static constexpr int SHIFT_PREFIX = 16;
     static constexpr uint32_t PREFIX_MEMORY_DEVICE = 1 << SHIFT_PREFIX;
 
-    virtual uint32_t getActionPrefix() {
+    virtual uint32_t getEventPrefix() {
         return 0;
     }
 
-    virtual ActionData onAction([[maybe_unused]] uint32_t action, [[maybe_unused]] ActionData input) {
-        return ActionData {};
+    virtual EventData onEvent([[maybe_unused]] uint32_t event, [[maybe_unused]] EventData input) {
+        return EventData {};
     }
 
 protected:
 
-    constexpr ActionHandler() = default;
-    virtual ~ActionHandler() = default;
+    constexpr EventHandler() = default;
+    virtual ~EventHandler() = default;
 };
 
 }

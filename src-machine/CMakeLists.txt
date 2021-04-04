@@ -36,7 +36,7 @@ target_include_directories (zemux_machine
         PUBLIC include
         PRIVATE src include/zemux_machine)
 
-target_link_libraries (zemux_machine PRIVATE zemux_core)
+target_link_libraries (zemux_machine PRIVATE zemux_core zemux_chips)
 target_compile_features (zemux_machine PRIVATE cxx_std_17)
 
 target_compile_options (zemux_machine PRIVATE

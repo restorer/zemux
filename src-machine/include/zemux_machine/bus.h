@@ -25,9 +25,12 @@
  * THE SOFTWARE.
  */
 
+#include <cstdint>
 #include <memory>
 #include <array>
 #include <zemux_core/non_copyable.h>
+#include <zemux_core/chronometer.h>
+#include <zemux_chips/z80_chip.h>
 
 namespace zemux {
 
@@ -84,7 +87,7 @@ public:
     MemoryDevice* memoryDevice = nullptr;
     ExtPortDevice* extPortDevice = nullptr;
 
-    Bus();
+    Bus(Z80Chip* cpu, ChronometerNarrow* cpuChronometer);
     ~Bus() = default;
 
     void onReset();
@@ -95,6 +98,9 @@ public:
     uint32_t getFrameTicksPassed();
 
 private:
+
+    Z80Chip* cpu;
+    ChronometerNarrow* cpuChronometer;
 
     int mreqRdLayer;
     int mreqWrLayer;

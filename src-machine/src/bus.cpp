@@ -29,7 +29,7 @@
 
 namespace zemux {
 
-Bus::Bus() {
+Bus::Bus(Z80Chip* cpu, ChronometerNarrow* cpuChronometer) : cpu { cpu }, cpuChronometer { cpuChronometer } {
     for (int i = 0; i < LAYERS_MREQ_RD; ++i) {
         mreqRdMapLayers[i].reset(new BusMreqRdElement[ELEMENTS_MREQ_RD]);
     }
@@ -45,6 +45,8 @@ Bus::Bus() {
     for (int i = 0; i < LAYERS_IORQ_WR; ++i) {
         iorqWrMapLayers[i].reset(new BusIorqWrElement[ELEMENTS_IORQ_WR]);
     }
+
+    onReset();
 }
 
 void Bus::onReset() {
@@ -100,8 +102,7 @@ void Bus::toggleIorqWrOverlay(int iorqWrOverlay, bool isEnabled) {
 }
 
 uint32_t Bus::getFrameTicksPassed() {
-    // return frameTicksPassed + cpu->getTstate();
-    return 0;
+    return cpuChronometer->getSrcTicksPassed() + cpuChronometer->dstToSrcCeil(cpu->getTstate());
 }
 
 }
