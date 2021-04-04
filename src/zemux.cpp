@@ -23,6 +23,9 @@ public:
     void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override {
     }
 
+    void onLoudspeakerStepTo(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticks */) override {
+    }
+
     void onLoudspeakerStepBy(uint16_t /* left */, uint16_t /* right */, unsigned int /* ticksDelta */) override {
     }
 };

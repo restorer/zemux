@@ -1,5 +1,5 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+#ifndef ZEMUX_MACHINE__COVOX_DEVICE
+#define ZEMUX_MACHINE__COVOX_DEVICE
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,4 +25,38 @@
  * THE SOFTWARE.
  */
 
-#include "video_surface.h"
+#include "device.h"
+#include <zemux_core/non_copyable.h>
+#include <zemux_core/loudspeaker.h>
+
+namespace zemux {
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+
+static void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+
+#pragma clang diagnostic pop
+
+class CovoxDevice final : public Device, private NonCopyable {
+public:
+
+    CovoxDevice(Bus* bus, Loudspeaker* loudspeaker);
+    virtual ~CovoxDevice() = default;
+
+    void onDetach() override;
+    BusIorqWrElement onConfigureIorqWr(BusIorqWrElement prev, int /* iorqWrLayer */, uint16_t port) override;
+    void onReset() override;
+
+private:
+
+    Loudspeaker* loudspeaker;
+
+    void onIorqWr(uint8_t value);
+
+    friend void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+};
+
+}
+
+#endif

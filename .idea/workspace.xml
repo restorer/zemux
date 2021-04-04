@@ -21,18 +21,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src-machine/src/machine.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/ay_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/ay_chip.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/loudspeaker.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/loudspeaker.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/video_surface.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/video_surface.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/dummy.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/action_handler.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/action_handler.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/border_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/bus.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/bus.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/covox_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/border_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/border_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/bus.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/bus.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/covox_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/covox_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/machine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/machine.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/src/video_surface.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/video_surface.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/zemux.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/zemux.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/stub_loudspeaker.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/stub_loudspeaker.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,6 +77,8 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src-machine/src/devices" />
+      <recent name="$PROJECT_DIR$/src-machine/include/zemux_machine/devices" />
       <recent name="$PROJECT_DIR$/src-chips/include/zemux_chips" />
       <recent name="$PROJECT_DIR$/src-chips/src" />
       <recent name="$PROJECT_DIR$/src-ay/src" />
@@ -165,7 +169,7 @@
       <workItem from="1617438268323" duration="1666000" />
       <workItem from="1617439993465" duration="871000" />
       <workItem from="1617443921024" duration="9069000" />
-      <workItem from="1617469921803" duration="7251000" />
+      <workItem from="1617469921803" duration="18704000" />
     </task>
     <servers />
   </component>
