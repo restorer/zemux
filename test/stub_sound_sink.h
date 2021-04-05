@@ -1,12 +1,12 @@
-#ifndef ZEMUX_TEST__TEST_LOUDSPEAKER
-#define ZEMUX_TEST__TEST_LOUDSPEAKER
+#ifndef ZEMUX_TEST__STUB_SOUND_SINK
+#define ZEMUX_TEST__STUB_SOUND_SINK
 
-#include <zemux_core/loudspeaker.h>
+#include <zemux_core/sound_sink.h>
 
-class StubLoudspeaker : public zemux::Loudspeaker {
+class StubSoundSink : public zemux::SoundSink {
 public:
 
-    StubLoudspeaker() {
+    StubSoundSink() {
     }
 
     inline uint32_t getLeftSum() {
@@ -25,14 +25,14 @@ public:
         return numTicks;
     }
 
-    void onLoudspeakerStepTo(uint16_t left, uint16_t right, uint32_t ticks) override {
+    void soundForwardTo(uint16_t left, uint16_t right, uint32_t ticks) override {
         leftSum += left;
         rightSum += right;
         ++numSteps;
         numTicks = ticks;
     }
 
-    void onLoudspeakerStepBy(uint16_t left, uint16_t right, uint32_t ticksDelta) override {
+    void soundAdvanceBy(uint16_t left, uint16_t right, uint32_t ticksDelta) override {
         leftSum += left;
         rightSum += right;
         ++numSteps;

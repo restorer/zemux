@@ -25,8 +25,9 @@
  * THE SOFTWARE.
  */
 
+#include "bus.h"
 #include "device.h"
-#include "event_handler.h"
+#include "event.h"
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/force_inline.h>
 #include <cstdint>
@@ -52,6 +53,14 @@ static void onMemoryDeviceIorqWr(void* data, uint16_t port, uint8_t value);
 class MemoryDevice final : public Device, private NonCopyable {
 public:
 
+    enum EventType {
+        EventSetMode = Event::CategoryMemory | 1,
+        EventGetMode = Event::CategoryMemory | 2,
+        EventLoadRomFull = Event::CategoryMemory | 3,
+        EventLoadRomBank0 = Event::CategoryMemory | 4,
+        EventLoadRomBank1 = Event::CategoryMemory | 5
+    };
+
     enum Mode {
         Mode48 = 0,
         Mode128 = 1,
@@ -59,31 +68,26 @@ public:
         Mode1024 = 3
     };
 
-    static constexpr uint32_t EVENT_SET_MODE = EventHandler::PREFIX_MEMORY_DEVICE | 1;
-    static constexpr uint32_t EVENT_LOAD_ROM_FULL = EventHandler::PREFIX_MEMORY_DEVICE | 2;
-    static constexpr uint32_t EVENT_LOAD_ROM_BANK_0 = EventHandler::PREFIX_MEMORY_DEVICE | 3;
-    static constexpr uint32_t EVENT_LOAD_ROM_BANK_1 = EventHandler::PREFIX_MEMORY_DEVICE | 4;
-
     static constexpr int SIZE_BANK = 0x4000;
     static constexpr int BANKS_ROM = 2;
     static constexpr int BANKS_RAM = 64;
     static constexpr uint16_t PORT_7FFD = 0x7FFD;
 
-    static constexpr uint8_t MASK_WRITE_128 = 0b00111111;
-    static constexpr uint8_t MASK_BANK_128 = 0b00000111;
-    static constexpr uint8_t MASK_BANK_512 = 0b11000000;
-    static constexpr uint8_t MASK_BANK_1024 = 0b11100000;
+    static constexpr uint8_t MASK_WRITE_128 = 0b0011'1111;
+    static constexpr uint8_t MASK_BANK_128 = 0b0000'0111;
+    static constexpr uint8_t MASK_BANK_512 = 0b1100'0000;
+    static constexpr uint8_t MASK_BANK_1024 = 0b1110'0000;
     static constexpr int SHIFT_BANK_512 = 3;
     static constexpr int SHIFT_BANK_1024 = 2;
-    static constexpr uint8_t BIT_SCREEN_BANK_7 = 0b00001000;
-    static constexpr uint8_t BIT_ROM_BANK_1 = 0b00010000;
-    static constexpr uint8_t BIT_LOCK = 0b00100000;
+    static constexpr uint8_t BIT_SCREEN_BANK_7 = 0b0000'1000;
+    static constexpr uint8_t BIT_ROM_BANK_1 = 0b0001'0000;
+    static constexpr uint8_t BIT_LOCK = 0b0010'0000;
 
     MemoryDevice(Bus* bus);
     virtual ~MemoryDevice() = default;
 
-    uint32_t getEventPrefix() override;
-    EventData onEvent(uint32_t action, EventData input) override;
+    uint32_t getEventCategory() override;
+    EventOutput onEvent(uint32_t type, EventInput input) override;
 
     void onAttach() override;
     void onDetach() override;

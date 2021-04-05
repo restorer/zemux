@@ -44,8 +44,8 @@ const char* TapeTap::ERROR_NO_CHUNKS = /* @i18n */ "tape_tap.no_chunks";
 
 TapeTap::TapeTap(
         DataReader* reader,
-        Loudspeaker* loudspeaker,
-        bool shouldValidateStrict) : Tape { reader, loudspeaker } {
+        SoundSink* soundSink,
+        bool shouldValidateStrict) : Tape { reader, soundSink } {
 
     data = reader->readEntire(MAX_TAP_SIZE);
     parseChunks(shouldValidateStrict);

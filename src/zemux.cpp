@@ -1,12 +1,12 @@
 #include <iostream>
 #include <zemux_core/non_copyable.h>
-#include <zemux_core/loudspeaker.h>
+#include <zemux_core/sound_sink.h>
 #include <zemux_chips/z80_chip.h>
 #include <zemux_chips/ay_chip.h>
 
 namespace zemux {
 
-class ZemuXStub : public Z80ChipCallback, public Loudspeaker, private NonCopyable {
+class ZemuXStub : public Z80ChipCallback, public SoundSink, private NonCopyable {
 public:
 
     uint8_t onZ80MreqRd(uint16_t /* address */, bool /* isM1 */) override {
@@ -23,10 +23,10 @@ public:
     void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override {
     }
 
-    void onLoudspeakerStepTo(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticks */) override {
+    void soundForwardTo(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticks */) override {
     }
 
-    void onLoudspeakerStepBy(uint16_t /* left */, uint16_t /* right */, unsigned int /* ticksDelta */) override {
+    void soundAdvanceBy(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticksDelta */) override {
     }
 };
 

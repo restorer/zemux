@@ -150,7 +150,7 @@ void Z80SpeedTestCase::measure(const char* path) {
         BOOST_TEST_MESSAGE("ZemuX Z80 (test) is "
                 << std::setprecision(3)
                 << ratio
-                << "x faster then Zame Z80 (ethalon)");
+                << "motionX faster then Zame Z80 (ethalon)");
     } else if (testTime == ethalonTime) {
         BOOST_TEST_MESSAGE(
                 "ZemuX Z80 (test) has the same speed as Zame Z80 (ethalon), but probably this is bug in testing environment. Please retest.");
@@ -160,7 +160,7 @@ void Z80SpeedTestCase::measure(const char* path) {
         BOOST_TEST_MESSAGE("ZemuX Z80 (test) is "
                 << std::setprecision(3)
                 << ratio
-                << "x SLOWER then Zame Z80 (ethalon)");
+                << "motionX SLOWER then Zame Z80 (ethalon)");
     }
 }
 

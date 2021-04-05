@@ -54,7 +54,7 @@ extern Z80Chip::Opcode z80ChipOptable_FD_CB[0x100];
 //
 // Possible optimizations:
 //
-// For 8-bit operations precompute lookup-tables for flag F (max size will be 0x20000 for x and y and carry),
+// For 8-bit operations precompute lookup-tables for flag F (max size will be 0x20000 for motionX and motionY and carry),
 // but check if it will be actually faster (according to Godbolt Compiler Explorer the generated code
 // for current variant has 3x more assembly instructions than code for lookup, but using lookup may have
 // the same speed or be actually slower due to modern CPU architecture).

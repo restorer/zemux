@@ -29,7 +29,7 @@
 
 namespace zemux {
 
-Tape::Tape(DataReader* reader, Loudspeaker* loudspeaker) : reader { reader }, loudspeaker { loudspeaker } {
+Tape::Tape(DataReader* reader, SoundSink* soundSink) : reader { reader }, soundSink { soundSink } {
 }
 
 }

@@ -74,31 +74,35 @@ MemoryDevice::MemoryDevice(Bus* bus) : Device { bus } {
     remap();
 }
 
-uint32_t MemoryDevice::getEventPrefix() {
-    return EventHandler::PREFIX_MEMORY_DEVICE;
+uint32_t MemoryDevice::getEventCategory() {
+    return Event::CategoryMemory;
 }
 
-EventData MemoryDevice::onEvent(uint32_t action, EventData input) {
-    switch (action) {
-        case EVENT_SET_MODE:
+EventOutput MemoryDevice::onEvent(uint32_t type, EventInput input) {
+    switch (type) {
+        case EventSetMode:
             mode = static_cast<Mode>(input.value);
             remap();
-            break;
+            return EventOutput { .isHandled = true };
 
-        case EVENT_LOAD_ROM_FULL:
+        case EventGetMode:
+            return EventOutput { .isHandled = true, .value = mode };
+
+        case EventLoadRomFull:
             static_cast<DataReader*>(input.pointer)->readBlock(&rom[0], SIZE_BANK * 2);
-            break;
+            return EventOutput { .isHandled = true };
 
-        case EVENT_LOAD_ROM_BANK_0:
+        case EventLoadRomBank0:
             static_cast<DataReader*>(input.pointer)->readBlock(&rom[0], SIZE_BANK);
-            break;
+            return EventOutput { .isHandled = true };
 
-        case EVENT_LOAD_ROM_BANK_1:
+        case EventLoadRomBank1:
             static_cast<DataReader*>(input.pointer)->readBlock(&rom[SIZE_BANK], SIZE_BANK);
-            break;
-    }
+            return EventOutput { .isHandled = true };
 
-    return EventData {};
+        default:
+            return EventOutput {};
+    }
 }
 
 void MemoryDevice::onAttach() {

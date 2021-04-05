@@ -22,13 +22,34 @@
   <component name="ChangeListManager">
     <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-chips/include/zemux_chips/ay_chip.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/include/zemux_chips/ay_chip.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-chips/src/ay_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/ay_chip.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip_core.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip_core.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/chronometer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/chronometer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/loudspeaker.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/sound_sink.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/action_handler.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/event_handler.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/bus.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/bus.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/extport_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/extport_device.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/memory_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/memory_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/event_handler.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/event.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/src/bus.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/bus.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/border_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/border_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/covox_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/covox_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/extport_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/extport_device.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/src/devices/memory_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/memory_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_tap.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_tap.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_wav.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_wav.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape_tap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape_tap.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape_wav.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape_wav.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/zemux.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/zemux.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/stub_loudspeaker.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/stub_sound_sink.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/tape_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/tape_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/z80_speed_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/z80_speed_test.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,7 +184,7 @@
       <workItem from="1617438268323" duration="1666000" />
       <workItem from="1617439993465" duration="871000" />
       <workItem from="1617443921024" duration="9069000" />
-      <workItem from="1617469921803" duration="19449000" />
+      <workItem from="1617469921803" duration="44029000" />
     </task>
     <servers />
   </component>

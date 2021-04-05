@@ -64,12 +64,12 @@ static const std::pair<double, double> PAN_TABLES[][3] = {
 namespace zemux {
 
 AyChip::AyChip(
-        Loudspeaker* loudspeaker,
+        SoundSink* soundSink,
         AyChipCallback* cb,
         ChipType chipType,
         VolumeType volumeType,
         PanType panType
-) : loudspeaker { loudspeaker },
+) : soundSink { soundSink },
         cb { cb },
         chipType { chipType },
         volumeType { volumeType },
@@ -269,16 +269,16 @@ void AyChip::step(uint32_t ticks) {
             envCurrent += envDelta;
 
             if (envCurrent & ~31) {
-                if (envShape & 0b1000001011111111) {
+                if (envShape & 0b10000010'11111111) {
                     envCurrent = 0;
                     envDelta = 0;
-                } else if (envShape & 0b0001000100000000) {
+                } else if (envShape & 0b00010001'00000000) {
                     envCurrent &= 31;
-                } else if (envShape & 0b0100010000000000) {
+                } else if (envShape & 0b01000100'00000000) {
                     envDelta -= envDelta;
                     envCurrent += envDelta;
                 } else {
-                    // 0b0010100000000000
+                    // 0b00101000'00000000
                     envCurrent = 31;
                     envDelta = 0;
                 }
@@ -300,7 +300,7 @@ void AyChip::step(uint32_t ticks) {
         left += volumes[2][amp].first;
         right += volumes[2][amp].second;
 
-        loudspeaker->onLoudspeakerStepBy(std::min(0xFFFFu, left), std::min(0xFFFFu, right), 1);
+        soundSink->soundAdvanceBy(std::min(0xFFFFu, left), std::min(0xFFFFu, right), 1);
     }
 }
 

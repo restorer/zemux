@@ -52,7 +52,7 @@ public:
     static const char* ERROR_INVALID_BYTE_RATE;
 
     TapeWav(DataReader* reader,
-            Loudspeaker* loudspeaker,
+            SoundSink* soundSink,
             bool shouldValidateStrict,
             uint8_t threshold = DEFAULT_THRESHOLD);
 

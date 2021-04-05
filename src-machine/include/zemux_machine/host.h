@@ -1,5 +1,5 @@
-#ifndef ZEMUX_MACHINE__COVOX_DEVICE
-#define ZEMUX_MACHINE__COVOX_DEVICE
+#ifndef ZEMUX_MACHINE__HOST
+#define ZEMUX_MACHINE__HOST
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,40 +25,26 @@
  * THE SOFTWARE.
  */
 
-#include "bus.h"
-#include "device.h"
-#include "sound_renderer.h"
-#include <zemux_core/non_copyable.h>
-#include <zemux_core/sound_mixer.h>
+#include <cstdint>
 
 namespace zemux {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
+namespace Host {
 
-static void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+enum EventType {
+    EventGetMouseState = Event::CategoryHost | 1,
+};
 
-#pragma clang diagnostic pop
+}
 
-class CovoxDevice final : public Device, private NonCopyable {
-public:
+struct HostMouseState {
+    static constexpr int BUTTON_BIT_LEFT = 1;
+    static constexpr int BUTTON_BIT_RIGHT = 2;
+    static constexpr int BUTTON_BIT_MIDDLE = 3;
 
-    CovoxDevice(Bus* bus, SoundMixer* soundMixer);
-    virtual ~CovoxDevice() = default;
-
-    void onAttach() override;
-    void onDetach() override;
-    BusIorqWrElement onConfigureIorqWr(BusIorqWrElement prev, int /* iorqWrLayer */, uint16_t port) override;
-    void onReset() override;
-
-private:
-
-    SoundMixer* soundMixer;
-    SoundRenderer soundRenderer;
-
-    void onIorqWr(uint8_t value);
-
-    friend void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+    int32_t motionX;
+    int32_t motionY;
+    int buttons;
 };
 
 }

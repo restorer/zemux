@@ -61,6 +61,13 @@ void Bus::onReset() {
     iorqWrMap = iorqWrMapLayers[0].get();
 }
 
+uint32_t Bus::getFrameTicksPassed() {
+    return cpuChronometer->getSrcTicksPassed() + cpuChronometer->dstToSrcCeil(cpu->getTstate());
+}
+
+void Bus::setCpuClockRatio(int rate) {
+}
+
 void Bus::toggleMreqRdOverlay(int mreqRdOverlay, bool isEnabled) {
     if (isEnabled) {
         mreqRdLayer |= mreqRdOverlay;
@@ -99,10 +106,6 @@ void Bus::toggleIorqWrOverlay(int iorqWrOverlay, bool isEnabled) {
     }
 
     iorqWrMap = iorqWrMapLayers[iorqWrOverlay].get();
-}
-
-uint32_t Bus::getFrameTicksPassed() {
-    return cpuChronometer->getSrcTicksPassed() + cpuChronometer->dstToSrcCeil(cpu->getTstate());
 }
 
 }

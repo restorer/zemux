@@ -25,50 +25,49 @@
  * THE SOFTWARE.
  */
 
-#include "devices/border_device.h"
+#include "devices/kempston_joystick_device.h"
 
 namespace zemux {
 
-static void onBorderDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value) {
-    static_cast<BorderDevice*>(data)->onIorqWr(value);
+static uint8_t onKempstonJoystickDeviceIorqRd(void* data, uint16_t /* port */) {
+    return static_cast<KempstonJoystickDevice*>(data)->onIorqRd();
 }
 
-BorderDevice::BorderDevice(Bus* bus, SoundMixer* soundMixer) : Device { bus }, soundMixer { soundMixer } {
+KempstonJoystickDevice::KempstonJoystickDevice(Bus* bus) : Device { bus } {
 }
 
-void BorderDevice::onAttach() {
-    Device::onAttach();
-    soundMixer->attachSource(&soundRenderer);
+uint32_t KempstonJoystickDevice::getEventCategory() {
+    return Event::CategoryKempstonJoystick;
 }
 
-void BorderDevice::onDetach() {
-    soundMixer->detachSource(&soundRenderer);
-    Device::onDetach();
-}
+EventOutput KempstonJoystickDevice::onEvent(uint32_t type, EventInput input) {
+    switch (type) {
+        case EventButtonDown:
+            state |= static_cast<Button>(input.value);
+            return EventOutput { .isHandled = true };
 
-BusIorqWrElement BorderDevice::onConfigureIorqWr(BusIorqWrElement prev, int /* iorqWrLayer */, uint16_t port) {
-    return (port & 1) ? prev : BusIorqWrElement { .callback = onBorderDeviceIorqWr, .data = this };
-}
+        case EventButtonUp:
+            state &= ~static_cast<Button>(input.value);
+            return EventOutput { .isHandled = true };
 
-void BorderDevice::onIorqWr(uint8_t value) {
-    uint32_t ticks = bus->getFrameTicksPassed();
-    uint16_t volume = 0;
+        case EventSetInvertedBits:
+            stateModifier = input.value ? STATE_MODIFIER_INVERTED : STATE_MODIFIER_NORMAL;
+            return EventOutput { .isHandled = true };
 
-    if (value & BIT_TAPE) {
-        volume += VOLUME_TAPE;
+        case EventGetInvertedBits:
+            return EventOutput { .isHandled = true, .value = (stateModifier == STATE_MODIFIER_INVERTED) };
+
+        default:
+            return EventOutput {};
     }
+}
 
-    if (value & BIT_SPEAKER) {
-        volume += VOLUME_SPEAKER;
-    }
+BusIorqRdElement KempstonJoystickDevice::onConfigureIorqRd(BusIorqRdElement prev, int, uint16_t port) {
+    return (port & 0x20) ? prev : BusIorqRdElement { .callback = onKempstonJoystickDeviceIorqRd, .data = this };
+}
 
-    soundRenderer.soundForwardTo(volume, volume, ticks);
-
-    if ((value & MASK_COLOR) != (portFB & MASK_COLOR)) {
-        // videoDevice->renderStepTo(ticks);
-    }
-
-    portFB = value;
+uint8_t KempstonJoystickDevice::onIorqRd() {
+    return state ^ stateModifier;
 }
 
 }

@@ -29,7 +29,7 @@
 #include <cstdint>
 #include <zemux_core/error.h>
 #include <zemux_core/force_inline.h>
-#include <zemux_core/loudspeaker.h>
+#include <zemux_core/sound_sink.h>
 #include <zemux_core/data_io.h>
 
 namespace zemux {
@@ -64,11 +64,11 @@ public:
 protected:
 
     DataReader* reader;
-    Loudspeaker* loudspeaker;
+    SoundSink* soundSink;
     uint64_t totalMicros = 0;
     uint64_t elapsedMicros = 0;
 
-    Tape(DataReader* reader, Loudspeaker* loudspeaker);
+    Tape(DataReader* reader, SoundSink* soundSink);
     virtual ~Tape() = default;
 
     void volumeStep(bool outputBit, uint32_t micros) {
@@ -76,7 +76,7 @@ protected:
 
         if (micros) {
             uint16_t volume = outputBit ? HIGH_BIT_VOLUME : LOW_BIT_VOLUME;
-            loudspeaker->onLoudspeakerStepBy(volume, volume, micros);
+            soundSink->soundAdvanceBy(volume, volume, micros);
         }
     }
 

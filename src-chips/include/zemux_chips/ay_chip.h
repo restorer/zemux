@@ -32,7 +32,7 @@
 #include <cstdint>
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/force_inline.h>
-#include <zemux_core/loudspeaker.h>
+#include <zemux_core/sound_sink.h>
 
 namespace zemux {
 
@@ -96,7 +96,7 @@ public:
 
     static constexpr uint32_t DEFAULT_RATE = ayChipExternalToDeviceRate(1774400);
 
-    explicit AyChip(Loudspeaker* loudspeaker,
+    explicit AyChip(SoundSink* soundSink,
             AyChipCallback* cb = nullptr,
             ChipType chipType = TypeYm,
             VolumeType volumeType = VolumeYm,
@@ -126,7 +126,7 @@ public:
 
 private:
 
-    Loudspeaker* loudspeaker;
+    SoundSink* soundSink;
     AyChipCallback* cb;
     ChipType chipType;
     VolumeType volumeType;

@@ -25,10 +25,12 @@
  * THE SOFTWARE.
  */
 
+#include "bus.h"
 #include "device.h"
+#include "sound_renderer.h"
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/force_inline.h>
-#include <zemux_core/loudspeaker.h>
+#include <zemux_core/sound_mixer.h>
 #include <cstdint>
 
 namespace zemux {
@@ -51,9 +53,10 @@ public:
     static constexpr uint16_t VOLUME_TAPE = 0x4000;
     static constexpr uint16_t VOLUME_SPEAKER = 0xBFFF;
 
-    BorderDevice(Bus* bus, Loudspeaker* loudspeaker);
+    BorderDevice(Bus* bus, SoundMixer* soundMixer);
     virtual ~BorderDevice() = default;
 
+    void onAttach() override;
     void onDetach() override;
     BusIorqWrElement onConfigureIorqWr(BusIorqWrElement prev, int /* iorqWrLayer */, uint16_t port) override;
 
@@ -63,7 +66,8 @@ public:
 
 private:
 
-    Loudspeaker* loudspeaker;
+    SoundMixer* soundMixer;
+    SoundRenderer soundRenderer;
     uint8_t portFB = 0;
 
     void onIorqWr(uint8_t value);

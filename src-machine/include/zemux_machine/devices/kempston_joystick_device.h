@@ -1,5 +1,5 @@
-#ifndef ZEMUX_MACHINE__COVOX_DEVICE
-#define ZEMUX_MACHINE__COVOX_DEVICE
+#ifndef ZEMUX_MACHINE__KEMPSTON_DEVICE
+#define ZEMUX_MACHINE__KEMPSTON_DEVICE
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -27,38 +27,56 @@
 
 #include "bus.h"
 #include "device.h"
-#include "sound_renderer.h"
+#include "event.h"
 #include <zemux_core/non_copyable.h>
-#include <zemux_core/sound_mixer.h>
+#include <cstdint>
 
 namespace zemux {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"
 
-static void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+static uint8_t onKempstonJoystickDeviceIorqRd(void* data, uint16_t /* port */);
 
 #pragma clang diagnostic pop
 
-class CovoxDevice final : public Device, private NonCopyable {
+class KempstonJoystickDevice final : public Device, private NonCopyable {
 public:
 
-    CovoxDevice(Bus* bus, SoundMixer* soundMixer);
-    virtual ~CovoxDevice() = default;
+    enum EventType {
+        EventButtonDown = Event::CategoryKempstonJoystick | 1,
+        EventButtonUp = Event::CategoryKempstonJoystick | 2,
+        EventSetInvertedBits = Event::CategoryKempstonJoystick | 3,
+        EventGetInvertedBits = Event::CategoryKempstonJoystick | 4,
+    };
 
-    void onAttach() override;
-    void onDetach() override;
-    BusIorqWrElement onConfigureIorqWr(BusIorqWrElement prev, int /* iorqWrLayer */, uint16_t port) override;
-    void onReset() override;
+    enum Button {
+        Right = 1,
+        Left = 2,
+        Down = 4,
+        Up = 8,
+        Fire = 16,
+    };
+
+    static constexpr uint8_t STATE_MODIFIER_NORMAL = 0x00;
+    static constexpr uint8_t STATE_MODIFIER_INVERTED = 0xFF;
+
+    explicit KempstonJoystickDevice(Bus* bus);
+    virtual ~KempstonJoystickDevice() = default;
+
+    uint32_t getEventCategory() override;
+    EventOutput onEvent(uint32_t type, EventInput input) override;
+
+    BusIorqRdElement onConfigureIorqRd(BusIorqRdElement prev, int /* iorqRdLayer */, uint16_t port) override;
 
 private:
 
-    SoundMixer* soundMixer;
-    SoundRenderer soundRenderer;
+    uint8_t state = 0;
+    uint8_t stateModifier = STATE_MODIFIER_NORMAL;
 
-    void onIorqWr(uint8_t value);
+    uint8_t onIorqRd();
 
-    friend void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+    friend uint8_t onKempstonJoystickDeviceIorqRd(void* data, uint16_t /* port */);
 };
 
 }

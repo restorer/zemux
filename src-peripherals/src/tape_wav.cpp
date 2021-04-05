@@ -55,10 +55,10 @@ const char* TapeWav::ERROR_INVALID_BYTE_RATE = /* @i18n */ "tape_wav.invalid_byt
 
 TapeWav::TapeWav(
         DataReader* reader,
-        Loudspeaker* loudspeaker,
+        SoundSink* soundSink,
         bool shouldValidateStrict,
         uint8_t threshold
-) : Tape { reader, loudspeaker }, threshold { threshold } {
+) : Tape { reader, soundSink }, threshold { threshold } {
     parseRiffChunk(shouldValidateStrict);
     parseFmtAndData(shouldValidateStrict);
     reader->seek(dataPosition);

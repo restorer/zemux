@@ -33,11 +33,16 @@ static void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value) 
     static_cast<CovoxDevice*>(data)->onIorqWr(value);
 }
 
-CovoxDevice::CovoxDevice(Bus* bus, Loudspeaker* loudspeaker) : Device { bus }, loudspeaker { loudspeaker } {
+CovoxDevice::CovoxDevice(Bus* bus, SoundMixer* soundMixer) : Device { bus }, soundMixer { soundMixer } {
+}
+
+void CovoxDevice::onAttach() {
+    Device::onAttach();
+    soundMixer->attachSource(&soundRenderer);
 }
 
 void CovoxDevice::onDetach() {
-    loudspeaker->onLoudspeakerStepBy(0, 0, 0);
+    soundMixer->detachSource(&soundRenderer);
     Device::onDetach();
 }
 
@@ -46,12 +51,12 @@ BusIorqWrElement CovoxDevice::onConfigureIorqWr(BusIorqWrElement prev, int /* io
 }
 
 void CovoxDevice::onReset() {
-    loudspeaker->onLoudspeakerStepBy(0, 0, 0);
+    soundRenderer.soundAdvanceBy(0, 0, 0);
 }
 
 void CovoxDevice::onIorqWr(uint8_t value) {
     uint16_t volume = static_cast<uint16_t>(value) << 8;
-    loudspeaker->onLoudspeakerStepTo(volume, volume, bus->getFrameTicksPassed());
+    soundRenderer.soundForwardTo(volume, volume, bus->getFrameTicksPassed());
 }
 
 }

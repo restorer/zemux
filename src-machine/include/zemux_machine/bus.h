@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#include "event.h"
 #include <cstdint>
 #include <memory>
 #include <array>
@@ -84,6 +85,7 @@ public:
     std::array<std::unique_ptr<BusIorqRdElement[]>, LAYERS_IORQ_RD> iorqRdMapLayers;
     std::array<std::unique_ptr<BusIorqWrElement[]>, LAYERS_IORQ_WR> iorqWrMapLayers;
 
+    EventEmitter* hostEmitter = nullptr;
     MemoryDevice* memoryDevice = nullptr;
     ExtPortDevice* extPortDevice = nullptr;
 
@@ -91,11 +93,13 @@ public:
     ~Bus() = default;
 
     void onReset();
+    uint32_t getFrameTicksPassed();
+    void setCpuClockRatio(int rate);
+
     void toggleMreqRdOverlay(int mreqRdOverlay, bool isEnabled);
     void toggleMreqWrOverlay(int mreqWrOverlay, bool isEnabled);
     void toggleIorqRdOverlay(int iorqRdOverlay, bool isEnabled);
     void toggleIorqWrOverlay(int iorqWrOverlay, bool isEnabled);
-    uint32_t getFrameTicksPassed();
 
 private:
 

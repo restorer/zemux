@@ -1,5 +1,5 @@
-#ifndef ZEMUX_MACHINE__COVOX_DEVICE
-#define ZEMUX_MACHINE__COVOX_DEVICE
+#ifndef ZEMUX_MACHINE__ACTION_HANDLER
+#define ZEMUX_MACHINE__ACTION_HANDLER
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,40 +25,55 @@
  * THE SOFTWARE.
  */
 
-#include "bus.h"
-#include "device.h"
-#include "sound_renderer.h"
-#include <zemux_core/non_copyable.h>
-#include <zemux_core/sound_mixer.h>
+#include <memory>
 
 namespace zemux {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
+namespace Event {
 
-static void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+static constexpr int SHIFT_CATEGORY = 16;
 
-#pragma clang diagnostic pop
+enum Category {
+    CategoryHost = 1 << SHIFT_CATEGORY,
+    CategoryMemory = 2 << SHIFT_CATEGORY,
+    CategoryKempstonJoystick = 3 << SHIFT_CATEGORY,
+    CategoryKempstonMouse = 4 << SHIFT_CATEGORY,
+    CategoryExtPort = 5 << SHIFT_CATEGORY,
+};
 
-class CovoxDevice final : public Device, private NonCopyable {
+}
+
+union EventInput {
+    int32_t value;
+    void* pointer;
+};
+
+struct EventOutput {
+    bool isHandled = false;
+    int32_t value = 0;
+};
+
+class EventEmitter {
 public:
 
-    CovoxDevice(Bus* bus, SoundMixer* soundMixer);
-    virtual ~CovoxDevice() = default;
+    virtual EventOutput emitEvent(uint32_t event, EventInput input) = 0;
+};
 
-    void onAttach() override;
-    void onDetach() override;
-    BusIorqWrElement onConfigureIorqWr(BusIorqWrElement prev, int /* iorqWrLayer */, uint16_t port) override;
-    void onReset() override;
+class EventListener {
+public:
 
-private:
+    virtual uint32_t getEventCategory() {
+        return 0;
+    }
 
-    SoundMixer* soundMixer;
-    SoundRenderer soundRenderer;
+    virtual EventOutput onEvent([[maybe_unused]] uint32_t type, [[maybe_unused]] EventInput input) {
+        return EventOutput {};
+    }
 
-    void onIorqWr(uint8_t value);
+protected:
 
-    friend void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+    constexpr EventListener() = default;
+    virtual ~EventListener() = default;
 };
 
 }

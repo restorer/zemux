@@ -201,6 +201,16 @@ public:
         dstTicksPassed = 0;
     }
 
+    void reconfigure(TNarrow srcRate, TNarrow dstRate) {
+        srcClockRate = srcRate;
+        dstClockRate = dstRate;
+
+        srcTicksPassed = 0;
+        dstTicksPassed = 0;
+
+        update();
+    }
+
 private:
 
     static constexpr TWide FpMathCeilAddent = (static_cast<TWide>(1) << FpMathShift) - static_cast<TWide>(1);

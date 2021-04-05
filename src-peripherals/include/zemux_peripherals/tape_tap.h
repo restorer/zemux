@@ -43,7 +43,7 @@ public:
     static const char* ERROR_INVALID_CHECKSUM;
     static const char* ERROR_NO_CHUNKS;
 
-    TapeTap(DataReader* reader, Loudspeaker* loudspeaker, bool shouldValidateStrict);
+    TapeTap(DataReader* reader, SoundSink* soundSink, bool shouldValidateStrict);
     ~TapeTap() override = default;
 
     void step(uint32_t micros) override;

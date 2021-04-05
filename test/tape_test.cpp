@@ -32,7 +32,7 @@
 #include <zemux_peripherals/tape_tap.h>
 #include <zemux_peripherals/tape_wav.h>
 #include "stub_data_io.h"
-#include "stub_loudspeaker.h"
+#include "stub_sound_sink.h"
 
 // #define __VERBOSE
 
@@ -219,40 +219,40 @@ static void testTape(zemux::Tape& tape) {
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 BOOST_AUTO_TEST_CASE(TapeTapTest) {
-    StubLoudspeaker loudspeaker;
+    StubSoundSink soundSink;
     FileDataReader reader { TAPE_TAP_PATH };
-    zemux::TapeTap tapeTap { &reader, &loudspeaker, true };
+    zemux::TapeTap tapeTap { &reader, &soundSink, true };
     testTape(tapeTap);
 }
 
 BOOST_AUTO_TEST_CASE(TapeWavTest) {
-    StubLoudspeaker loudspeaker;
+    StubSoundSink soundSink;
 
     {
         BOOST_TEST_MESSAGE("=== 1");
         FileDataReader reader { TAPE_WAV_1_PATH };
-        zemux::TapeWav tapeWav { &reader, &loudspeaker, true };
+        zemux::TapeWav tapeWav { &reader, &soundSink, true };
         testTape(tapeWav);
     }
 
     {
         BOOST_TEST_MESSAGE("=== 2");
         FileDataReader reader { TAPE_WAV_2_PATH };
-        zemux::TapeWav tapeWav { &reader, &loudspeaker, true };
+        zemux::TapeWav tapeWav { &reader, &soundSink, true };
         testTape(tapeWav);
     }
 
     {
         BOOST_TEST_MESSAGE("=== 3");
         FileDataReader reader { TAPE_WAV_3_PATH };
-        zemux::TapeWav tapeWav { &reader, &loudspeaker, true };
+        zemux::TapeWav tapeWav { &reader, &soundSink, true };
         testTape(tapeWav);
     }
 
     {
         BOOST_TEST_MESSAGE("=== 4");
         FileDataReader reader { TAPE_WAV_4_PATH };
-        zemux::TapeWav tapeWav { &reader, &loudspeaker, true };
+        zemux::TapeWav tapeWav { &reader, &soundSink, true };
         testTape(tapeWav);
     }
 }

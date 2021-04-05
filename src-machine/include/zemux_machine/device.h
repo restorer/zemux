@@ -26,12 +26,12 @@
  */
 
 #include "bus.h"
-#include "event_handler.h"
+#include "event.h"
 #include <zemux_core/force_inline.h>
 
 namespace zemux {
 
-class Device : public EventHandler {
+class Device : public EventListener {
 public:
 
     virtual void onAttach() {

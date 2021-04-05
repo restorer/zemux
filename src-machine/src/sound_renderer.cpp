@@ -1,5 +1,5 @@
-#ifndef ZEMUX_CORE__LOUDSPEAKER
-#define ZEMUX_CORE__LOUDSPEAKER
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,23 +25,35 @@
  * THE SOFTWARE.
  */
 
-#include <cstdint>
-#include "force_inline.h"
+#include "sound_renderer.h"
 
 namespace zemux {
 
-class Loudspeaker {
-public:
-
-    virtual void onLoudspeakerStepTo(uint16_t left, uint16_t right, uint32_t ticks) = 0;
-    virtual void onLoudspeakerStepBy(uint16_t left, uint16_t right, uint32_t ticksDelta) = 0;
-
-protected:
-
-    constexpr Loudspeaker() = default;
-    virtual ~Loudspeaker() = default;
-};
-
+void SoundRenderer::soundForwardTo(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticks */) {
 }
 
-#endif
+void SoundRenderer::soundAdvanceBy(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticksDelta */) {
+}
+
+void SoundRenderer::onSourceAttach(SoundMixer* mixer) {
+    attachedMixer = mixer;
+}
+
+void SoundRenderer::onSourceDetach() {
+    attachedMixer = nullptr;
+}
+
+void SoundRenderer::completeSourceSamplesTo(uint32_t /* ticks */) {
+}
+
+uint32_t SoundRenderer::getSourceSamplesMixed() {
+    return 0;
+}
+
+void SoundRenderer::consumeSourceSamples(uint32_t /* samples */) {
+}
+
+void SoundRenderer::reconfigureSource(uint32_t /* ticksPerFrame */, uint32_t /* samplesPerSecond */) {
+}
+
+}

@@ -1,5 +1,5 @@
-#ifndef ZEMUX_MACHINE__ACTION_HANDLER
-#define ZEMUX_MACHINE__ACTION_HANDLER
+#ifndef ZEMUX_MACHINE__SOUND_RENDERER
+#define ZEMUX_MACHINE__SOUND_RENDERER
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,33 +25,31 @@
  * THE SOFTWARE.
  */
 
-#include <memory>
+#include <zemux_core/sound_sink.h>
+#include <zemux_core/sound_source.h>
+#include <zemux_core/non_copyable.h>
 
 namespace zemux {
 
-union EventData {
-    uint32_t value;
-    void* pointer;
-};
-
-class EventHandler {
+class SoundRenderer final : public SoundSink, public SoundSource, private NonCopyable {
 public:
 
-    static constexpr int SHIFT_PREFIX = 16;
-    static constexpr uint32_t PREFIX_MEMORY_DEVICE = 1 << SHIFT_PREFIX;
+    SoundRenderer() = default;
+    virtual ~SoundRenderer() = default;
 
-    virtual uint32_t getEventPrefix() {
-        return 0;
-    }
+    void soundForwardTo(uint16_t left, uint16_t right, uint32_t ticks) override;
+    void soundAdvanceBy(uint16_t left, uint16_t right, uint32_t ticksDelta) override;
 
-    virtual EventData onEvent([[maybe_unused]] uint32_t event, [[maybe_unused]] EventData input) {
-        return EventData {};
-    }
+    void onSourceAttach(SoundMixer* mixer) override;
+    void onSourceDetach() override;
+    void completeSourceSamplesTo(uint32_t ticks) override;
+    uint32_t getSourceSamplesMixed() override;
+    void consumeSourceSamples(uint32_t samples) override;
+    void reconfigureSource(uint32_t ticksPerFrame, uint32_t samplesPerSecond) override;
 
-protected:
+private:
 
-    constexpr EventHandler() = default;
-    virtual ~EventHandler() = default;
+    SoundMixer* attachedMixer = nullptr;
 };
 
 }
