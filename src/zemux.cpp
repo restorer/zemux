@@ -1,6 +1,6 @@
 #include <iostream>
 #include <zemux_core/non_copyable.h>
-#include <zemux_core/sound_sink.h>
+#include <zemux_core/sound.h>
 #include <zemux_chips/z80_chip.h>
 #include <zemux_chips/ay_chip.h>
 
@@ -23,10 +23,10 @@ public:
     void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override {
     }
 
-    void soundForwardTo(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticks */) override {
+    void sinkForwardTo(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticks */) override {
     }
 
-    void soundAdvanceBy(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticksDelta */) override {
+    void sinkAdvanceBy(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticksDelta */) override {
     }
 };
 

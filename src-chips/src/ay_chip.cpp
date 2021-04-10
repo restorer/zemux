@@ -300,7 +300,7 @@ void AyChip::step(uint32_t ticks) {
         left += volumes[2][amp].first;
         right += volumes[2][amp].second;
 
-        soundSink->soundAdvanceBy(std::min(0xFFFFu, left), std::min(0xFFFFu, right), 1);
+        soundSink->sinkAdvanceBy(std::min(0xFFFFu, left), std::min(0xFFFFu, right), 1);
     }
 }
 

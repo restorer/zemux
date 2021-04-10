@@ -27,10 +27,10 @@
 
 #include "bus.h"
 #include "device.h"
-#include "sound_renderer.h"
+#include "sound/sound_resampler.h"
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/force_inline.h>
-#include <zemux_core/sound_mixer.h>
+#include <zemux_core/sound.h>
 #include <cstdint>
 
 namespace zemux {
@@ -53,7 +53,7 @@ public:
     static constexpr uint16_t VOLUME_TAPE = 0x4000;
     static constexpr uint16_t VOLUME_SPEAKER = 0xBFFF;
 
-    BorderDevice(Bus* bus, SoundMixer* soundMixer);
+    BorderDevice(Bus* bus, SoundDesk* soundDesk);
     virtual ~BorderDevice() = default;
 
     void onAttach() override;
@@ -66,8 +66,8 @@ public:
 
 private:
 
-    SoundMixer* soundMixer;
-    SoundRenderer soundRenderer;
+    SoundDesk* soundDesk;
+    SoundResampler soundResampler;
     uint8_t portFB = 0;
 
     void onIorqWr(uint8_t value);

@@ -1,7 +1,7 @@
 #ifndef ZEMUX_TEST__STUB_SOUND_SINK
 #define ZEMUX_TEST__STUB_SOUND_SINK
 
-#include <zemux_core/sound_sink.h>
+#include <zemux_core/sound.h>
 
 class StubSoundSink : public zemux::SoundSink {
 public:
@@ -25,14 +25,14 @@ public:
         return numTicks;
     }
 
-    void soundForwardTo(uint16_t left, uint16_t right, uint32_t ticks) override {
+    void sinkForwardTo(uint16_t left, uint16_t right, uint32_t ticks) override {
         leftSum += left;
         rightSum += right;
         ++numSteps;
         numTicks = ticks;
     }
 
-    void soundAdvanceBy(uint16_t left, uint16_t right, uint32_t ticksDelta) override {
+    void sinkAdvanceBy(uint16_t left, uint16_t right, uint32_t ticksDelta) override {
         leftSum += left;
         rightSum += right;
         ++numSteps;

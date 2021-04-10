@@ -25,7 +25,7 @@ cmake_minimum_required (VERSION 3.10)
 add_library (zemux_machine SHARED
         src/bus.cpp
         src/device.cpp
-        src/sound_renderer.cpp
+        src/sound/sound_resampler.cpp
         src/devices/border_device.cpp
         src/devices/memory_device.cpp
         src/devices/covox_device.cpp

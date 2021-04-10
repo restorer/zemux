@@ -29,16 +29,61 @@
 
 namespace zemux {
 
+class SoundJack {
+public:
+
+    virtual void jackWrite(uint16_t left, uint16_t right) = 0;
+
+protected:
+
+    constexpr SoundJack() = default;
+    virtual ~SoundJack() = default;
+};
+
 class SoundSink {
 public:
 
-    virtual void soundForwardTo(uint16_t left, uint16_t right, uint32_t ticks) = 0;
-    virtual void soundAdvanceBy(uint16_t left, uint16_t right, uint32_t ticksDelta) = 0;
+    virtual void sinkForwardTo(uint16_t left, uint16_t right, uint32_t ticks) = 0;
+    virtual void sinkAdvanceBy(uint16_t left, uint16_t right, uint32_t ticksDelta) = 0;
 
 protected:
 
     constexpr SoundSink() = default;
     virtual ~SoundSink() = default;
+};
+
+class SoundCable {
+public:
+
+    virtual void onCableAttach(SoundJack* jack, uint32_t ticksPerSecond, uint32_t samplesPerSecond) = 0;
+    virtual void onCableDetach() = 0;
+    virtual void onCableFrameFinished(uint32_t ticks) = 0;
+    virtual void onCableReconfigure(uint32_t ticksPerSecond, uint32_t samplesPerSecond) = 0;
+
+protected:
+
+    constexpr SoundCable() = default;
+    virtual ~SoundCable() = default;
+};
+
+class SoundDesk {
+public:
+
+    struct Sample {
+        uint32_t left;
+        uint32_t right;
+    };
+
+    virtual void attachCable(SoundCable* source) = 0;
+    virtual void detachCable(SoundCable* source) = 0;
+    virtual void onFrameFinished(uint32_t ticks) = 0;
+    virtual void onReconfigure(uint32_t ticksPerSecond, uint32_t samplesPerSecond) = 0;
+    virtual Sample* getBuffer() = 0;
+
+protected:
+
+    constexpr SoundDesk() = default;
+    virtual ~SoundDesk() = default;
 };
 
 }

@@ -32,7 +32,7 @@
 #include <cstdint>
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/force_inline.h>
-#include <zemux_core/sound_sink.h>
+#include <zemux_core/sound.h>
 
 namespace zemux {
 

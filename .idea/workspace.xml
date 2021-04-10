@@ -21,35 +21,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/sound/sound_resampler.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src-machine/src/sound/sound_resampler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-chips/include/zemux_chips/ay_chip.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/include/zemux_chips/ay_chip.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-chips/src/ay_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/ay_chip.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip_core.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip_core.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/chronometer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/chronometer.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/loudspeaker.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/sound_sink.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/sound_mixer.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/sound_sink.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/sound.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/sound_source.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/bus.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/bus.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/device.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/extport_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/extport_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/memory_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/memory_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/event_handler.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/event.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/bus.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/bus.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/sound_renderer.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/src/devices/border_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/border_device.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-machine/src/devices/covox_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/covox_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/extport_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/extport_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/memory_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/memory_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/sound_renderer.cpp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_tap.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_tap.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_wav.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_wav.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape_tap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape_tap.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape_wav.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape_wav.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/zemux.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/zemux.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/stub_loudspeaker.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/stub_sound_sink.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tape_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/tape_test.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/z80_speed_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/z80_speed_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/stub_sound_sink.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/stub_sound_sink.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,6 +59,9 @@
       <filtered-out-file-type name="TAG" />
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
+  </component>
+  <component name="OCResolveContextSettings">
+    <option name="configuration" value="0-Debug-zemux_machine" />
   </component>
   <component name="ProjectId" id="1cxjjXhUy5p3TniFgPflodDT3VY" />
   <component name="ProjectLevelVcsManager">
@@ -92,14 +84,19 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src-machine/src/sound" />
+      <recent name="$PROJECT_DIR$/src-machine/include/zemux_machine/sound" />
+      <recent name="$PROJECT_DIR$/src-machine/src" />
+      <recent name="$PROJECT_DIR$/src-machine/include/zemux_machine" />
       <recent name="$PROJECT_DIR$/src-machine/src/devices" />
-      <recent name="$PROJECT_DIR$/src-machine/include/zemux_machine/devices" />
-      <recent name="$PROJECT_DIR$/src-chips/include/zemux_chips" />
-      <recent name="$PROJECT_DIR$/src-chips/src" />
-      <recent name="$PROJECT_DIR$/src-ay/src" />
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.zemux">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="TapeTapTest" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" temporary="true" PROGRAM_PARAMS="--logger=HRF,test_suite" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux_test" TEST_METHOD="TapeTapTest" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -110,11 +107,6 @@
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="z80ex_wrapper" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="z80ex_wrapper" CONFIG_NAME="Debug">
@@ -184,7 +176,8 @@
       <workItem from="1617438268323" duration="1666000" />
       <workItem from="1617439993465" duration="871000" />
       <workItem from="1617443921024" duration="9069000" />
-      <workItem from="1617469921803" duration="44029000" />
+      <workItem from="1617469921803" duration="44684000" />
+      <workItem from="1618042956171" duration="8832000" />
     </task>
     <servers />
   </component>

@@ -27,9 +27,9 @@
 
 #include "bus.h"
 #include "device.h"
-#include "sound_renderer.h"
+#include "sound/sound_resampler.h"
 #include <zemux_core/non_copyable.h>
-#include <zemux_core/sound_mixer.h>
+#include <zemux_core/sound.h>
 
 namespace zemux {
 
@@ -43,7 +43,7 @@ static void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
 class CovoxDevice final : public Device, private NonCopyable {
 public:
 
-    CovoxDevice(Bus* bus, SoundMixer* soundMixer);
+    CovoxDevice(Bus* bus, SoundDesk* soundDesk);
     virtual ~CovoxDevice() = default;
 
     void onAttach() override;
@@ -53,8 +53,8 @@ public:
 
 private:
 
-    SoundMixer* soundMixer;
-    SoundRenderer soundRenderer;
+    SoundDesk* soundDesk;
+    SoundResampler soundResampler;
 
     void onIorqWr(uint8_t value);
 

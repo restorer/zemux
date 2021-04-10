@@ -33,16 +33,16 @@ static void onBorderDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value)
     static_cast<BorderDevice*>(data)->onIorqWr(value);
 }
 
-BorderDevice::BorderDevice(Bus* bus, SoundMixer* soundMixer) : Device { bus }, soundMixer { soundMixer } {
+BorderDevice::BorderDevice(Bus* bus, SoundDesk* soundDesk) : Device { bus }, soundDesk { soundDesk } {
 }
 
 void BorderDevice::onAttach() {
     Device::onAttach();
-    soundMixer->attachSource(&soundRenderer);
+    soundDesk->attachCable(&soundResampler);
 }
 
 void BorderDevice::onDetach() {
-    soundMixer->detachSource(&soundRenderer);
+    soundDesk->detachCable(&soundResampler);
     Device::onDetach();
 }
 
@@ -62,7 +62,7 @@ void BorderDevice::onIorqWr(uint8_t value) {
         volume += VOLUME_SPEAKER;
     }
 
-    soundRenderer.soundForwardTo(volume, volume, ticks);
+    soundResampler.sinkForwardTo(volume, volume, ticks);
 
     if ((value & MASK_COLOR) != (portFB & MASK_COLOR)) {
         // videoDevice->renderStepTo(ticks);

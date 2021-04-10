@@ -29,7 +29,7 @@
 #include <cstdint>
 #include <zemux_core/error.h>
 #include <zemux_core/force_inline.h>
-#include <zemux_core/sound_sink.h>
+#include <zemux_core/sound.h>
 #include <zemux_core/data_io.h>
 
 namespace zemux {
@@ -76,7 +76,7 @@ protected:
 
         if (micros) {
             uint16_t volume = outputBit ? HIGH_BIT_VOLUME : LOW_BIT_VOLUME;
-            soundSink->soundAdvanceBy(volume, volume, micros);
+            soundSink->sinkAdvanceBy(volume, volume, micros);
         }
     }
 
