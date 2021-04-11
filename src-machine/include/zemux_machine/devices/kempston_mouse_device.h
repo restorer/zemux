@@ -33,14 +33,9 @@
 
 namespace zemux {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-
-static uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, uint16_t /* port */);
-static uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, uint16_t /* port */);
-static uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, uint16_t /* port */);
-
-#pragma clang diagnostic pop
+uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, uint16_t /* port */);
+uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, uint16_t /* port */);
+uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, uint16_t /* port */);
 
 class KempstonMouseDevice final : public Device, private NonCopyable {
 public:
@@ -59,7 +54,8 @@ public:
     enum MiddleButtonMode {
         ModeNone = 0,
         ModeMiddle = 1,
-        ModeBothLeftAndRight = 2,
+        ModeMiddleAsLeftAndRight = 2,
+        ModeLeftAndRightAsMiddle = 3,
     };
 
     struct Configuration {
@@ -102,6 +98,7 @@ private:
     int64_t motionMultiplierY = 256;
     int32_t lastMotionX = 0;
     int32_t lastMotionY = 0;
+    int hostButtonMaskSpecial = 0;
 
     uint8_t portFBDF = 128;
     uint8_t portFFDF = 96;

@@ -29,23 +29,23 @@
 
 namespace zemux {
 
-static uint8_t onZxmDeviceIorqRd(void* data, uint16_t /* port */) {
+uint8_t onZxmDeviceIorqRd(void* data, uint16_t /* port */) {
     return static_cast<ZxmDevice*>(data)->onIorqRd();
 }
 
-static void onZxmDeviceIorqWr00FF(void* data, uint16_t /* port */, uint8_t value) {
+void onZxmDeviceIorqWr00FF(void* data, uint16_t /* port */, uint8_t value) {
     static_cast<ZxmDevice*>(data)->onIorqWr00FF(value);
 }
 
-static void onZxmDeviceIorqWr01FF(void* data, uint16_t /* port */, uint8_t value) {
+void onZxmDeviceIorqWr01FF(void* data, uint16_t /* port */, uint8_t value) {
     static_cast<ZxmDevice*>(data)->onIorqWr01FF(value);
 }
 
-static void onZxmDeviceIorqWrBFFD(void* data, uint16_t /* port */, uint8_t value) {
+void onZxmDeviceIorqWrBFFD(void* data, uint16_t /* port */, uint8_t value) {
     static_cast<ZxmDevice*>(data)->onIorqWrBFFD(value);
 }
 
-static void onZxmDeviceIorqWrFFFD(void* data, uint16_t /* port */, uint8_t value) {
+void onZxmDeviceIorqWrFFFD(void* data, uint16_t /* port */, uint8_t value) {
     static_cast<ZxmDevice*>(data)->onIorqWrFFFD(value);
 }
 

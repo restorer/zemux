@@ -44,6 +44,21 @@ struct Unroll<0> {
     ZEMUX_FORCE_INLINE static void loop(F const&) {}
 };
 
+template<std::size_t N>
+struct UnrollWithIndex {
+    template<typename F>
+    ZEMUX_FORCE_INLINE static void loop(F const& block) {
+        block(N - 1);
+        UnrollWithIndex<N - 1>::loop(block);
+    }
+};
+
+template<>
+struct UnrollWithIndex<0> {
+    template<typename F>
+    ZEMUX_FORCE_INLINE static void loop(F const&) {}
+};
+
 }
 
 #endif

@@ -25,8 +25,23 @@
   <component name="ChangeListManager">
     <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-vendor/src/saa1099_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-vendor/src/saa1099_chip.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-vendor/src/ym2203_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-vendor/src/ym2203_chip.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/unroll.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/unroll.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/bus.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/bus.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/extport_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/extport_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/kempston_joystick_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/kempston_joystick_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/kempston_mouse_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/kempston_mouse_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/keyboard_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/keyboard_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/memory_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/memory_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/zxm_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/zxm_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/event.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/event.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/border_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/border_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/covox_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/covox_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/kempston_joystick_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/kempston_joystick_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/kempston_mouse_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/kempston_mouse_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/zxm_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/zxm_device.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -183,7 +198,7 @@
       <workItem from="1617439993465" duration="871000" />
       <workItem from="1617443921024" duration="9069000" />
       <workItem from="1617469921803" duration="44684000" />
-      <workItem from="1618042956171" duration="30780000" />
+      <workItem from="1618042956171" duration="37880000" />
     </task>
     <servers />
   </component>

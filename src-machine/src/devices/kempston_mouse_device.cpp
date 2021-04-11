@@ -30,15 +30,15 @@
 
 namespace zemux {
 
-static uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, uint16_t /* port */) {
+uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, uint16_t /* port */) {
     return static_cast<KempstonMouseDevice*>(data)->onIorqRdFBDF();
 }
 
-static uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, uint16_t /* port */) {
+uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, uint16_t /* port */) {
     return static_cast<KempstonMouseDevice*>(data)->onIorqRdFFDF();
 }
 
-static uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, uint16_t /* port */) {
+uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, uint16_t /* port */) {
     return static_cast<KempstonMouseDevice*>(data)->onIorqRdFADF();
 }
 
@@ -73,10 +73,11 @@ EventOutput KempstonMouseDevice::onEvent(uint32_t type, EventInput input) {
 
             switch (config->middleButtonMode) {
                 case ModeMiddle:
+                case ModeLeftAndRightAsMiddle:
                     buttonMaskMiddle = BUTTON_MASK_MIDDLE;
                     break;
 
-                case ModeBothLeftAndRight:
+                case ModeMiddleAsLeftAndRight:
                     buttonMaskMiddle = BUTTON_MASK_LEFT & BUTTON_MASK_RIGHT;
                     break;
 
@@ -86,6 +87,10 @@ EventOutput KempstonMouseDevice::onEvent(uint32_t type, EventInput input) {
 
             motionMultiplierX = static_cast<int64_t>(config->motionRatioX) + 1;
             motionMultiplierY = static_cast<int64_t>(config->motionRatioY) + 1;
+
+            hostButtonMaskSpecial = (config->middleButtonMode == ModeLeftAndRightAsMiddle)
+                    ? (HostMouseState::BUTTON_BIT_LEFT | HostMouseState::BUTTON_BIT_RIGHT)
+                    : 0;
 
             return EventOutput { .isHandled = true };
         }
@@ -97,17 +102,21 @@ EventOutput KempstonMouseDevice::onEvent(uint32_t type, EventInput input) {
             config->wheelDirection = (wheelDirectionMultiplier < 0) ? DirectionReverse : DirectionNormal;
             config->isLeftSwappedWithRight = (buttonMaskLeft == BUTTON_MASK_RIGHT);
 
-            switch (buttonMaskMiddle) {
-                case BUTTON_MASK_MIDDLE:
-                    config->middleButtonMode = ModeMiddle;
-                    break;
+            if (hostButtonMaskSpecial) {
+                config->middleButtonMode = ModeLeftAndRightAsMiddle;
+            } else {
+                switch (buttonMaskMiddle) {
+                    case BUTTON_MASK_MIDDLE:
+                        config->middleButtonMode = ModeMiddle;
+                        break;
 
-                case (BUTTON_MASK_LEFT & BUTTON_MASK_RIGHT):
-                    config->middleButtonMode = ModeBothLeftAndRight;
-                    break;
+                    case (BUTTON_MASK_LEFT & BUTTON_MASK_RIGHT):
+                        config->middleButtonMode = ModeMiddleAsLeftAndRight;
+                        break;
 
-                default:
-                    config->middleButtonMode = ModeNone;
+                    default:
+                        config->middleButtonMode = ModeNone;
+                }
             }
 
             config->motionRatioX = motionMultiplierX - 1;
@@ -167,6 +176,10 @@ void KempstonMouseDevice::update() {
 
         if (hostState.buttons & HostMouseState::BUTTON_BIT_MIDDLE) {
             portFADF &= buttonMaskMiddle;
+        }
+
+        if (hostState.buttons & hostButtonMaskSpecial) {
+            portFADF &= BUTTON_MASK_MIDDLE;
         }
     }
 }

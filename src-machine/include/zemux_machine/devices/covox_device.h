@@ -33,12 +33,7 @@
 
 namespace zemux {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-
-static void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
-
-#pragma clang diagnostic pop
+void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
 
 class CovoxDevice final : public Device, private NonCopyable {
 public:

@@ -35,12 +35,7 @@
 
 namespace zemux {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-
-static void onBorderDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
-
-#pragma clang diagnostic pop
+void onBorderDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
 
 class BorderDevice final : public Device, private NonCopyable {
 public:

@@ -33,7 +33,6 @@
 
 namespace zemux {
 
-// Non-static to be able to include this header in other units.
 void onExtPortDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
 
 class ExtPortDevice final : public Device, private NonCopyable {

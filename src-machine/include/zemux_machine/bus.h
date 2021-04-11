@@ -32,6 +32,7 @@
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/chronometer.h>
 #include <zemux_chips/z80_chip.h>
+#include <zemux_peripherals/tape.h>
 
 namespace zemux {
 
@@ -88,6 +89,7 @@ public:
     EventEmitter* hostEmitter = nullptr;
     MemoryDevice* memoryDevice = nullptr;
     ExtPortDevice* extPortDevice = nullptr;
+    Tape* tape = nullptr;
 
     Bus(Z80Chip* cpu, ChronometerNarrow* cpuChronometer);
     ~Bus() = default;

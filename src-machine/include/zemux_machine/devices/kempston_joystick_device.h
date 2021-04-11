@@ -33,12 +33,7 @@
 
 namespace zemux {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-
-static uint8_t onKempstonJoystickDeviceIorqRd(void* data, uint16_t /* port */);
-
-#pragma clang diagnostic pop
+uint8_t onKempstonJoystickDeviceIorqRd(void* data, uint16_t /* port */);
 
 class KempstonJoystickDevice final : public Device, private NonCopyable {
 public:

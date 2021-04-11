@@ -35,7 +35,6 @@
 
 namespace zemux {
 
-// Non-static to be able to include this header in other units.
 uint8_t onMemoryDeviceMreqRdRom(void* data, uint16_t address, bool /* isM1 */);
 uint8_t onMemoryDeviceMreqRdRamBank2(void* data, uint16_t address, bool /* isM1 */);
 uint8_t onMemoryDeviceMreqRdRamBank5(void* data, uint16_t address, bool /* isM1 */);

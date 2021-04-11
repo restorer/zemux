@@ -40,6 +40,7 @@ enum Category {
     CategoryKempstonMouse = 4 << SHIFT_CATEGORY,
     CategoryExtPort = 5 << SHIFT_CATEGORY,
     CategoryZxm = 6 << SHIFT_CATEGORY,
+    CategoryKeyboard = 7 << SHIFT_CATEGORY,
 };
 
 }

@@ -40,16 +40,11 @@
 
 namespace zemux {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-
-static uint8_t onZxmDeviceIorqRd(void* data, uint16_t /* port */);
-static void onZxmDeviceIorqWr00FF(void* data, uint16_t /* port */, uint8_t value);
-static void onZxmDeviceIorqWr01FF(void* data, uint16_t /* port */, uint8_t value);
-static void onZxmDeviceIorqWrBFFD(void* data, uint16_t /* port */, uint8_t value);
-static void onZxmDeviceIorqWrFFFD(void* data, uint16_t /* port */, uint8_t value);
-
-#pragma clang diagnostic pop
+uint8_t onZxmDeviceIorqRd(void* data, uint16_t /* port */);
+void onZxmDeviceIorqWr00FF(void* data, uint16_t /* port */, uint8_t value);
+void onZxmDeviceIorqWr01FF(void* data, uint16_t /* port */, uint8_t value);
+void onZxmDeviceIorqWrBFFD(void* data, uint16_t /* port */, uint8_t value);
+void onZxmDeviceIorqWrFFFD(void* data, uint16_t /* port */, uint8_t value);
 
 class ZxmDevice final : public Device, public AyChipCallback, private NonCopyable {
 public:
