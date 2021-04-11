@@ -65,7 +65,10 @@ uint32_t Bus::getFrameTicksPassed() {
     return cpuChronometer->getSrcTicksPassed() + cpuChronometer->dstToSrcCeil(cpu->getTstate());
 }
 
-void Bus::setCpuClockRatio(int rate) {
+void Bus::setCpuClockRatio(int /* rate */) {
+}
+
+void Bus::requestReconfigure() {
 }
 
 void Bus::toggleMreqRdOverlay(int mreqRdOverlay, bool isEnabled) {

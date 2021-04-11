@@ -33,12 +33,8 @@
 
 namespace zemux {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-
-static void onExtPortDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
-
-#pragma clang diagnostic pop
+// Non-static to be able to include this header in other units.
+void onExtPortDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
 
 class ExtPortDevice final : public Device, private NonCopyable {
 public:

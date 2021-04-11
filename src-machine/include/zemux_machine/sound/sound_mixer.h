@@ -1,5 +1,5 @@
-#ifndef ZEMUX_MACHINE__ACTION_HANDLER
-#define ZEMUX_MACHINE__ACTION_HANDLER
+#ifndef ZEMUX_MACHINE__SOUND_MIXER
+#define ZEMUX_MACHINE__SOUND_MIXER
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,56 +25,24 @@
  * THE SOFTWARE.
  */
 
-#include <memory>
+#include <zemux_core/sound.h>
+#include <zemux_core/non_copyable.h>
 
 namespace zemux {
 
-namespace Event {
-
-static constexpr int SHIFT_CATEGORY = 16;
-
-enum Category {
-    CategoryHost = 1 << SHIFT_CATEGORY,
-    CategoryMemory = 2 << SHIFT_CATEGORY,
-    CategoryKempstonJoystick = 3 << SHIFT_CATEGORY,
-    CategoryKempstonMouse = 4 << SHIFT_CATEGORY,
-    CategoryExtPort = 5 << SHIFT_CATEGORY,
-    CategoryZxm = 6 << SHIFT_CATEGORY,
-};
-
-}
-
-union EventInput {
-    int32_t value;
-    void* pointer;
-};
-
-struct EventOutput {
-    bool isHandled = false;
-    int32_t value = 0;
-};
-
-class EventEmitter {
+class SoundMixer final : public SoundDesk, private NonCopyable {
 public:
 
-    virtual EventOutput emitEvent(uint32_t event, EventInput input) = 0;
-};
+    SoundMixer() = default;
+    virtual ~SoundMixer() = default;
 
-class EventListener {
-public:
+    void attachCable(SoundCable* source) override;
+    void detachCable(SoundCable* source) override;
+    void onFrameFinished(uint32_t ticks) override;
+    void onReconfigure(uint32_t ticksPerSecond, uint32_t samplesPerSecond) override;
+    Sample* getBuffer() override;
 
-    virtual uint32_t getEventCategory() {
-        return 0;
-    }
-
-    virtual EventOutput onEvent([[maybe_unused]] uint32_t type, [[maybe_unused]] EventInput input) {
-        return EventOutput {};
-    }
-
-protected:
-
-    constexpr EventListener() = default;
-    virtual ~EventListener() = default;
+private:
 };
 
 }

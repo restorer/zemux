@@ -51,7 +51,7 @@ public:
 	unsigned short GetCurrentBytesPerSample(void);
 	static unsigned short GetBytesPerSample(SAAPARAM uParam);
 
-	void GenerateMany(BYTE * pBuffer, unsigned long nSamples);
+	void GenerateMany(zemux::SoundSink* sink, unsigned long nSamples); /* @restorer: modified for ZemuX */
 
 	int SendCommand(SAACMD nCommandID, long nData);
 

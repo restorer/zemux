@@ -111,7 +111,7 @@ CSAASoundInternal::~CSAASoundInternal()
 		if (Osc[i]) delete Osc[i];
 		if (Amp[i]) delete Amp[i];
 	}
-	
+
 #ifdef DEBUGSAA
 	if (dbgfile) fclose(dbgfile);
 #endif
@@ -426,7 +426,7 @@ void CSAASoundInternal::SetSoundParameters(SAAPARAM uParam)
 	Osc[5]->SetSampleRateMode(sampleratemode);
 	Noise[0]->SetSampleRateMode(sampleratemode);
 	Noise[1]->SetSampleRateMode(sampleratemode);
-		
+
 	switch (uParam & SAAP_MASK_BITDEPTH)
 	{
 		case SAAP_8BIT: // set 8bit mode
@@ -500,7 +500,7 @@ unsigned long CSAASoundInternal::GetCurrentSampleRate(void)
 	}
 }
 
-void CSAASoundInternal::GenerateMany(BYTE * pBuffer, unsigned long nSamples)
+void CSAASoundInternal::GenerateMany(zemux::SoundSink* sink, unsigned long nSamples) /* @restorer: modified for ZemuX */
 {
 	unsigned short mono1,mono2,mono;
 	stereolevel stereoval, stereoval1, stereoval2;
@@ -538,22 +538,26 @@ void CSAASoundInternal::GenerateMany(BYTE * pBuffer, unsigned long nSamples)
 
 				// force output into the range 0<=x<=255
 				mono = ((mono1 + mono2)*5) >> 1;
-				mono = 0x80 + (mono >> 8);
-				
+				// mono = 0x80 + (mono >> 8); /* @restorer: commented for ZemuX */
+                mono = (mono >> 8); /* @restorer: added for ZemuX */
+
 				// lowpass filter
 				mono = (prev_mono + mono) >> 1;
 				prev_mono = mono;
 
-				*pBuffer++ = (unsigned char)mono;
+				// *pBuffer++ = (unsigned char)mono; /* @restorer: commented for ZemuX */
+
+                uint16_t mono_ = static_cast<uint16_t>(mono) << 8; /* @restorer: added for ZemuX */
+                sink->sinkAdvanceBy(mono_, mono_, 1); /* @restorer: added for ZemuX */
 			}
 			break;
-	
+
 		case SAAP_FILTER | SAAP_MONO | SAAP_16BIT:
 			while (nSamples--)
 			{
 				Noise[0]->Tick();
 				Noise[1]->Tick();
-			
+
 				mono1 = (Amp[0]->TickAndOutputMono() +
 					Amp[1]->TickAndOutputMono() +
 					Amp[2]->TickAndOutputMono() +
@@ -577,17 +581,19 @@ void CSAASoundInternal::GenerateMany(BYTE * pBuffer, unsigned long nSamples)
 				mono = (prev_mono + mono) >> 1;
 				prev_mono = mono;
 
-				*pBuffer++ = mono & 0x00ff;
-				*pBuffer++ = mono >> 8;
+				// *pBuffer++ = mono & 0x00ff; /* @restorer: commented for ZemuX */
+				// *pBuffer++ = mono >> 8; /* @restorer: commented for ZemuX */
+
+                sink->sinkAdvanceBy(mono, mono, 1); /* @restorer: added for ZemuX */
 			}
 			break;
-	
+
 		case SAAP_FILTER | SAAP_STEREO | SAAP_8BIT:
 			while (nSamples--)
 			{
 				Noise[0]->Tick();
 				Noise[1]->Tick();
-			
+
 				stereoval1.dword=(Amp[0]->TickAndOutputStereo()).dword;
 				stereoval1.dword+=(Amp[1]->TickAndOutputStereo()).dword;
 				stereoval1.dword+=(Amp[2]->TickAndOutputStereo()).dword;
@@ -611,11 +617,13 @@ void CSAASoundInternal::GenerateMany(BYTE * pBuffer, unsigned long nSamples)
 				stereoval.sep.Right = (stereoval.sep.Right + prev_stereo.sep.Right) >> 1;
 				prev_stereo.dword = stereoval.dword;
 
-				*pBuffer++ = 0x80+((stereoval.sep.Left)>>8);
-				*pBuffer++ = 0x80+((stereoval.sep.Right)>>8);
+				// *pBuffer++ = 0x80+((stereoval.sep.Left)>>8); /* @restorer: commented for ZemuX */
+				// *pBuffer++ = 0x80+((stereoval.sep.Right)>>8); /* @restorer: commented for ZemuX */
+
+                sink->sinkAdvanceBy(stereoval.sep.Left & 0xFF00, stereoval.sep.Right & 0xFF00, 1); /* @restorer: added for ZemuX */
 			}
 			break;
-	
+
 		case SAAP_FILTER | SAAP_STEREO | SAAP_16BIT:
 			while (nSamples--)
 			{
@@ -646,10 +654,12 @@ void CSAASoundInternal::GenerateMany(BYTE * pBuffer, unsigned long nSamples)
 				stereoval.sep.Right = (stereoval.sep.Right + prev_stereo.sep.Right) >> 1;
 				prev_stereo.dword = stereoval.dword;
 
-				*pBuffer++ = stereoval.sep.Left & 0x00ff;
-				*pBuffer++ = stereoval.sep.Left >> 8;
-				*pBuffer++ = stereoval.sep.Right & 0x00ff;
-				*pBuffer++ = stereoval.sep.Right >> 8;
+				// *pBuffer++ = stereoval.sep.Left & 0x00ff; /* @restorer: commented for ZemuX */
+				// *pBuffer++ = stereoval.sep.Left >> 8; /* @restorer: commented for ZemuX */
+				// *pBuffer++ = stereoval.sep.Right & 0x00ff; /* @restorer: commented for ZemuX */
+				// *pBuffer++ = stereoval.sep.Right >> 8; /* @restorer: commented for ZemuX */
+
+                sink->sinkAdvanceBy(stereoval.sep.Left, stereoval.sep.Right, 1); /* @restorer: added for ZemuX */
 			}
 			break;
 
@@ -695,7 +705,7 @@ int CSAASoundInternal::SendCommand(SAACMD nCommandID, long nData)
 		case SAACMD_GetBitDepth: return SAASENDCOMMAND_FEATURE_NOT_YET_IMPLEMENTED;
 		case SAACMD_SetNumChannels: return SAASENDCOMMAND_FEATURE_NOT_YET_IMPLEMENTED;
 		case SAACMD_GetNumChannels: return SAASENDCOMMAND_FEATURE_NOT_YET_IMPLEMENTED;
-	
+
 		default: return SAASENDCOMMAND_UNKNOWN_INVALID_COMMAND;
 	}
 }

@@ -22,30 +22,22 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-add_library (zemux_machine SHARED
-        src/bus.cpp
-        src/device.cpp
-        src/sound/sound_resampler.cpp
-        src/devices/border_device.cpp
-        src/devices/memory_device.cpp
-        src/devices/covox_device.cpp
-        src/devices/extport_device.cpp
-        src/devices/kempston_joystick_device.cpp
-        src/devices/kempston_mouse_device.cpp
-        src/devices/zxm_device.cpp
-        src/machine.cpp
-        src/video_surface.cpp)
+add_library (vendor_saa1099 SHARED
+        src/SAAAmp.cpp
+        src/SAAEnv.cpp
+        src/SAAFreq.cpp
+        src/SAAImpl.cpp
+        src/SAANoise.cpp)
 
-target_include_directories (zemux_machine
+target_include_directories (vendor_saa1099
         PUBLIC include
-        PRIVATE src include/zemux_machine)
+        PRIVATE src include/vendor_saa1099)
 
-target_link_libraries (zemux_machine PRIVATE zemux_core zemux_chips zemux_vendor)
-target_compile_features (zemux_machine PRIVATE cxx_std_17)
+target_link_libraries (vendor_saa1099 PRIVATE zemux_core)
+target_compile_features (vendor_saa1099 PRIVATE cxx_std_17)
 
-target_compile_options (zemux_machine PRIVATE
+target_compile_options (vendor_saa1099 PRIVATE
         -Wall
-        -Wextra
         -Werror
         -Wno-unknown-pragmas
         "$<$<NOT:$<CONFIG:RELEASE>>:-O1>"

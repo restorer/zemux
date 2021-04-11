@@ -35,20 +35,16 @@
 
 namespace zemux {
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-
-static uint8_t onMemoryDeviceMreqRdRom(void* data, uint16_t address, bool /* isM1 */);
-static uint8_t onMemoryDeviceMreqRdRamBank2(void* data, uint16_t address, bool /* isM1 */);
-static uint8_t onMemoryDeviceMreqRdRamBank5(void* data, uint16_t address, bool /* isM1 */);
-static uint8_t onMemoryDeviceMreqRdRamBankSel(void* data, uint16_t address, bool /* isM1 */);
-static void onMemoryDeviceMreqWrRom(void* data, uint16_t address, uint8_t value);
-static void onMemoryDeviceMreqWrRamBank2(void* data, uint16_t address, uint8_t value);
-static void onMemoryDeviceMreqWrRamBank5(void* data, uint16_t address, uint8_t value);
-static void onMemoryDeviceMreqWrRamBankSel(void* data, uint16_t address, uint8_t value);
-static void onMemoryDeviceIorqWr(void* data, uint16_t port, uint8_t value);
-
-#pragma clang diagnostic pop
+// Non-static to be able to include this header in other units.
+uint8_t onMemoryDeviceMreqRdRom(void* data, uint16_t address, bool /* isM1 */);
+uint8_t onMemoryDeviceMreqRdRamBank2(void* data, uint16_t address, bool /* isM1 */);
+uint8_t onMemoryDeviceMreqRdRamBank5(void* data, uint16_t address, bool /* isM1 */);
+uint8_t onMemoryDeviceMreqRdRamBankSel(void* data, uint16_t address, bool /* isM1 */);
+void onMemoryDeviceMreqWrRom(void* data, uint16_t address, uint8_t value);
+void onMemoryDeviceMreqWrRamBank2(void* data, uint16_t address, uint8_t value);
+void onMemoryDeviceMreqWrRamBank5(void* data, uint16_t address, uint8_t value);
+void onMemoryDeviceMreqWrRamBankSel(void* data, uint16_t address, uint8_t value);
+void onMemoryDeviceIorqWr(void* data, uint16_t port, uint8_t value);
 
 class MemoryDevice final : public Device, private NonCopyable {
 public:

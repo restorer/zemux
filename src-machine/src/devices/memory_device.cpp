@@ -31,40 +31,40 @@
 
 namespace zemux {
 
-static uint8_t onMemoryDeviceMreqRdRom(void* data, uint16_t address, bool /* isM1 */) {
+uint8_t onMemoryDeviceMreqRdRom(void* data, uint16_t address, bool /* isM1 */) {
     return static_cast<MemoryDevice*>(data)->onMreqRdRom(address);
 }
 
-static uint8_t onMemoryDeviceMreqRdRamBank2(void* data, uint16_t address, bool /* isM1 */) {
+uint8_t onMemoryDeviceMreqRdRamBank2(void* data, uint16_t address, bool /* isM1 */) {
     return static_cast<MemoryDevice*>(data)->onMreqRdRamBank2(address);
 }
 
-static uint8_t onMemoryDeviceMreqRdRamBank5(void* data, uint16_t address, bool /* isM1 */) {
+uint8_t onMemoryDeviceMreqRdRamBank5(void* data, uint16_t address, bool /* isM1 */) {
     return static_cast<MemoryDevice*>(data)->onMreqRdRamBank5(address);
 }
 
-static uint8_t onMemoryDeviceMreqRdRamBankSel(void* data, uint16_t address, bool /* isM1 */) {
+uint8_t onMemoryDeviceMreqRdRamBankSel(void* data, uint16_t address, bool /* isM1 */) {
     return static_cast<MemoryDevice*>(data)->onMreqRdRamBankSel(address);
 }
 
-static void onMemoryDeviceMreqWrRom(void* data, uint16_t address, uint8_t value) {
+void onMemoryDeviceMreqWrRom(void* data, uint16_t address, uint8_t value) {
     auto self = static_cast<MemoryDevice*>(data);
     (self->*(self->onMreqWrRomPtr))(address, value);
 }
 
-static void onMemoryDeviceMreqWrRamBank2(void* data, uint16_t address, uint8_t value) {
+void onMemoryDeviceMreqWrRamBank2(void* data, uint16_t address, uint8_t value) {
     static_cast<MemoryDevice*>(data)->onMreqWrRamBank2(address, value);
 }
 
-static void onMemoryDeviceMreqWrRamBank5(void* data, uint16_t address, uint8_t value) {
+void onMemoryDeviceMreqWrRamBank5(void* data, uint16_t address, uint8_t value) {
     static_cast<MemoryDevice*>(data)->onMreqWrRamBank5(address, value);
 }
 
-static void onMemoryDeviceMreqWrRamBankSel(void* data, uint16_t address, uint8_t value) {
+void onMemoryDeviceMreqWrRamBankSel(void* data, uint16_t address, uint8_t value) {
     static_cast<MemoryDevice*>(data)->onMreqWrRamBankSel(address, value);
 }
 
-static void onMemoryDeviceIorqWr(void* data, uint16_t port, uint8_t value) {
+void onMemoryDeviceIorqWr(void* data, uint16_t port, uint8_t value) {
     static_cast<MemoryDevice*>(data)->onIorqWr(port, value);
 }
 

@@ -75,6 +75,9 @@ public:
         return prev;
     }
 
+    virtual void onConfigureTimings(uint32_t ticksPerFrame);
+    virtual void onFrameFinished(uint32_t ticks);
+
     virtual void onReset() {
     }
 

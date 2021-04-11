@@ -7,6 +7,9 @@
       <file path="$PROJECT_DIR$/src-core/include" />
       <file path="$PROJECT_DIR$/src-machine/include" />
       <file path="$PROJECT_DIR$/src-peripherals/include" />
+      <file path="$PROJECT_DIR$/src-vendor/include" />
+      <file path="$PROJECT_DIR$/vendor-saa1099/include" />
+      <file path="$PROJECT_DIR$/vendor-ym2203/include" />
     </sourceRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/cmake-build" />

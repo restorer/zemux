@@ -1,5 +1,5 @@
-#ifndef ZEMUX_MACHINE__ACTION_HANDLER
-#define ZEMUX_MACHINE__ACTION_HANDLER
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -23,60 +23,40 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ *
+ * Based on YM-2149F emulator for Unreal Speccy project
+ * created under public domain license by SMT, jan.2006
  */
 
-#include <memory>
+#include "saa1099_chip.h"
+#include <vendor_saa1099/SAASound.h>
 
 namespace zemux {
 
-namespace Event {
-
-static constexpr int SHIFT_CATEGORY = 16;
-
-enum Category {
-    CategoryHost = 1 << SHIFT_CATEGORY,
-    CategoryMemory = 2 << SHIFT_CATEGORY,
-    CategoryKempstonJoystick = 3 << SHIFT_CATEGORY,
-    CategoryKempstonMouse = 4 << SHIFT_CATEGORY,
-    CategoryExtPort = 5 << SHIFT_CATEGORY,
-    CategoryZxm = 6 << SHIFT_CATEGORY,
-};
-
+Saa1099Chip::Saa1099Chip(SoundSink* soundSink) : soundSink { soundSink } {
+    chip = CreateCSAASound();
+    chip->SetSoundParameters(SAAP_NOFILTER | SAAP_44100 | SAAP_16BIT | SAAP_STEREO);
 }
 
-union EventInput {
-    int32_t value;
-    void* pointer;
-};
-
-struct EventOutput {
-    bool isHandled = false;
-    int32_t value = 0;
-};
-
-class EventEmitter {
-public:
-
-    virtual EventOutput emitEvent(uint32_t event, EventInput input) = 0;
-};
-
-class EventListener {
-public:
-
-    virtual uint32_t getEventCategory() {
-        return 0;
-    }
-
-    virtual EventOutput onEvent([[maybe_unused]] uint32_t type, [[maybe_unused]] EventInput input) {
-        return EventOutput {};
-    }
-
-protected:
-
-    constexpr EventListener() = default;
-    virtual ~EventListener() = default;
-};
-
+Saa1099Chip::~Saa1099Chip() {
+    DestroyCSAASound(chip);
 }
 
-#endif
+void Saa1099Chip::writeAddress(uint8_t reg) {
+    chip->WriteAddress(reg);
+}
+
+void Saa1099Chip::writeData(uint8_t data) {
+    chip->WriteData(data);
+}
+
+void Saa1099Chip::reset() {
+    chip->Clear();
+}
+
+void Saa1099Chip::step(uint32_t ticks) {
+    chip->GenerateMany(soundSink, ticks);
+}
+
+}

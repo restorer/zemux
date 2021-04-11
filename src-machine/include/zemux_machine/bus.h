@@ -95,6 +95,7 @@ public:
     void onReset();
     uint32_t getFrameTicksPassed();
     void setCpuClockRatio(int rate);
+    void requestReconfigure();
 
     void toggleMreqRdOverlay(int mreqRdOverlay, bool isEnabled);
     void toggleMreqWrOverlay(int mreqWrOverlay, bool isEnabled);

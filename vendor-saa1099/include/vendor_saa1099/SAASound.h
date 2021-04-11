@@ -9,13 +9,15 @@
 // compatible across minor and patch versions.  Any backwards breaking changes
 // should be reflected as a major version increment.  New functionality can be added
 // in minor versions so long as backwards compatiblity is maintained
-// 
+//
 // Version 3.3.0 (4th Dec 2018)
 //
 //////////////////////////////////////////////////////////////////////
 
 #ifndef SAASOUND_H_INCLUDED
 #define SAASOUND_H_INCLUDED
+
+#include <zemux_core/sound.h> /* @restorer: added for ZemuX */
 
 // define this if you want to output diagnostic text and PCM files
 //#define DEBUGSAA
@@ -42,7 +44,7 @@
 typedef unsigned long SAAPARAM;
 
 
-// command #defines for use with SendCommand function, eg, 
+// command #defines for use with SendCommand function, eg,
 // int nCurrentSampleRate = SendCommand(SAACMD_GetSampleRate,0);
 // or
 // int nError = SendCommand(SAACMD_SetSampleRate,44100);
@@ -96,9 +98,10 @@ public:
 	virtual unsigned short GetCurrentBytesPerSample () = 0;
 	static unsigned short GetBytesPerSample (SAAPARAM uParam);
 
-	virtual void GenerateMany (BYTE * pBuffer, unsigned long nSamples) = 0;
+	virtual void GenerateMany (zemux::SoundSink* sink, unsigned long nSamples) = 0; /* @restorer: modified for ZemuX */
 
-	virtual int SendCommand (SAACMD nCommandID, long nData) = 0;
+
+    virtual int SendCommand (SAACMD nCommandID, long nData) = 0;
 	virtual void SetClockRate(unsigned int nClockRate) = 0;
 
 };

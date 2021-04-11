@@ -113,6 +113,8 @@
 
 #include "emu.h"
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCUnusedMacroInspection"
 #define YM2610B_WARNING
 #include "fm.h"
 
@@ -124,7 +126,7 @@
 
 
 #if BUILD_YM2203
-#include "2203intf.h"
+// #include "2203intf.h"
 #endif /* BUILD_YM2203 */
 
 #if BUILD_YM2608
@@ -1080,46 +1082,47 @@ static inline signed int op_calc1(uint32_t phase, unsigned int env, signed int p
 	return tl_tab[p];
 }
 
-/* advance LFO to next sample */
-static inline void advance_lfo(FM_OPN *OPN)
-{
-	uint8_t pos;
-
-	if (OPN->lfo_inc)   /* LFO enabled ? */
-	{
-		OPN->lfo_cnt += OPN->lfo_inc;
-
-		pos = (OPN->lfo_cnt >> LFO_SH) & 127;
-
-
-		/* update AM when LFO output changes */
-
-		/* actually I can't optimize is this way without rewriting chan_calc()
-		to use chip->lfo_am instead of global lfo_am */
-		{
-			/* triangle */
-			/* AM: 0 to 126 step +2, 126 to 0 step -2 */
-			if (pos<64)
-				OPN->LFO_AM = (pos&63) * 2;
-			else
-				OPN->LFO_AM = 126 - ((pos&63) * 2);
-		}
-
-		/* PM works with 4 times slower clock */
-		pos >>= 2;
-		/* update PM when LFO output changes */
-		/*if (prev_pos != pos)*/ /* can't use global lfo_pm for this optimization, must be chip->lfo_pm instead*/
-		{
-			OPN->LFO_PM = pos;
-		}
-
-	}
-	else
-	{
-		OPN->LFO_AM = 0;
-		OPN->LFO_PM = 0;
-	}
-}
+/* @restorer: commented out for ZemuX */
+// /* advance LFO to next sample */
+// static inline void advance_lfo(FM_OPN *OPN)
+// {
+// 	uint8_t pos;
+//
+// 	if (OPN->lfo_inc)   /* LFO enabled ? */
+// 	{
+// 		OPN->lfo_cnt += OPN->lfo_inc;
+//
+// 		pos = (OPN->lfo_cnt >> LFO_SH) & 127;
+//
+//
+// 		/* update AM when LFO output changes */
+//
+// 		/* actually I can't optimize is this way without rewriting chan_calc()
+// 		to use chip->lfo_am instead of global lfo_am */
+// 		{
+// 			/* triangle */
+// 			/* AM: 0 to 126 step +2, 126 to 0 step -2 */
+// 			if (pos<64)
+// 				OPN->LFO_AM = (pos&63) * 2;
+// 			else
+// 				OPN->LFO_AM = 126 - ((pos&63) * 2);
+// 		}
+//
+// 		/* PM works with 4 times slower clock */
+// 		pos >>= 2;
+// 		/* update PM when LFO output changes */
+// 		/*if (prev_pos != pos)*/ /* can't use global lfo_pm for this optimization, must be chip->lfo_pm instead*/
+// 		{
+// 			OPN->LFO_PM = pos;
+// 		}
+//
+// 	}
+// 	else
+// 	{
+// 		OPN->LFO_AM = 0;
+// 		OPN->LFO_PM = 0;
+// 	}
+// }
 
 /* changed from static inline to static here to work around gcc 4.2.1 codegen bug */
 static void advance_eg_channel(FM_OPN *OPN, FM_SLOT *SLOT)
@@ -2111,12 +2114,12 @@ struct ym2203_state
 } // anonymous namespace
 
 /* Generate samples for one of the YM2203s */
-void ym2203_update_one(void *chip, FMSAMPLE *buffer, int length)
+void ym2203_update_one(void *chip, zemux::SoundSink* sink, int length) /* @restorer: modified for ZemuX */
 {
 	ym2203_state *F2203 = (ym2203_state *)chip;
 	FM_OPN *OPN =   &F2203->OPN;
 	int i;
-	FMSAMPLE *buf = buffer;
+	// FMSAMPLE *buf = buffer; /* @restorer: commented for ZemuX */
 	FM_CH   *cch[3];
 
 	cch[0]   = &F2203->CH[0];
@@ -2186,7 +2189,10 @@ void ym2203_update_one(void *chip, FMSAMPLE *buffer, int length)
 			#endif
 
 			/* buffering */
-			buf[i] = lt;
+			// buf[i] = lt; /* @restorer: commented for ZemuX */
+
+			uint16_t lt_ = lt - MINOUT; /* @restorer: added for ZemuX */
+            sink->sinkAdvanceBy(lt_, lt_, 1); /* @restorer: added for ZemuX */
 		}
 
 		/* timer A control */
@@ -2279,7 +2285,7 @@ void * ym2203_init(device_t *device, int clock, int rate, FM_TIMERHANDLER timer_
 	/* allocate ym2203 state space */
 	F2203 = auto_alloc_clear(device->machine(), <ym2203_state>());
 
-	if( !init_tables() )
+    if( !init_tables() )
 	{
 		auto_free( device->machine(), F2203 );
 		return nullptr;
@@ -2346,12 +2352,12 @@ int ym2203_write(void *chip,int a,uint8_t v)
 			(*OPN->ST.SSG->write)(OPN->ST.device,a,v);
 			break;
 		case 0x20:  /* 0x20-0x2f : Mode section */
-			ym2203_device::update_request(OPN->ST.device);
+			// ym2203_device::update_request(OPN->ST.device); /* @restorer: commented for ZemuX */
 			/* write register */
 			OPNWriteMode(OPN,addr,v);
 			break;
 		default:    /* 0x30-0xff : OPN section */
-			ym2203_device::update_request(OPN->ST.device);
+			// ym2203_device::update_request(OPN->ST.device); /* @restorer: commented for ZemuX */
 			/* write register */
 			OPNWriteReg(OPN,addr,v);
 		}
@@ -2387,7 +2393,7 @@ int ym2203_timer_over(void *chip,int c)
 	}
 	else
 	{   /* Timer A */
-		ym2203_device::update_request(F2203->OPN.ST.device);
+		// ym2203_device::update_request(F2203->OPN.ST.device); /* @restorer: commented for ZemuX */
 		/* timer update */
 		TimerAOver( &(F2203->OPN.ST) );
 		/* CSM mode key,TL control */
@@ -3915,3 +3921,5 @@ int ym2610_timer_over(void *chip,int c)
 }
 
 #endif /* (BUILD_YM2610||BUILD_YM2610B) */
+
+#pragma clang diagnostic pop

@@ -27,12 +27,13 @@
 
 #include <zemux_core/sound.h>
 #include <zemux_core/chronometer.h>
+#include <zemux_core/non_copyable.h>
 
-#define SOUND_RESAMPLER_LEVEL 1
+#define SOUND_RESAMPLER 1
 
 namespace zemux {
 
-class SoundResampler : public SoundSink, public SoundCable {
+class SoundResampler final : public SoundSink, public SoundCable, private NonCopyable {
 public:
 
     explicit SoundResampler(ChronometerNarrow* inChronometer = nullptr);
@@ -55,7 +56,7 @@ protected:
     uint16_t lastLeft = 0;
     uint16_t lastRight = 0;
 
-#if SOUND_RESAMPLER_LEVEL == 0
+#if SOUND_RESAMPLER == 0
 
     ZEMUX_FORCE_INLINE void advanceByInternal(uint16_t left, uint16_t right, uint32_t samples) {
         lastLeft = left;

@@ -10,13 +10,22 @@
 
 #pragma once
 
+#include <zemux_core/sound.h> /* @restorer: added for ZemuX */
+
+/* @restorer: added for ZemuX */
+struct device_t {
+    void* machine() {
+        return nullptr;
+    }
+};
+
 /* --- select emulation chips --- */
 #define BUILD_YM2203  (1)       /* build YM2203(OPN)   emulator */
-#define BUILD_YM2608  (1)       /* build YM2608(OPNA)  emulator */
-#define BUILD_YM2610  (1)       /* build YM2610(OPNB)  emulator */
-#define BUILD_YM2610B (1)       /* build YM2610B(OPNB?)emulator */
-#define BUILD_YM2612  (1)       /* build YM2612(OPN2)  emulator */
-#define BUILD_YM3438  (1)       /* build YM3438(OPN) emulator */
+#define BUILD_YM2608  (0)       /* build YM2608(OPNA)  emulator */ /* @restorer: disabled for ZemuX */
+#define BUILD_YM2610  (0)       /* build YM2610(OPNB)  emulator */ /* @restorer: disabled for ZemuX */
+#define BUILD_YM2610B (0)       /* build YM2610B(OPNB?)emulator */ /* @restorer: disabled for ZemuX */
+#define BUILD_YM2612  (0)       /* build YM2612(OPN2)  emulator */ /* @restorer: disabled for ZemuX */
+#define BUILD_YM3438  (0)       /* build YM3438(OPN) emulator */ /* @restorer: disabled for ZemuX */
 
 /* select bit size of output : 8 or 16 */
 #define FM_SAMPLE_BITS 16
@@ -26,7 +35,7 @@
 
 /* --- speedup optimize --- */
 /* busy flag emulation , The definition of FM_GET_TIME_NOW() is necessary. */
-#define FM_BUSY_FLAG_SUPPORT 1
+#define FM_BUSY_FLAG_SUPPORT (0) /* @restorer: disabled for ZemuX */
 
 /* --- external SSG(YM2149/AY-3-8910)emulator interface port */
 /* used by YM2203,YM2608,and YM2610 */
@@ -50,7 +59,7 @@ template <typename X> constexpr TIME_TYPE MULTIPLY_TIME_BY_INT(TIME_TYPE const &
 #endif
 
 
-typedef stream_sample_t FMSAMPLE;
+// typedef stream_sample_t FMSAMPLE; /* @restorer: commented for ZemuX */
 /*
 #if (FM_SAMPLE_BITS==16)
 typedef int16_t FMSAMPLE;
@@ -60,8 +69,8 @@ typedef unsigned char  FMSAMPLE;
 #endif
 */
 
-typedef uint8_t (*FM_READBYTE)(device_t *device, offs_t offset);
-typedef void(*FM_WRITEBYTE)(device_t *device, offs_t offset, uint8_t data);
+// typedef uint8_t (*FM_READBYTE)(device_t *device, offs_t offset); /* @restorer: commented for ZemuX */
+// typedef void(*FM_WRITEBYTE)(device_t *device, offs_t offset, uint8_t data); /* @restorer: commented for ZemuX */
 typedef void (*FM_TIMERHANDLER)(device_t *device,int c,int cnt,int clock);
 typedef void (*FM_IRQHANDLER)(device_t *device,int irq);
 /* FM_TIMERHANDLER : Stop or Start timer         */
@@ -108,7 +117,7 @@ void ym2203_reset_chip(void *chip);
 /*
 ** update one of chip
 */
-void ym2203_update_one(void *chip, FMSAMPLE *buffer, int length);
+void ym2203_update_one(void *chip, zemux::SoundSink* sink, int length); /* @restorer: modified for ZemuX */
 
 /*
 ** Write

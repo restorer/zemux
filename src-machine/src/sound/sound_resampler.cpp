@@ -63,7 +63,7 @@ void SoundResampler::onCableReconfigure(uint32_t ticksPerSecond, uint32_t sample
             samplesPerSecond);
 }
 
-#if SOUND_RESAMPLER_LEVEL > 0
+#if SOUND_RESAMPLER > 0
 
 void SoundResampler::advanceByInternal(uint16_t left, uint16_t right, uint32_t samples) {
     if (attachedJack != nullptr && samples != 0) {

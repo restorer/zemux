@@ -1,5 +1,5 @@
-#ifndef ZEMUX_MACHINE__ACTION_HANDLER
-#define ZEMUX_MACHINE__ACTION_HANDLER
+#ifndef ZEMUX_VENDOR__YM2203_CHIP
+#define ZEMUX_VENDOR__YM2203_CHIP
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,56 +25,35 @@
  * THE SOFTWARE.
  */
 
-#include <memory>
+#include <zemux_core/non_copyable.h>
+#include <zemux_core/sound.h>
+#include <cstdint>
 
 namespace zemux {
 
-namespace Event {
-
-static constexpr int SHIFT_CATEGORY = 16;
-
-enum Category {
-    CategoryHost = 1 << SHIFT_CATEGORY,
-    CategoryMemory = 2 << SHIFT_CATEGORY,
-    CategoryKempstonJoystick = 3 << SHIFT_CATEGORY,
-    CategoryKempstonMouse = 4 << SHIFT_CATEGORY,
-    CategoryExtPort = 5 << SHIFT_CATEGORY,
-    CategoryZxm = 6 << SHIFT_CATEGORY,
-};
-
-}
-
-union EventInput {
-    int32_t value;
-    void* pointer;
-};
-
-struct EventOutput {
-    bool isHandled = false;
-    int32_t value = 0;
-};
-
-class EventEmitter {
+class Ym2203Chip final : private NonCopyable {
 public:
 
-    virtual EventOutput emitEvent(uint32_t event, EventInput input) = 0;
-};
+    static constexpr uint32_t CLOCK_RATE = 1774400 >> 3;
+    static constexpr uint32_t SAMPLING_RATE = 44100;
+    static constexpr int MAX_REGS = 0x100;
 
-class EventListener {
-public:
+    explicit Ym2203Chip(SoundSink* soundSink);
+    virtual ~Ym2203Chip();
 
-    virtual uint32_t getEventCategory() {
-        return 0;
-    }
+    void select(uint8_t reg);
+    void write(uint8_t value);
+    uint8_t read();
+    uint8_t readStatus();
+    void reset();
+    void step(uint32_t ticks);
 
-    virtual EventOutput onEvent([[maybe_unused]] uint32_t type, [[maybe_unused]] EventInput input) {
-        return EventOutput {};
-    }
+private:
 
-protected:
-
-    constexpr EventListener() = default;
-    virtual ~EventListener() = default;
+    SoundSink* soundSink;
+    void* chip;
+    uint8_t selectedReg = 0;
+    uint8_t regs[MAX_REGS];
 };
 
 }

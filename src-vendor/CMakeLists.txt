@@ -22,28 +22,18 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-add_library (zemux_machine SHARED
-        src/bus.cpp
-        src/device.cpp
-        src/sound/sound_resampler.cpp
-        src/devices/border_device.cpp
-        src/devices/memory_device.cpp
-        src/devices/covox_device.cpp
-        src/devices/extport_device.cpp
-        src/devices/kempston_joystick_device.cpp
-        src/devices/kempston_mouse_device.cpp
-        src/devices/zxm_device.cpp
-        src/machine.cpp
-        src/video_surface.cpp)
+add_library (zemux_vendor SHARED
+        src/ym2203_chip.cpp
+        src/saa1099_chip.cpp)
 
-target_include_directories (zemux_machine
+target_include_directories (zemux_vendor
         PUBLIC include
-        PRIVATE src include/zemux_machine)
+        PRIVATE src include/zemux_vendor)
 
-target_link_libraries (zemux_machine PRIVATE zemux_core zemux_chips zemux_vendor)
-target_compile_features (zemux_machine PRIVATE cxx_std_17)
+target_link_libraries (zemux_vendor PRIVATE zemux_core vendor_ym2203 vendor_saa1099)
+target_compile_features (zemux_vendor PRIVATE cxx_std_17)
 
-target_compile_options (zemux_machine PRIVATE
+target_compile_options (zemux_vendor PRIVATE
         -Wall
         -Wextra
         -Werror

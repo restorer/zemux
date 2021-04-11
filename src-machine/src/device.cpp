@@ -32,4 +32,10 @@ namespace zemux {
 Device::Device(Bus* bus) : bus { bus } {
 }
 
+void Device::onConfigureTimings(uint32_t /* ticksPerFrame */) {
+}
+
+void Device::onFrameFinished(uint32_t /* ticks */) {
+}
+
 }
