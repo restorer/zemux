@@ -25,84 +25,8 @@
   <component name="ChangeListManager">
     <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/include/zemux_chips/ay_chip.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/include/zemux_chips/ay_chip.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/include/zemux_chips/z80_chip.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/include/zemux_chips/z80_chip.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/ay_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/ay_chip.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip_core.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip_core.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_00.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_00.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_CB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_CB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_DD.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_DD.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_DD_CB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_DD_CB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_ED.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_ED.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_FD.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_FD.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_FD_CB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-chips/src/z80_chip_optable_FD_CB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/chronometer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/chronometer.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/container.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/container.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/data_io.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/data_io.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/error.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/error.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/sound.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/sound.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/unroll.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/unroll.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/src/data_io.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/src/data_io.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-core/template/config.h.in" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/template/config.h.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/bus.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/bus.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/extport_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/extport_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/kempston_joystick_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/kempston_joystick_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/kempston_mouse_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/kempston_mouse_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/memory_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/memory_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/zxm_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/zxm_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/event.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/event.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/host.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/host.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/machine.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/machine.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/sound/sound_mixer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/sound/sound_mixer.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/sound/sound_resampler.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/sound/sound_resampler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/video_surface.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/video_surface.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/bus.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/bus.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/border_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/border_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/covox_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/covox_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/extport_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/extport_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/kempston_joystick_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/kempston_joystick_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/kempston_mouse_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/kempston_mouse_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/memory_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/memory_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/zxm_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/zxm_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/machine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/machine.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/sound/sound_resampler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/sound/sound_resampler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/video_surface.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/video_surface.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_tap.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_tap.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_wav.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/include/zemux_peripherals/tape_wav.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape_tap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape_tap.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-peripherals/src/tape_wav.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-peripherals/src/tape_wav.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-vendor/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-vendor/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-vendor/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/src-vendor/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-vendor/include/zemux_vendor/saa1099_chip.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-vendor/include/zemux_vendor/saa1099_chip.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-vendor/include/zemux_vendor/ym2203_chip.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-vendor/include/zemux_vendor/ym2203_chip.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-vendor/src/saa1099_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-vendor/src/saa1099_chip.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src-vendor/src/ym2203_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-vendor/src/ym2203_chip.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/test/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/chronometer_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/chronometer_test.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/runner.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/runner.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/stub_data_io.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/stub_data_io.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tape_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/tape_test.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/z80_correctness_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/z80_correctness_test.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/z80_speed_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/z80_speed_test.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor-saa1099/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/vendor-saa1099/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor-ym2203/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/vendor-ym2203/CMakeLists.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -259,7 +183,7 @@
       <workItem from="1617439993465" duration="871000" />
       <workItem from="1617443921024" duration="9069000" />
       <workItem from="1617469921803" duration="44684000" />
-      <workItem from="1618042956171" duration="30735000" />
+      <workItem from="1618042956171" duration="30780000" />
     </task>
     <servers />
   </component>

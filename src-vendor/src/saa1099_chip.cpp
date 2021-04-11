@@ -23,10 +23,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
- *
- * Based on YM-2149F emulator for Unreal Speccy project
- * created under public domain license by SMT, jan.2006
  */
 
 #include "saa1099_chip.h"
