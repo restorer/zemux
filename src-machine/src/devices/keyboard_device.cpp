@@ -31,7 +31,7 @@
 
 namespace zemux {
 
-uint8_t onKeyboardDeviceIorqRd(void* data, uint16_t port) {
+uint8_t onKeyboardDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t port) {
     return static_cast<KeyboardDevice*>(data)->onIorqRd(port);
 }
 

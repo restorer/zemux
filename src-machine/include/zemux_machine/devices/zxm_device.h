@@ -42,11 +42,11 @@ namespace zemux {
 class Ym2203Chip;
 class Saa1099Chip;
 
-uint8_t onZxmDeviceIorqRd(void* data, uint16_t /* port */);
-void onZxmDeviceIorqWr00FF(void* data, uint16_t /* port */, uint8_t value);
-void onZxmDeviceIorqWr01FF(void* data, uint16_t /* port */, uint8_t value);
-void onZxmDeviceIorqWrBFFD(void* data, uint16_t /* port */, uint8_t value);
-void onZxmDeviceIorqWrFFFD(void* data, uint16_t /* port */, uint8_t value);
+uint8_t onZxmDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+void onZxmDeviceIorqWr00FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+void onZxmDeviceIorqWr01FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+void onZxmDeviceIorqWrBFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+void onZxmDeviceIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 
 class ZxmDevice final : public Device, public AyChipCallback, private NonCopyable {
 public:
@@ -133,11 +133,11 @@ private:
         return ((~pseudoReg) & PSEUDO_BIT_CHIP_NUM) >> PSEUDO_SHIFT_CHIP_NUM;
     }
 
-    friend uint8_t onZxmDeviceIorqRd(void* data, uint16_t /* port */);
-    friend void onZxmDeviceIorqWr00FF(void* data, uint16_t /* port */, uint8_t value);
-    friend void onZxmDeviceIorqWr01FF(void* data, uint16_t /* port */, uint8_t value);
-    friend void onZxmDeviceIorqWrBFFD(void* data, uint16_t /* port */, uint8_t value);
-    friend void onZxmDeviceIorqWrFFFD(void* data, uint16_t /* port */, uint8_t value);
+    friend uint8_t onZxmDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    friend void onZxmDeviceIorqWr00FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    friend void onZxmDeviceIorqWr01FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    friend void onZxmDeviceIorqWrBFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    friend void onZxmDeviceIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 };
 
 }

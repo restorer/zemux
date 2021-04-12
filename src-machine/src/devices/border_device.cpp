@@ -29,7 +29,7 @@
 
 namespace zemux {
 
-void onBorderDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value) {
+void onBorderDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
     static_cast<BorderDevice*>(data)->onIorqWr(value);
 }
 

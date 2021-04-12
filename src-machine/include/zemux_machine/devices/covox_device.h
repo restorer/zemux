@@ -33,7 +33,7 @@
 
 namespace zemux {
 
-void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+void onCovoxDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 
 class CovoxDevice final : public Device, private NonCopyable {
 public:
@@ -53,7 +53,7 @@ private:
 
     void onIorqWr(uint8_t value);
 
-    friend void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+    friend void onCovoxDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 };
 
 }

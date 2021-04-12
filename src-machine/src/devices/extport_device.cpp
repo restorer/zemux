@@ -30,7 +30,7 @@
 
 namespace zemux {
 
-void onExtPortDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value) {
+void onExtPortDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
     static_cast<ExtPortDevice*>(data)->onIorqWr(value);
 }
 

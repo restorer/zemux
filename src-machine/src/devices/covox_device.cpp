@@ -29,7 +29,7 @@
 
 namespace zemux {
 
-void onCovoxDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value) {
+void onCovoxDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
     static_cast<CovoxDevice*>(data)->onIorqWr(value);
 }
 

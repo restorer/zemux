@@ -30,15 +30,15 @@
 
 namespace zemux {
 
-uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, uint16_t /* port */) {
+uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
     return static_cast<KempstonMouseDevice*>(data)->onIorqRdFBDF();
 }
 
-uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, uint16_t /* port */) {
+uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
     return static_cast<KempstonMouseDevice*>(data)->onIorqRdFFDF();
 }
 
-uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, uint16_t /* port */) {
+uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
     return static_cast<KempstonMouseDevice*>(data)->onIorqRdFADF();
 }
 

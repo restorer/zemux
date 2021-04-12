@@ -31,23 +31,23 @@
 
 namespace zemux {
 
-uint8_t onZxmDeviceIorqRd(void* data, uint16_t /* port */) {
+uint8_t onZxmDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
     return static_cast<ZxmDevice*>(data)->onIorqRd();
 }
 
-void onZxmDeviceIorqWr00FF(void* data, uint16_t /* port */, uint8_t value) {
+void onZxmDeviceIorqWr00FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
     static_cast<ZxmDevice*>(data)->onIorqWr00FF(value);
 }
 
-void onZxmDeviceIorqWr01FF(void* data, uint16_t /* port */, uint8_t value) {
+void onZxmDeviceIorqWr01FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
     static_cast<ZxmDevice*>(data)->onIorqWr01FF(value);
 }
 
-void onZxmDeviceIorqWrBFFD(void* data, uint16_t /* port */, uint8_t value) {
+void onZxmDeviceIorqWrBFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
     static_cast<ZxmDevice*>(data)->onIorqWrBFFD(value);
 }
 
-void onZxmDeviceIorqWrFFFD(void* data, uint16_t /* port */, uint8_t value) {
+void onZxmDeviceIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
     static_cast<ZxmDevice*>(data)->onIorqWrFFFD(value);
 }
 
@@ -89,7 +89,7 @@ EventOutput ZxmDevice::onEvent(uint32_t type, EventInput input) {
 
             if (config->mode != mode) {
                 mode = config->mode;
-                bus->requestReconfigure();
+                bus->performReconfigure();
             }
 
             return EventOutput { .isHandled = true };

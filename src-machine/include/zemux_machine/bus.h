@@ -30,6 +30,7 @@
 #include <memory>
 #include <array>
 #include <zemux_core/non_copyable.h>
+#include <zemux_core/force_inline.h>
 #include <zemux_core/chronometer.h>
 
 namespace zemux {
@@ -40,41 +41,44 @@ class MemoryDevice;
 class ExtPortDevice;
 
 struct BusMreqRdElement {
-    uint8_t (* callback)(void* data, uint16_t address, bool isM1);
+    uint8_t (* callback)(void* data, int mreqRdLayer, uint16_t address, bool isM1);
     void* data;
 };
 
 struct BusMreqWrElement {
-    void (* callback)(void* data, uint16_t address, uint8_t value);
+    void (* callback)(void* data, int mreqWrLayer, uint16_t address, uint8_t value);
     void* data;
 };
 
 struct BusIorqRdElement {
-    uint8_t (* callback)(void* data, uint16_t port);
+    uint8_t (* callback)(void* data, int iorqRdLayer, uint16_t port);
     void* data;
 };
 
 struct BusIorqWrElement {
-    void (* callback)(void* data, uint16_t port, uint8_t value);
+    void (* callback)(void* data, int iorqWrLayer, uint16_t port, uint8_t value);
     void* data;
 };
 
 class Bus final : private NonCopyable {
 public:
 
-    static constexpr int ELEMENTS_MREQ_RD = 0x20000;
+    static constexpr int ELEMENTS_MREQ_RD_BASE = 0x10000;
+    static constexpr int ELEMENTS_MREQ_RD_FULL = ELEMENTS_MREQ_RD_BASE * 2;
     static constexpr int ELEMENTS_MREQ_WR = 0x10000;
     static constexpr int ELEMENTS_IORQ_RD = 0x10000;
     static constexpr int ELEMENTS_IORQ_WR = 0x10000;
+
+    static constexpr int OVERLAY_MREQ_RD_TRDOS = 0b0000'0001;
+    static constexpr int OVERLAY_MREQ_RD_TRDOS_LMASK = 0b0000'0000;
+    static constexpr int OVERLAY_MREQ_RD_TRDOS_UMASK = 0b1111'1110;
+    static constexpr int OVERLAY_IORQ_RD_TRDOS = 0b0000'0001;
+    static constexpr int OVERLAY_IORQ_WR_TRDOS = 0b0000'0001;
 
     static constexpr int LAYERS_MREQ_RD = 2;
     static constexpr int LAYERS_MREQ_WR = 1;
     static constexpr int LAYERS_IORQ_RD = 2;
     static constexpr int LAYERS_IORQ_WR = 2;
-
-    static constexpr int OVERLAY_MREQ_RD_TRDOS = 1;
-    static constexpr int OVERLAY_IORQ_RD_TRDOS = 1;
-    static constexpr int OVERLAY_IORQ_WR_TRDOS = 1;
 
     BusMreqRdElement* mreqRdMap;
     BusMreqWrElement* mreqWrMap;
@@ -97,7 +101,8 @@ public:
     void onReset();
     uint32_t getFrameTicksPassed();
     void setCpuClockRatio(int rate);
-    void requestReconfigure();
+    void performReconfigure();
+    void performReset();
 
     void toggleMreqRdOverlay(int mreqRdOverlay, bool isEnabled);
     void toggleMreqWrOverlay(int mreqWrOverlay, bool isEnabled);
@@ -114,6 +119,10 @@ private:
     int iorqRdLayer;
     int iorqWrLayer;
 };
+
+ZEMUX_FORCE_INLINE int busLayerWithoutOverlay(int layer, int lmask, int umask) {
+    return ((layer & umask) >> 1) | (layer & lmask);
+}
 
 }
 

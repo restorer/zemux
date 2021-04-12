@@ -29,7 +29,7 @@
 
 namespace zemux {
 
-uint8_t onKempstonJoystickDeviceIorqRd(void* data, uint16_t /* port */) {
+uint8_t onKempstonJoystickDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
     return static_cast<KempstonJoystickDevice*>(data)->onIorqRd();
 }
 

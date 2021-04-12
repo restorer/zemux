@@ -35,7 +35,7 @@
 
 namespace zemux {
 
-void onBorderDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+void onBorderDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 
 class BorderDevice final : public Device, private NonCopyable {
 public:
@@ -67,7 +67,7 @@ private:
 
     void onIorqWr(uint8_t value);
 
-    friend void onBorderDeviceIorqWr(void* data, uint16_t /* port */, uint8_t value);
+    friend void onBorderDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 };
 
 }

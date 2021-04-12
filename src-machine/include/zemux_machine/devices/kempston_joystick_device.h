@@ -33,7 +33,7 @@
 
 namespace zemux {
 
-uint8_t onKempstonJoystickDeviceIorqRd(void* data, uint16_t /* port */);
+uint8_t onKempstonJoystickDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
 
 class KempstonJoystickDevice final : public Device, private NonCopyable {
 public:
@@ -71,7 +71,7 @@ private:
 
     uint8_t onIorqRd();
 
-    friend uint8_t onKempstonJoystickDeviceIorqRd(void* data, uint16_t /* port */);
+    friend uint8_t onKempstonJoystickDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
 };
 
 }

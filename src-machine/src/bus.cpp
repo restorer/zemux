@@ -32,7 +32,7 @@ namespace zemux {
 
 Bus::Bus(Z80Chip* cpu, ChronometerNarrow* cpuChronometer) : cpu { cpu }, cpuChronometer { cpuChronometer } {
     for (int i = 0; i < LAYERS_MREQ_RD; ++i) {
-        mreqRdMapLayers[i].reset(new BusMreqRdElement[ELEMENTS_MREQ_RD]);
+        mreqRdMapLayers[i].reset(new BusMreqRdElement[ELEMENTS_MREQ_RD_FULL]);
     }
 
     for (int i = 0; i < LAYERS_MREQ_WR; ++i) {
@@ -69,7 +69,10 @@ uint32_t Bus::getFrameTicksPassed() {
 void Bus::setCpuClockRatio(int /* rate */) {
 }
 
-void Bus::requestReconfigure() {
+void Bus::performReconfigure() {
+}
+
+void Bus::performReset() {
 }
 
 void Bus::toggleMreqRdOverlay(int mreqRdOverlay, bool isEnabled) {

@@ -31,40 +31,40 @@
 
 namespace zemux {
 
-uint8_t onMemoryDeviceMreqRdRom(void* data, uint16_t address, bool /* isM1 */) {
+uint8_t onMemoryDeviceMreqRdRom(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
     return static_cast<MemoryDevice*>(data)->onMreqRdRom(address);
 }
 
-uint8_t onMemoryDeviceMreqRdRamBank2(void* data, uint16_t address, bool /* isM1 */) {
+uint8_t onMemoryDeviceMreqRdRamBank2(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
     return static_cast<MemoryDevice*>(data)->onMreqRdRamBank2(address);
 }
 
-uint8_t onMemoryDeviceMreqRdRamBank5(void* data, uint16_t address, bool /* isM1 */) {
+uint8_t onMemoryDeviceMreqRdRamBank5(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
     return static_cast<MemoryDevice*>(data)->onMreqRdRamBank5(address);
 }
 
-uint8_t onMemoryDeviceMreqRdRamBankSel(void* data, uint16_t address, bool /* isM1 */) {
+uint8_t onMemoryDeviceMreqRdRamBankSel(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
     return static_cast<MemoryDevice*>(data)->onMreqRdRamBankSel(address);
 }
 
-void onMemoryDeviceMreqWrRom(void* data, uint16_t address, uint8_t value) {
+void onMemoryDeviceMreqWrRom(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
     auto self = static_cast<MemoryDevice*>(data);
     (self->*(self->onMreqWrRomPtr))(address, value);
 }
 
-void onMemoryDeviceMreqWrRamBank2(void* data, uint16_t address, uint8_t value) {
+void onMemoryDeviceMreqWrRamBank2(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
     static_cast<MemoryDevice*>(data)->onMreqWrRamBank2(address, value);
 }
 
-void onMemoryDeviceMreqWrRamBank5(void* data, uint16_t address, uint8_t value) {
+void onMemoryDeviceMreqWrRamBank5(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
     static_cast<MemoryDevice*>(data)->onMreqWrRamBank5(address, value);
 }
 
-void onMemoryDeviceMreqWrRamBankSel(void* data, uint16_t address, uint8_t value) {
+void onMemoryDeviceMreqWrRamBankSel(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
     static_cast<MemoryDevice*>(data)->onMreqWrRamBankSel(address, value);
 }
 
-void onMemoryDeviceIorqWr(void* data, uint16_t port, uint8_t value) {
+void onMemoryDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t port, uint8_t value) {
     static_cast<MemoryDevice*>(data)->onIorqWr(port, value);
 }
 
@@ -196,6 +196,11 @@ void MemoryDevice::remap() {
         default: // Mode48
             ramBankPtr = &ram[0];
     }
+}
+
+bool MemoryDevice::tryEnableBasic48Rom() {
+    onIorqWr(PORT_7FFD, BIT_ROM_BANK_1);
+    return isBasic48Rom();
 }
 
 uint8_t MemoryDevice::onMreqRdRom(uint16_t address) {

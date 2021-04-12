@@ -33,9 +33,9 @@
 
 namespace zemux {
 
-uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, uint16_t /* port */);
-uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, uint16_t /* port */);
-uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, uint16_t /* port */);
+uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, int /* iorqRdLayer */, uint16_t /* port */);
 
 class KempstonMouseDevice final : public Device, private NonCopyable {
 public:
@@ -111,9 +111,9 @@ private:
     uint8_t onIorqRdFFDF();
     uint8_t onIorqRdFADF();
 
-    friend uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, uint16_t port);
-    friend uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, uint16_t port);
-    friend uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, uint16_t port);
+    friend uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, int /* iorqRdLayer */, uint16_t port);
+    friend uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, int /* iorqRdLayer */, uint16_t port);
+    friend uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, int /* iorqRdLayer */, uint16_t port);
 };
 
 }
