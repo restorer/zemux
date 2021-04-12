@@ -36,24 +36,15 @@
 
 namespace zemux {
 
-class AyChipCallback {
-public:
-
-    virtual uint8_t onAyDataIn(uint8_t port) = 0;
-    virtual void onAyDataOut(uint8_t port, uint8_t value) = 0;
-
-protected:
-
-    constexpr AyChipCallback() = default;
-    virtual ~AyChipCallback() = default;
-};
-
 ZEMUX_FORCE_INLINE constexpr uint32_t ayChipExternalToDeviceRate(uint32_t externalClockRate) {
     return externalClockRate >> 3;
 }
 
 class AyChip final : private NonCopyable {
 public:
+
+    using DataInCallback = uint8_t (*)(void* data, uint8_t port);
+    using DataOutCallback = void (*)(void* data, uint8_t port, uint8_t value);
 
     enum ChipType {
         TypeAy,
@@ -97,7 +88,9 @@ public:
     static constexpr uint32_t DEFAULT_RATE = ayChipExternalToDeviceRate(1774400);
 
     explicit AyChip(SoundSink* soundSink,
-            AyChipCallback* cb = nullptr,
+            void* callbackData = nullptr,
+            DataInCallback onDataIn = nullptr,
+            DataOutCallback onDataOut = nullptr,
             ChipType chipType = TypeYm,
             VolumeType volumeType = VolumeYm,
             PanType panType = PanACB);
@@ -127,7 +120,9 @@ public:
 private:
 
     SoundSink* soundSink;
-    AyChipCallback* cb;
+    void* callbackData;
+    DataInCallback onDataIn;
+    DataOutCallback onDataOut;
     ChipType chipType;
     VolumeType volumeType;
     PanType panType;

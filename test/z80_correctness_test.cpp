@@ -67,6 +67,28 @@ static void compareAndOutputInt(const char* name, int test, int ethalon) {
             << "ethalon " << name << " " << ethalon);
 }
 
+static uint8_t onTestMreqRd(void* /* data */, uint16_t address, bool /* isM1 */) {
+    return testMemory[address];
+}
+
+static void onTestMreqWr(void* /* data */, uint16_t address, uint8_t value) {
+    testMemory[address] = value;
+}
+
+static uint8_t onTestIorqRd(void* /* data */, uint16_t /* port */) {
+    return 0x00;
+}
+
+static void onTestIorqWr(void* /* data */, uint16_t /* port */, uint8_t /* value */) {
+}
+
+static uint8_t onTestIorqM1(void* /* data */) {
+    return 0xFF;
+}
+
+static void onTestPutAddress(void* /* data */, uint16_t /* address */, uint_fast32_t /* cycles */) {
+}
+
 static uint8_t onEthalonRead(uint16_t addr, bool /* m1 */, void* /* data */) {
     return ethalonMemory[addr];
 }
@@ -86,10 +108,18 @@ static uint8_t onEthalonReadInt(void* /* data */) {
     return 0xFF;
 }
 
-class Z80CorrectnessTestCase : public zemux::Z80ChipCallback {
+class Z80CorrectnessTestCase {
 public:
 
-    Z80CorrectnessTestCase() : testCpu { this, zemux::Z80Chip::TypeNmos } {
+    Z80CorrectnessTestCase() : testCpu { this,
+            onTestMreqRd,
+            onTestMreqWr,
+            onTestIorqRd,
+            onTestIorqWr,
+            onTestIorqM1,
+            onTestPutAddress,
+            zemux::Z80Chip::TypeNmos } {
+
         ethalonCpu = __ns_Cpu__new(
                 onEthalonRead, nullptr,
                 onEthalonWrite, nullptr,
@@ -99,26 +129,11 @@ public:
         );
     }
 
-    ~Z80CorrectnessTestCase() override {
+    ~Z80CorrectnessTestCase() {
         __ns_Cpu__free(ethalonCpu);
     }
 
     void execute(const char* path);
-
-    uint8_t onZ80MreqRd(uint16_t address, bool /* isM1 */) override {
-        return testMemory[address];
-    }
-
-    void onZ80MreqWr(uint16_t address, uint8_t value) override {
-        testMemory[address] = value;
-    }
-
-    uint8_t onZ80IorqRd(uint16_t /* port */) override {
-        return 0x00;
-    }
-
-    void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override {
-    }
 
 private:
 

@@ -62,7 +62,23 @@ void Z80Chip::initSharedData() {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
 
-Z80Chip::Z80Chip(Z80ChipCallback* cb, ChipType chipType) : cb { cb }, chipType { chipType } {
+Z80Chip::Z80Chip(void* callbackData,
+        MreqRdCallback onMreqRd,
+        MreqWrCallback onMreqWr,
+        IorqRdCallback onIorqRd,
+        IorqWrCallback onIorqWr,
+        IorqM1Callback onIorqM1,
+        PutAddressCallback onPutAddress,
+        ChipType chipType
+) : callbackData { callbackData },
+        onMreqRd { onMreqRd },
+        onMreqWr { onMreqWr },
+        onIorqRd { onIorqRd },
+        onIorqWr { onIorqWr },
+        onIorqM1 { onIorqM1 },
+        onPutAddress { onPutAddress },
+        chipType { chipType } {
+
     initSharedData();
 
     regs.BC = 0xFFFF;

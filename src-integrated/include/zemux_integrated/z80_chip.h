@@ -33,32 +33,6 @@
 
 namespace zemux {
 
-class Z80ChipCallback {
-public:
-
-    virtual uint8_t onZ80MreqRd(uint16_t address, bool isM1) = 0;
-    virtual void onZ80MreqWr(uint16_t address, uint8_t value) = 0;
-    virtual uint8_t onZ80IorqRd(uint16_t port) = 0;
-    virtual void onZ80IorqWr(uint16_t port, uint8_t value) = 0;
-
-    // From "Z80 CPU User Manual":
-    //
-    // IORQ is also generated concurrently with M1 during an interrupt acknowledge cycle to indicate
-    // that an interrupt response vector can be placed on the data bus.
-    virtual uint8_t onZ80IorqM1() {
-        return 0xFF;
-    }
-
-    // To handle contended memory with original ULA.
-    virtual void onZ80PutAddress(uint16_t /* address */, uint_fast32_t /* cycles */) {
-    }
-
-protected:
-
-    constexpr Z80ChipCallback() = default;
-    virtual ~Z80ChipCallback() = default;
-};
-
 struct Z80ChipRegs {
 #pragma pack(push, 1)
     union {
@@ -217,6 +191,20 @@ public:
 
     using Opcode = void (*)(Z80Chip*);
 
+    using MreqRdCallback = uint8_t (*)(void* data, uint16_t address, bool isM1);
+    using MreqWrCallback = void (*)(void* data, uint16_t address, uint8_t value);
+    using IorqRdCallback = uint8_t (*)(void* data, uint16_t port);
+    using IorqWrCallback = void (*)(void* data, uint16_t port, uint8_t value);
+
+    // From "Z80 CPU User Manual":
+    //
+    // IORQ is also generated concurrently with M1 during an interrupt acknowledge cycle to indicate
+    // that an interrupt response vector can be placed on the data bus.
+    using IorqM1Callback = uint8_t (*)(void* data);
+
+    // To handle contended memory with original ULA.
+    using PutAddressCallback = void (*)(void* data, uint16_t address, uint_fast32_t cycles);
+
     enum ChipType {
         TypeNmos,
         TypeCmos
@@ -231,7 +219,14 @@ public:
     static constexpr unsigned int FLAG_Z = 0x40; // zero
     static constexpr unsigned int FLAG_S = 0x80; // sign
 
-    explicit Z80Chip(Z80ChipCallback* cb, ChipType chipType = TypeNmos);
+    explicit Z80Chip(void* callbackData,
+            MreqRdCallback onMreqRd,
+            MreqWrCallback onMreqWr,
+            IorqRdCallback onIorqRd,
+            IorqWrCallback onIorqWr,
+            IorqM1Callback onIorqM1,
+            PutAddressCallback onPutAddress,
+            ChipType chipType = TypeNmos);
 
     Z80ChipRegs regs;
 
@@ -290,7 +285,14 @@ private:
 
     static void initSharedData();
 
-    Z80ChipCallback* cb;
+    void* callbackData;
+    MreqRdCallback onMreqRd;
+    MreqWrCallback onMreqWr;
+    IorqRdCallback onIorqRd;
+    IorqWrCallback onIorqWr;
+    IorqM1Callback onIorqM1;
+    PutAddressCallback onPutAddress;
+
     ChipType chipType;
     Opcode* optable;
     bool isHalted;
@@ -307,12 +309,12 @@ private:
     }
 
     ZEMUX_FORCE_INLINE void putAddressOnBus(uint16_t address, uint_fast32_t cycles) {
-        cb->onZ80PutAddress(address, cycles);
+        onPutAddress(callbackData, address, cycles);
         tstate += cycles;
     }
 
     ZEMUX_FORCE_INLINE uint8_t fetchOpcode() {
-        uint8_t result = cb->onZ80MreqRd(regs.PC++, true);
+        uint8_t result = onMreqRd(callbackData, regs.PC++, true);
         incR();
         tstate += 4;
 
@@ -325,7 +327,7 @@ private:
         // Two wait states are automatically added to this cycle.
         // These states are added so that a ripple priority interrupt scheme can be easily implemented.
 
-        uint8_t result = cb->onZ80IorqM1();
+        uint8_t result = onIorqM1(callbackData);
         incR();
         tstate += 6;
 
@@ -333,7 +335,7 @@ private:
     }
 
     ZEMUX_FORCE_INLINE uint8_t fetchByte() {
-        uint8_t result = cb->onZ80MreqRd(regs.PC, false);
+        uint8_t result = onMreqRd(callbackData, regs.PC, false);
         regs.PC += pcIncrement;
         tstate += 3;
         return result;
@@ -351,13 +353,13 @@ private:
     }
 
     ZEMUX_FORCE_INLINE uint8_t memoryRead(uint16_t address) {
-        uint8_t value = cb->onZ80MreqRd(address, false);
+        uint8_t value = onMreqRd(callbackData, address, false);
         tstate += 3;
         return value;
     }
 
     ZEMUX_FORCE_INLINE void memoryWrite(uint16_t address, uint8_t value) {
-        cb->onZ80MreqWr(address, value);
+        onMreqWr(callbackData, address, value);
         tstate += 3;
     }
 
@@ -366,7 +368,7 @@ private:
         // During I/O operations, a single wait state is automatically inserted.
 
         putAddressOnBus(port, 1);
-        uint8_t value = cb->onZ80IorqRd(port);
+        uint8_t value = onIorqRd(callbackData, port);
         tstate += 3;
         return value;
     }
@@ -376,7 +378,7 @@ private:
         // During I/O operations, a single wait state is automatically inserted.
 
         putAddressOnBus(port, 1);
-        cb->onZ80IorqWr(port, value);
+        onIorqWr(callbackData, port, value);
         tstate += 3;
     }
 

@@ -42,7 +42,7 @@ namespace zemux {
 class Ym2203Chip;
 class Saa1099Chip;
 
-class ZxmDevice final : public Device, public AyChipCallback, private NonCopyable {
+class ZxmDevice final : public Device, private NonCopyable {
 public:
 
     enum Mode {
@@ -102,9 +102,6 @@ public:
     void onFrameFinished(uint32_t ticks) override;
     void onReset() override;
 
-    uint8_t onAyDataIn(uint8_t /* port */) override;
-    void onAyDataOut(uint8_t /* port */, uint8_t /* value */) override;
-
 private:
 
     SoundDesk* soundDesk;
@@ -135,6 +132,9 @@ private:
     static void onIorqWr01FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
     static void onIorqWrBFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
     static void onIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+
+    static uint8_t onAyDataIn(void* /* data */, uint8_t /* port */);
+    static void onAyDataOut(void* /* data */, uint8_t /* port */, uint8_t /* value */);
 };
 
 }

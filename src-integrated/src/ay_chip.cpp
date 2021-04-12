@@ -65,12 +65,16 @@ namespace zemux {
 
 AyChip::AyChip(
         SoundSink* soundSink,
-        AyChipCallback* cb,
+        void* callbackData,
+        DataInCallback onDataIn,
+        DataOutCallback onDataOut,
         ChipType chipType,
         VolumeType volumeType,
         PanType panType
 ) : soundSink { soundSink },
-        cb { cb },
+        callbackData { callbackData },
+        onDataIn { onDataIn },
+        onDataOut { onDataOut },
         chipType { chipType },
         volumeType { volumeType },
         panType { panType } {
@@ -203,16 +207,19 @@ void AyChip::write(uint8_t value) {
         case RegPortA:
             [[fallthrough]];
 
-        case RegPortB:
-            if (cb != nullptr) {
+        case RegPortB: {
+            auto onDataOut_ = onDataOut;
+
+            if (onDataOut_ != nullptr) {
                 uint8_t port = selectedReg - RegPortA;
 
                 if (isPortModeOut[port]) {
-                    cb->onAyDataOut(port, value);
+                    onDataOut_(callbackData, port, value);
                 }
             }
 
             break;
+        }
     }
 }
 
@@ -221,11 +228,13 @@ uint8_t AyChip::read() {
         return 0xFF;
     }
 
-    if (selectedReg >= RegPortA && cb != nullptr) {
+    auto onDataIn_ = onDataIn;
+
+    if (selectedReg >= RegPortA && onDataIn_ != nullptr) {
         uint8_t port = selectedReg - RegPortA;
 
         if (!isPortModeOut[port]) {
-            return cb->onAyDataIn(0);
+            return onDataIn_(callbackData, port);
         }
     }
 

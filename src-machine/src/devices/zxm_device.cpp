@@ -44,7 +44,7 @@ ZxmDevice::ZxmDevice(Bus* bus, SoundDesk* soundDesk) : Device { bus },
     ym2203Resamplers.emplace_back(&ym2203Chronometer);
     ym2203Resamplers.emplace_back(&ym2203Chronometer);
 
-    ayChips.emplace_back(&ayResamplers[0], this);
+    ayChips.emplace_back(&ayResamplers[0], this, onAyDataIn, onAyDataOut);
     ayChips.emplace_back(&ayResamplers[1]);
 
     ym2203Chips.emplace_back(&ym2203Resamplers[0]);
@@ -237,15 +237,6 @@ void ZxmDevice::onReset() {
     }
 }
 
-uint8_t ZxmDevice::onAyDataIn(uint8_t /* port */) {
-    // Stub for AY-Mouse
-    return 0;
-}
-
-void ZxmDevice::onAyDataOut(uint8_t /* port */, uint8_t /* value */) {
-    // Stub for AY-Mouse
-}
-
 uint8_t ZxmDevice::onIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
     auto self = static_cast<ZxmDevice*>(data);
     auto mode = self->mode;
@@ -316,6 +307,15 @@ void ZxmDevice::onIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port
     } else {
         self->ayChips[chipNum].select(value);
     }
+}
+
+uint8_t ZxmDevice::onAyDataIn(void* /* data */, uint8_t /* port */) {
+    // Stub for AY-Mouse
+    return 0;
+}
+
+void ZxmDevice::onAyDataOut(void* /* data */, uint8_t /* port */, uint8_t /* value */) {
+    // Stub for AY-Mouse
 }
 
 }

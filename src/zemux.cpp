@@ -3,25 +3,33 @@
 #include <zemux_core/sound.h>
 #include <zemux_integrated/z80_chip.h>
 #include <zemux_integrated/ay_chip.h>
+#include <cstdint>
 
 namespace zemux {
 
-class ZemuXStub : public Z80ChipCallback, public SoundSink, private NonCopyable {
+static uint8_t onStubMreqRd(void* /* data */, uint16_t /* address */, bool /* isM1 */) {
+    return 0x00;
+}
+
+static void onStubMreqWr(void* /* data */, uint16_t /* address */, uint8_t /* value */) {
+}
+
+static uint8_t onStubIorqRd(void* /* data */, uint16_t /* port */) {
+    return 0x00;
+}
+
+static void onStubIorqWr(void* /* data */, uint16_t /* port */, uint8_t /* value */) {
+}
+
+static uint8_t onStubIorqM1(void* /* data */) {
+    return 0xFF;
+}
+
+static void onStubPutAddress(void* /* data */, uint16_t /* address */, uint_fast32_t /* cycles */) {
+}
+
+class ZemuXStub : public SoundSink, private NonCopyable {
 public:
-
-    uint8_t onZ80MreqRd(uint16_t /* address */, bool /* isM1 */) override {
-        return 0;
-    }
-
-    void onZ80MreqWr(uint16_t /* address */, uint8_t /* value */) override {
-    }
-
-    uint8_t onZ80IorqRd(uint16_t /* port */) override {
-        return 0;
-    }
-
-    void onZ80IorqWr(uint16_t /* port */, uint8_t /* value */) override {
-    }
 
     void sinkForwardTo(uint16_t /* left */, uint16_t /* right */, uint32_t /* ticks */) override {
     }
@@ -35,8 +43,15 @@ public:
 int main() {
     zemux::ZemuXStub zemuXStub;
 
-    zemux::Z80Chip cpu(&zemuXStub);
-    zemux::AyChip ayChip(&zemuXStub);
+    zemux::Z80Chip cpu { &zemuXStub,
+            zemux::onStubMreqRd,
+            zemux::onStubMreqWr,
+            zemux::onStubIorqRd,
+            zemux::onStubIorqWr,
+            zemux::onStubIorqM1,
+            zemux::onStubPutAddress };
+
+    zemux::AyChip ayChip { &zemuXStub };
 
     std::cout << "Test\n";
     return 0;
