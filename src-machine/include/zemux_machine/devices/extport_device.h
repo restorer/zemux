@@ -42,6 +42,13 @@ public:
     };
 
     struct Configuration {
+        enum UpdateField {
+            UpdateIsOldMode = 1,
+            UpdateIsTurboEnabled = 2,
+            UpdateShouldDisableTurboOnReset = 4,
+        };
+
+        uint8_t updateMask;
         bool isOldMode;
         bool isTurboEnabled;
         bool shouldDisableTurboOnReset;

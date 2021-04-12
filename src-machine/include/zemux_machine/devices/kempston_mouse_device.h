@@ -55,6 +55,16 @@ public:
     };
 
     struct Configuration {
+        enum UpdateField {
+            UpdateIsWheelEnabled = 1,
+            UpdateWheelDirection = 2,
+            UpdateIsLeftSwappedWithRight = 4,
+            UpdateMiddleButtonMode = 8,
+            UpdateMotionRatioX = 16,
+            UpdateMotionRatioY = 32,
+        };
+
+        uint8_t updateMask;
         bool isWheelEnabled;
         WheelDirection wheelDirection;
         bool isLeftSwappedWithRight;
@@ -103,9 +113,9 @@ private:
 
     void update();
 
-    static uint8_t onIorqRdFBDF(void* data, int /* iorqRdLayer */, uint16_t port);
-    static uint8_t onIorqRdFFDF(void* data, int /* iorqRdLayer */, uint16_t port);
-    static uint8_t onIorqRdFADF(void* data, int /* iorqRdLayer */, uint16_t port);
+    static uint8_t onIorqRdFBDF(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static uint8_t onIorqRdFFDF(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static uint8_t onIorqRdFADF(void* data, int /* iorqRdLayer */, uint16_t /* port */);
 };
 
 }

@@ -59,15 +59,28 @@ EventOutput ZxmDevice::onEvent(uint32_t type, EventInput input) {
     switch (type) {
         case EventSetConfiguration: {
             auto config = static_cast<Configuration*>(input.pointer);
-            ayChronometer.setDstClockRateFixedSrc(config->ayRate);
+            auto updateMask = config->updateMask;
 
-            for (auto i = 0; i < TSFM_CHIPS_COUNT; ++i) {
-                ayChips[i].setChipType(config->ayChipType);
-                ayChips[i].setVolumeType(config->ayVolumeType);
-                ayChips[i].setPanType(config->ayPanType);
+            if (updateMask & Configuration::UpdateAyRate) {
+                ayChronometer.setDstClockRateFixedSrc(config->ayRate);
             }
 
-            if (config->mode != mode) {
+            if (updateMask & Configuration::UpdateAyChipType) {
+                ayChips[0].setChipType(config->ayChipType);
+                ayChips[1].setChipType(config->ayChipType);
+            }
+
+            if (updateMask & Configuration::UpdateAyVolumeType) {
+                ayChips[0].setVolumeType(config->ayVolumeType);
+                ayChips[1].setVolumeType(config->ayVolumeType);
+            }
+
+            if (updateMask & Configuration::UpdateAyPanType) {
+                ayChips[0].setPanType(config->ayPanType);
+                ayChips[1].setPanType(config->ayPanType);
+            }
+
+            if ((updateMask & Configuration::UpdateMode) && config->mode != mode) {
                 mode = config->mode;
                 bus->performReconfigure();
             }
@@ -78,6 +91,7 @@ EventOutput ZxmDevice::onEvent(uint32_t type, EventInput input) {
         case EventGetConfiguration: {
             auto config = static_cast<Configuration*>(input.pointer);
 
+            config->updateMask = ~0;
             config->mode = mode;
             config->ayRate = ayChronometer.getDstClockRate();
             config->ayChipType = ayChips[0].getChipType();

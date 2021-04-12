@@ -41,10 +41,19 @@ EventOutput ExtPortDevice::onEvent(uint32_t type, EventInput input) {
     switch (type) {
         case EventSetConfiguration: {
             auto config = static_cast<Configuration*>(input.pointer);
+            auto updateMask = config->updateMask;
 
-            isOldMode = config->isOldMode;
-            isTurboEnabled = config->isTurboEnabled;
-            shouldDisableTurboOnReset = config->shouldDisableTurboOnReset;
+            if (updateMask & Configuration::UpdateIsOldMode) {
+                isOldMode = config->isOldMode;
+            }
+
+            if (updateMask & Configuration::UpdateIsTurboEnabled) {
+                isTurboEnabled = config->isTurboEnabled;
+            }
+
+            if (updateMask & Configuration::UpdateShouldDisableTurboOnReset) {
+                shouldDisableTurboOnReset = config->shouldDisableTurboOnReset;
+            }
 
             return EventOutput { .isHandled = true };
         }
@@ -52,6 +61,7 @@ EventOutput ExtPortDevice::onEvent(uint32_t type, EventInput input) {
         case EventGetConfiguration: {
             auto config = static_cast<Configuration*>(input.pointer);
 
+            config->updateMask = ~0;
             config->isOldMode = isOldMode;
             config->isTurboEnabled = isTurboEnabled;
             config->shouldDisableTurboOnReset = shouldDisableTurboOnReset;

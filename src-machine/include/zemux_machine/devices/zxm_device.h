@@ -58,6 +58,15 @@ public:
     };
 
     struct Configuration {
+        enum UpdateField {
+            UpdateMode = 1,
+            UpdateAyRate = 2,
+            UpdateAyChipType = 4,
+            UpdateAyVolumeType = 8,
+            UpdateAyPanType = 16,
+        };
+
+        uint8_t updateMask;
         Mode mode;
         uint32_t ayRate; // divided by 8
         AyChip::ChipType ayChipType;

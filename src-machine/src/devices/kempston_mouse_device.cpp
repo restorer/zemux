@@ -53,32 +53,48 @@ EventOutput KempstonMouseDevice::onEvent(uint32_t type, EventInput input) {
 
         case EventSetConfiguration: {
             auto config = static_cast<Configuration*>(input.pointer);
+            auto updateMask = config->updateMask;
 
-            wheelCounterMask = config->isWheelEnabled ? WHEEL_COUNTER_MASK_ENABLED : WHEEL_COUNTER_MASK_DISABLED;
-            wheelDirectionMultiplier = (config->wheelDirection == DirectionReverse) ? -1 : 1;
-            buttonMaskLeft = (config->isLeftSwappedWithRight ? BUTTON_MASK_RIGHT : BUTTON_MASK_LEFT);
-            buttonMaskRight = (config->isLeftSwappedWithRight ? BUTTON_MASK_LEFT : BUTTON_MASK_RIGHT);
-
-            switch (config->middleButtonMode) {
-                case ModeMiddle:
-                case ModeLeftAndRightAsMiddle:
-                    buttonMaskMiddle = BUTTON_MASK_MIDDLE;
-                    break;
-
-                case ModeMiddleAsLeftAndRight:
-                    buttonMaskMiddle = BUTTON_MASK_LEFT & BUTTON_MASK_RIGHT;
-                    break;
-
-                default:
-                    buttonMaskMiddle = BUTTON_MASK_NONE;
+            if (updateMask & Configuration::UpdateIsWheelEnabled) {
+                wheelCounterMask = config->isWheelEnabled ? WHEEL_COUNTER_MASK_ENABLED : WHEEL_COUNTER_MASK_DISABLED;
             }
 
-            motionMultiplierX = static_cast<int64_t>(config->motionRatioX) + 1;
-            motionMultiplierY = static_cast<int64_t>(config->motionRatioY) + 1;
+            if (updateMask & Configuration::UpdateWheelDirection) {
+                wheelDirectionMultiplier = (config->wheelDirection == DirectionReverse) ? -1 : 1;
+            }
 
-            hostButtonMaskSpecial = (config->middleButtonMode == ModeLeftAndRightAsMiddle)
-                    ? (HostMouseState::BUTTON_BIT_LEFT | HostMouseState::BUTTON_BIT_RIGHT)
-                    : 0;
+            if (updateMask & Configuration::UpdateIsLeftSwappedWithRight) {
+                buttonMaskLeft = (config->isLeftSwappedWithRight ? BUTTON_MASK_RIGHT : BUTTON_MASK_LEFT);
+                buttonMaskRight = (config->isLeftSwappedWithRight ? BUTTON_MASK_LEFT : BUTTON_MASK_RIGHT);
+            }
+
+            if (updateMask & Configuration::UpdateMiddleButtonMode) {
+                switch (config->middleButtonMode) {
+                    case ModeMiddle:
+                    case ModeLeftAndRightAsMiddle:
+                        buttonMaskMiddle = BUTTON_MASK_MIDDLE;
+                        break;
+
+                    case ModeMiddleAsLeftAndRight:
+                        buttonMaskMiddle = BUTTON_MASK_LEFT & BUTTON_MASK_RIGHT;
+                        break;
+
+                    default:
+                        buttonMaskMiddle = BUTTON_MASK_NONE;
+                }
+
+                hostButtonMaskSpecial = (config->middleButtonMode == ModeLeftAndRightAsMiddle)
+                        ? (HostMouseState::BUTTON_BIT_LEFT | HostMouseState::BUTTON_BIT_RIGHT)
+                        : 0;
+            }
+
+            if (updateMask & Configuration::UpdateMotionRatioX) {
+                motionMultiplierX = static_cast<int64_t>(config->motionRatioX) + 1;
+            }
+
+            if (updateMask & Configuration::UpdateMotionRatioY) {
+                motionMultiplierY = static_cast<int64_t>(config->motionRatioY) + 1;
+            }
 
             return EventOutput { .isHandled = true };
         }
@@ -86,6 +102,7 @@ EventOutput KempstonMouseDevice::onEvent(uint32_t type, EventInput input) {
         case EventGetConfiguration: {
             auto config = static_cast<Configuration*>(input.pointer);
 
+            config->updateMask = ~0;
             config->isWheelEnabled = (wheelCounterMask == WHEEL_COUNTER_MASK_ENABLED);
             config->wheelDirection = (wheelDirectionMultiplier < 0) ? DirectionReverse : DirectionNormal;
             config->isLeftSwappedWithRight = (buttonMaskLeft == BUTTON_MASK_RIGHT);
@@ -172,21 +189,21 @@ void KempstonMouseDevice::update() {
     }
 }
 
-uint8_t KempstonMouseDevice::onIorqRdFBDF(void* data, int /* iorqRdLayer */, uint16_t port) {
+uint8_t KempstonMouseDevice::onIorqRdFBDF(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
     auto self = static_cast<KempstonMouseDevice*>(data);
 
     self->update();
     return self->portFBDF;
 }
 
-uint8_t KempstonMouseDevice::onIorqRdFFDF(void* data, int /* iorqRdLayer */, uint16_t port) {
+uint8_t KempstonMouseDevice::onIorqRdFFDF(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
     auto self = static_cast<KempstonMouseDevice*>(data);
 
     self->update();
     return self->portFFDF;
 }
 
-uint8_t KempstonMouseDevice::onIorqRdFADF(void* data, int /* iorqRdLayer */, uint16_t port) {
+uint8_t KempstonMouseDevice::onIorqRdFADF(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
     auto self = static_cast<KempstonMouseDevice*>(data);
 
     self->update();
