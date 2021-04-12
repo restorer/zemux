@@ -33,8 +33,6 @@
 
 namespace zemux {
 
-void onExtPortDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-
 class ExtPortDevice final : public Device, private NonCopyable {
 public:
 
@@ -46,6 +44,7 @@ public:
     struct Configuration {
         bool isOldMode;
         bool isTurboEnabled;
+        bool shouldDisableTurboOnReset;
     };
 
     static constexpr uint16_t PORT_EFF7 = 0xEFF7;
@@ -54,7 +53,10 @@ public:
     static constexpr uint8_t BIT_512x192 = 2; // 512x192 monochrome
     static constexpr uint8_t BIT_128_LOCK = 4; // disable memory above 128k
     static constexpr uint8_t BIT_RAM_MAP_ROM = 8; // first ram page (0 bank) maps to rom
-    static constexpr uint8_t BIT_GIGASCREEN_OR_TURBO = 16; // gigascreen or turbo (0 - on, 1 - off) pentagon sl 2.2
+
+    // gigascreen (0 - off, 1 - on) or turbo (0 - on, 1 - off; pentagon sl 2.2)
+    static constexpr uint8_t BIT_GIGASCREEN_OR_TURBO = 16;
+
     static constexpr uint8_t BIT_MULTICOLOR = 32; // hardware multicolor
     static constexpr uint8_t BIT_384x304 = 64; // 384x304 mode
     static constexpr uint8_t BIT_CMOS = 128; // cmos
@@ -111,10 +113,9 @@ private:
     uint8_t portEFF7 = 0;
     bool isOldMode = false;
     bool isTurboEnabled = false;
+    bool shouldDisableTurboOnReset = true;
 
-    void onIorqWr(uint8_t value);
-
-    friend void onExtPortDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static void onIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 };
 
 }

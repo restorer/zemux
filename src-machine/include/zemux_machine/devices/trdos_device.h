@@ -31,20 +31,6 @@
 
 namespace zemux {
 
-uint8_t onTrDosDeviceMreqRdRom3DxxM1(void* data, int mreqRdLayer, uint16_t address, bool /* isM1 */);
-uint8_t onTrDosDeviceMreqRdRomOverlay(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
-uint8_t onTrDosDeviceMreqRdRamM1Overlay(void* data, int mreqRdLayer, uint16_t address, bool /* isM1 */);
-uint8_t onTrDosDeviceIorqRdStatus(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-uint8_t onTrDosDeviceIorqRdTrack(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-uint8_t onTrDosDeviceIorqRdSector(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-uint8_t onTrDosDeviceIorqRdData(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-uint8_t onTrDosDeviceIorqRdRqs(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-void onTrDosDeviceIorqWrCommand(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-void onTrDosDeviceIorqWrTrack(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-void onTrDosDeviceIorqWrSector(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-void onTrDosDeviceIorqWrData(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-void onTrDosDeviceIorqWrBdi(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-
 class TrDosDevice final : public Device, private NonCopyable {
 public:
 
@@ -76,33 +62,19 @@ private:
 
     void toggle(bool isEnabled);
 
-    uint8_t onMreqRdRom3DxxM1(int mreqRdLayer, uint16_t address);
-    uint8_t onMreqRdRomOverlay(uint16_t address);
-    uint8_t onMreqRdRamM1Overlay(int mreqRdLayer, uint16_t address);
-    uint8_t onIorqRdStatus();
-    uint8_t onIorqRdTrack();
-    uint8_t onIorqRdSector();
-    uint8_t onIorqRdData();
-    uint8_t onIorqRdRqs();
-    void onIorqWrCommand(uint8_t value);
-    void onIorqWrTrack(uint8_t value);
-    void onIorqWrSector(uint8_t value);
-    void onIorqWrData(uint8_t value);
-    void onIorqWrBdi(uint8_t value);
-
-    friend uint8_t onTrDosDeviceMreqRdRom3DxxM1(void* data, int mreqRdLayer, uint16_t address, bool /* isM1 */);
-    friend uint8_t onTrDosDeviceMreqRdRomOverlay(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
-    friend uint8_t onTrDosDeviceMreqRdRamM1Overlay(void* data, int mreqRdLayer, uint16_t address, bool /* isM1 */);
-    friend uint8_t onTrDosDeviceIorqRdStatus(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-    friend uint8_t onTrDosDeviceIorqRdTrack(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-    friend uint8_t onTrDosDeviceIorqRdSector(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-    friend uint8_t onTrDosDeviceIorqRdData(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-    friend uint8_t onTrDosDeviceIorqRdRqs(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-    friend void onTrDosDeviceIorqWrCommand(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-    friend void onTrDosDeviceIorqWrTrack(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-    friend void onTrDosDeviceIorqWrSector(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-    friend void onTrDosDeviceIorqWrData(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-    friend void onTrDosDeviceIorqWrBdi(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static uint8_t onMreqRdRom3DxxM1(void* data, int mreqRdLayer, uint16_t address, bool /* isM1 */);
+    static uint8_t onMreqRdRomOverlay(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
+    static uint8_t onMreqRdRamM1Overlay(void* data, int mreqRdLayer, uint16_t address, bool /* isM1 */);
+    static uint8_t onIorqRdStatus(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static uint8_t onIorqRdTrack(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static uint8_t onIorqRdSector(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static uint8_t onIorqRdData(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static uint8_t onIorqRdRqs(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static void onIorqWrCommand(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static void onIorqWrTrack(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static void onIorqWrSector(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static void onIorqWrData(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static void onIorqWrBdi(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 };
 
 }

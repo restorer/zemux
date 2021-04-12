@@ -30,10 +30,6 @@
 
 namespace zemux {
 
-void onExtPortDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<ExtPortDevice*>(data)->onIorqWr(value);
-}
-
 ExtPortDevice::ExtPortDevice(Bus* bus) : Device { bus } {
 }
 
@@ -48,6 +44,7 @@ EventOutput ExtPortDevice::onEvent(uint32_t type, EventInput input) {
 
             isOldMode = config->isOldMode;
             isTurboEnabled = config->isTurboEnabled;
+            shouldDisableTurboOnReset = config->shouldDisableTurboOnReset;
 
             return EventOutput { .isHandled = true };
         }
@@ -57,6 +54,7 @@ EventOutput ExtPortDevice::onEvent(uint32_t type, EventInput input) {
 
             config->isOldMode = isOldMode;
             config->isTurboEnabled = isTurboEnabled;
+            config->shouldDisableTurboOnReset = shouldDisableTurboOnReset;
 
             return EventOutput { .isHandled = true };
         }
@@ -86,11 +84,11 @@ void ExtPortDevice::onDetach() {
 }
 
 BusIorqWrElement ExtPortDevice::onConfigureIorqWr(BusIorqWrElement prev, int /* iorqWrLayer */, uint16_t port) {
-    return (port == PORT_EFF7) ? BusIorqWrElement { .callback = onExtPortDeviceIorqWr, .data = this } : prev;
+    return (port == PORT_EFF7) ? BusIorqWrElement { .callback = onIorqWr, .data = this } : prev;
 }
 
 void ExtPortDevice::onReset() {
-    if (isTurboEnabled) {
+    if (isTurboEnabled && shouldDisableTurboOnReset) {
         // Disable turbo by default
 
         if ((portEFF7 & BIT_GIGASCREEN_OR_TURBO) == 0) {
@@ -104,13 +102,15 @@ void ExtPortDevice::onReset() {
     }
 }
 
-void ExtPortDevice::onIorqWr(uint8_t value) {
-    if (isTurboEnabled && (value & BIT_GIGASCREEN_OR_TURBO) != (portEFF7 & BIT_GIGASCREEN_OR_TURBO)) {
-        bus->setCpuClockRatio((value & BIT_GIGASCREEN_OR_TURBO) ? 1 : 2);
+void ExtPortDevice::onIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
+    auto self = static_cast<ExtPortDevice*>(data);
+
+    if (self->isTurboEnabled && (value & BIT_GIGASCREEN_OR_TURBO) != (self->portEFF7 & BIT_GIGASCREEN_OR_TURBO)) {
+        self->bus->setCpuClockRatio((value & BIT_GIGASCREEN_OR_TURBO) ? 1 : 2);
     }
 
-    portEFF7 = value;
-    // bus->reconfigureVideo();
+    self->portEFF7 = value;
+    // self->bus->reconfigureVideo();
 }
 
 }

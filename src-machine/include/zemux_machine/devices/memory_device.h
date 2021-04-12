@@ -35,16 +35,6 @@
 
 namespace zemux {
 
-uint8_t onMemoryDeviceMreqRdRom(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
-uint8_t onMemoryDeviceMreqRdRamBank2(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
-uint8_t onMemoryDeviceMreqRdRamBank5(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
-uint8_t onMemoryDeviceMreqRdRamBankSel(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
-void onMemoryDeviceMreqWrRom(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
-void onMemoryDeviceMreqWrRamBank2(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
-void onMemoryDeviceMreqWrRamBank5(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
-void onMemoryDeviceMreqWrRamBankSel(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
-void onMemoryDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t port, uint8_t value);
-
 class MemoryDevice final : public Device, private NonCopyable {
 public:
 
@@ -98,7 +88,7 @@ public:
     void onReset() override;
 
     void remap();
-    bool tryEnableBasic48Rom();
+    void enableBasic48Rom();
 
     ZEMUX_FORCE_INLINE bool isBasic48Rom() {
         return (mode == Mode48) || (port7FFD & BIT_ROM_BANK_1);
@@ -114,28 +104,18 @@ private:
     uint8_t* romBankPtr;
     uint8_t* ramBankPtr;
 
-    uint8_t onMreqRdRom(uint16_t address);
-    uint8_t onMreqRdRamBank2(uint16_t address);
-    uint8_t onMreqRdRamBank5(uint16_t address);
-    uint8_t onMreqRdRamBankSel(uint16_t address);
-
     void onMreqWrRomNone(uint16_t /* address */, uint8_t /* value */);
     void onMreqWrRomRam(uint16_t address, uint8_t value);
-    void onMreqWrRamBank2(uint16_t address, uint8_t value);
-    void onMreqWrRamBank5(uint16_t address, uint8_t value);
-    void onMreqWrRamBankSel(uint16_t address, uint8_t value);
 
-    void onIorqWr(uint16_t port, uint8_t value);
-
-    friend uint8_t onMemoryDeviceMreqRdRom(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
-    friend uint8_t onMemoryDeviceMreqRdRamBank2(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
-    friend uint8_t onMemoryDeviceMreqRdRamBank5(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
-    friend uint8_t onMemoryDeviceMreqRdRamBankSel(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
-    friend void onMemoryDeviceMreqWrRom(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
-    friend void onMemoryDeviceMreqWrRamBank2(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
-    friend void onMemoryDeviceMreqWrRamBank5(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
-    friend void onMemoryDeviceMreqWrRamBankSel(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
-    friend void onMemoryDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static uint8_t onMreqRdRom(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
+    static uint8_t onMreqRdRamBank2(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
+    static uint8_t onMreqRdRamBank5(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
+    static uint8_t onMreqRdRamBankSel(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */);
+    static void onMreqWrRom(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
+    static void onMreqWrRamBank2(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
+    static void onMreqWrRamBank5(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
+    static void onMreqWrRamBankSel(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value);
+    static void onIorqWr(void* data, int /* iorqWrLayer */, uint16_t port, uint8_t value);
 };
 
 }

@@ -31,58 +31,6 @@
 
 namespace zemux {
 
-uint8_t onTrDosDeviceMreqRdRom3DxxM1(void* data, int mreqRdLayer, uint16_t address, bool /* isM1 */) {
-    return static_cast<TrDosDevice*>(data)->onMreqRdRom3DxxM1(mreqRdLayer, address);
-}
-
-uint8_t onTrDosDeviceMreqRdRomOverlay(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
-    return static_cast<TrDosDevice*>(data)->onMreqRdRomOverlay(address);
-}
-
-uint8_t onTrDosDeviceMreqRdRamM1Overlay(void* data, int mreqRdLayer, uint16_t address, bool /* isM1 */) {
-    return static_cast<TrDosDevice*>(data)->onMreqRdRamM1Overlay(mreqRdLayer, address);
-}
-
-uint8_t onTrDosDeviceIorqRdStatus(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
-    return static_cast<TrDosDevice*>(data)->onIorqRdStatus();
-}
-
-uint8_t onTrDosDeviceIorqRdTrack(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
-    return static_cast<TrDosDevice*>(data)->onIorqRdTrack();
-}
-
-uint8_t onTrDosDeviceIorqRdSector(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
-    return static_cast<TrDosDevice*>(data)->onIorqRdSector();
-}
-
-uint8_t onTrDosDeviceIorqRdData(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
-    return static_cast<TrDosDevice*>(data)->onIorqRdData();
-}
-
-uint8_t onTrDosDeviceIorqRdRqs(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
-    return static_cast<TrDosDevice*>(data)->onIorqRdRqs();
-}
-
-void onTrDosDeviceIorqWrCommand(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<TrDosDevice*>(data)->onIorqWrCommand(value);
-}
-
-void onTrDosDeviceIorqWrTrack(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<TrDosDevice*>(data)->onIorqWrTrack(value);
-}
-
-void onTrDosDeviceIorqWrSector(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<TrDosDevice*>(data)->onIorqWrSector(value);
-}
-
-void onTrDosDeviceIorqWrData(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<TrDosDevice*>(data)->onIorqWrData(value);
-}
-
-void onTrDosDeviceIorqWrBdi(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<TrDosDevice*>(data)->onIorqWrBdi(value);
-}
-
 TrDosDevice::TrDosDevice(Bus* bus) : Device(bus) {
     for (int i = 0; i < Bus::LAYERS_MREQ_RD - 1; ++i) {
         prevMreqRdMapLayers[i].reset(new BusMreqRdElement[Bus::ELEMENTS_MREQ_RD_BASE]);
@@ -104,7 +52,8 @@ EventOutput TrDosDevice::onEvent(uint32_t type, EventInput input) {
         case EventResetToTrDos:
             bus->performReset();
 
-            if (bus->memoryDevice != nullptr && bus->memoryDevice->tryEnableBasic48Rom()) {
+            if (bus->memoryDevice != nullptr) {
+                bus->memoryDevice->enableBasic48Rom();
                 toggle(true);
             }
 
@@ -125,7 +74,7 @@ BusMreqRdElement TrDosDevice::onConfigureMreqRd(BusMreqRdElement prev, int mreqR
 
     if (mreqRdLayer & Bus::OVERLAY_MREQ_RD_TRDOS) {
         if (address < MemoryDevice::SIZE_BANK) {
-            return BusMreqRdElement { .callback = onTrDosDeviceMreqRdRomOverlay, .data = this };
+            return BusMreqRdElement { .callback = onMreqRdRomOverlay, .data = this };
         }
 
         if (isM1) {
@@ -134,7 +83,7 @@ BusMreqRdElement TrDosDevice::onConfigureMreqRd(BusMreqRdElement prev, int mreqR
                     Bus::OVERLAY_MREQ_RD_TRDOS_UMASK);
 
             prevMreqRdMapLayers[layer][address] = prev;
-            return BusMreqRdElement { .callback = onTrDosDeviceMreqRdRamM1Overlay, .data = this };
+            return BusMreqRdElement { .callback = onMreqRdRamM1Overlay, .data = this };
         }
 
         return prev;
@@ -146,7 +95,7 @@ BusMreqRdElement TrDosDevice::onConfigureMreqRd(BusMreqRdElement prev, int mreqR
                 Bus::OVERLAY_MREQ_RD_TRDOS_UMASK);
 
         prevMreqRdMapLayers[layer][address] = prev;
-        return BusMreqRdElement { .callback = onTrDosDeviceMreqRdRom3DxxM1, .data = this };
+        return BusMreqRdElement { .callback = onMreqRdRom3DxxM1, .data = this };
     }
 
     return prev;
@@ -159,19 +108,19 @@ BusIorqRdElement TrDosDevice::onConfigureIorqRd(BusIorqRdElement prev, int iorqR
 
     switch (port) {
         case PORT_COMMAND_STATUS:
-            return BusIorqRdElement { .callback = onTrDosDeviceIorqRdStatus, .data = this };
+            return BusIorqRdElement { .callback = onIorqRdStatus, .data = this };
 
         case PORT_TRACK:
-            return BusIorqRdElement { .callback = onTrDosDeviceIorqRdTrack, .data = this };
+            return BusIorqRdElement { .callback = onIorqRdTrack, .data = this };
 
         case PORT_SECTOR:
-            return BusIorqRdElement { .callback = onTrDosDeviceIorqRdSector, .data = this };
+            return BusIorqRdElement { .callback = onIorqRdSector, .data = this };
 
         case PORT_DATA:
-            return BusIorqRdElement { .callback = onTrDosDeviceIorqRdData, .data = this };
+            return BusIorqRdElement { .callback = onIorqRdData, .data = this };
 
         case PORT_BDI_RQS:
-            return BusIorqRdElement { .callback = onTrDosDeviceIorqRdRqs, .data = this };
+            return BusIorqRdElement { .callback = onIorqRdRqs, .data = this };
 
         default:
             return prev;
@@ -185,19 +134,19 @@ BusIorqWrElement TrDosDevice::onConfigureIorqWr(BusIorqWrElement prev, int iorqW
 
     switch (port) {
         case PORT_COMMAND_STATUS:
-            return BusIorqWrElement { .callback = onTrDosDeviceIorqWrCommand, .data = this };
+            return BusIorqWrElement { .callback = onIorqWrCommand, .data = this };
 
         case PORT_TRACK:
-            return BusIorqWrElement { .callback = onTrDosDeviceIorqWrTrack, .data = this };
+            return BusIorqWrElement { .callback = onIorqWrTrack, .data = this };
 
         case PORT_SECTOR:
-            return BusIorqWrElement { .callback = onTrDosDeviceIorqWrSector, .data = this };
+            return BusIorqWrElement { .callback = onIorqWrSector, .data = this };
 
         case PORT_DATA:
-            return BusIorqWrElement { .callback = onTrDosDeviceIorqWrData, .data = this };
+            return BusIorqWrElement { .callback = onIorqWrData, .data = this };
 
         case PORT_BDI_RQS:
-            return BusIorqWrElement { .callback = onTrDosDeviceIorqWrBdi, .data = this };
+            return BusIorqWrElement { .callback = onIorqWrBdi, .data = this };
 
         default:
             return prev;
@@ -210,68 +159,73 @@ void TrDosDevice::toggle(bool isEnabled) {
     bus->toggleIorqWrOverlay(Bus::OVERLAY_IORQ_WR_TRDOS, isEnabled);
 }
 
-uint8_t TrDosDevice::onMreqRdRom3DxxM1(int mreqRdLayer, uint16_t address) {
-    if (bus->memoryDevice != nullptr && bus->memoryDevice->isBasic48Rom()) {
-        toggle(true);
-        return rom[address];
+uint8_t TrDosDevice::onMreqRdRom3DxxM1(void* data, int mreqRdLayer, uint16_t address, bool /* isM1 */) {
+    auto self = static_cast<TrDosDevice*>(data);
+    auto memoryDevice = self->bus->memoryDevice;
+
+    if (memoryDevice != nullptr && memoryDevice->isBasic48Rom()) {
+        self->toggle(true);
+        return self->rom[address];
     }
 
     auto layer = busLayerWithoutOverlay(mreqRdLayer,
             Bus::OVERLAY_MREQ_RD_TRDOS_LMASK,
             Bus::OVERLAY_MREQ_RD_TRDOS_UMASK);
 
-    auto& element = prevMreqRdMapLayers[layer][address];
+    auto& element = self->prevMreqRdMapLayers[layer][address];
     return element.callback(element.data, mreqRdLayer, address, true);
 }
 
-uint8_t TrDosDevice::onMreqRdRomOverlay(uint16_t address) {
-    return rom[address];
+uint8_t TrDosDevice::onMreqRdRomOverlay(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
+    auto self = static_cast<TrDosDevice*>(data);
+    return self->rom[address];
 }
 
-uint8_t TrDosDevice::onMreqRdRamM1Overlay(int mreqRdLayer, uint16_t address) {
-    toggle(false);
+uint8_t TrDosDevice::onMreqRdRamM1Overlay(void* data, int mreqRdLayer, uint16_t address, bool /* isM1 */) {
+    auto self = static_cast<TrDosDevice*>(data);
+    self->toggle(false);
 
     auto layer = busLayerWithoutOverlay(mreqRdLayer,
             Bus::OVERLAY_MREQ_RD_TRDOS_LMASK,
             Bus::OVERLAY_MREQ_RD_TRDOS_UMASK);
 
-    auto& element = prevMreqRdMapLayers[layer][address];
+    auto& element = self->prevMreqRdMapLayers[layer][address];
     return element.callback(element.data, mreqRdLayer, address, true);
 }
 
-uint8_t TrDosDevice::onIorqRdStatus() {
+uint8_t TrDosDevice::onIorqRdStatus(void* /* data */, int /* iorqRdLayer */, uint16_t /* port */) {
     return 0xFF;
 }
 
-uint8_t TrDosDevice::onIorqRdTrack() {
+uint8_t TrDosDevice::onIorqRdTrack(void* /* data */, int /* iorqRdLayer */, uint16_t /* port */) {
     return 0xFF;
 }
 
-uint8_t TrDosDevice::onIorqRdSector() {
+uint8_t TrDosDevice::onIorqRdSector(void* /* data */, int /* iorqRdLayer */, uint16_t /* port */) {
     return 0xFF;
 }
 
-uint8_t TrDosDevice::onIorqRdData() {
+uint8_t TrDosDevice::onIorqRdData(void* /* data */, int /* iorqRdLayer */, uint16_t /* port */) {
     return 0xFF;
 }
 
-uint8_t TrDosDevice::onIorqRdRqs() {
+uint8_t TrDosDevice::onIorqRdRqs(void* /* data */, int /* iorqRdLayer */, uint16_t /* port */) {
     return 0xFF;
 }
 
-void TrDosDevice::onIorqWrCommand(uint8_t /* value */) {
+void TrDosDevice::onIorqWrCommand(void* /* data */, int /* iorqWrLayer */, uint16_t /* port */, uint8_t /* value */) {
 }
 
-void TrDosDevice::onIorqWrTrack(uint8_t /* value */) {
+void TrDosDevice::onIorqWrTrack(void* /* data */, int /* iorqWrLayer */, uint16_t /* port */, uint8_t /* value */) {
 }
 
-void TrDosDevice::onIorqWrSector(uint8_t /* value */) {
+void TrDosDevice::onIorqWrSector(void* /* data */, int /* iorqWrLayer */, uint16_t /* port */, uint8_t /* value */) {
 }
 
-void TrDosDevice::onIorqWrData(uint8_t /* value */) {
+void TrDosDevice::onIorqWrData(void* /* data */, int /* iorqWrLayer */, uint16_t /* port */, uint8_t /* value */) {
 }
 
-void TrDosDevice::onIorqWrBdi(uint8_t /* value */) {
+void TrDosDevice::onIorqWrBdi(void* /* data */, int /* iorqWrLayer */, uint16_t /* port */, uint8_t /* value */) {
 }
 
 }

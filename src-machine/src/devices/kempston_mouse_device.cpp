@@ -30,18 +30,6 @@
 
 namespace zemux {
 
-uint8_t onKempstonMouseDeviceIorqRdFBDF(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
-    return static_cast<KempstonMouseDevice*>(data)->onIorqRdFBDF();
-}
-
-uint8_t onKempstonMouseDeviceIorqRdFFDF(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
-    return static_cast<KempstonMouseDevice*>(data)->onIorqRdFFDF();
-}
-
-uint8_t onKempstonMouseDeviceIorqRdFADF(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
-    return static_cast<KempstonMouseDevice*>(data)->onIorqRdFADF();
-}
-
 KempstonMouseDevice::KempstonMouseDevice(Bus* bus) : Device { bus } {
 }
 
@@ -132,15 +120,15 @@ EventOutput KempstonMouseDevice::onEvent(uint32_t type, EventInput input) {
 
 BusIorqRdElement KempstonMouseDevice::onConfigureIorqRd(BusIorqRdElement prev, int /* iorqRdLayer */, uint16_t port) {
     if (port == PORT_FBDF) {
-        return BusIorqRdElement { .callback = onKempstonMouseDeviceIorqRdFBDF, .data = this };
+        return BusIorqRdElement { .callback = onIorqRdFBDF, .data = this };
     }
 
     if (port == PORT_FFDF) {
-        return BusIorqRdElement { .callback = onKempstonMouseDeviceIorqRdFFDF, .data = this };
+        return BusIorqRdElement { .callback = onIorqRdFFDF, .data = this };
     }
 
     if (port == PORT_FADF) {
-        return BusIorqRdElement { .callback = onKempstonMouseDeviceIorqRdFADF, .data = this };
+        return BusIorqRdElement { .callback = onIorqRdFADF, .data = this };
     }
 
     return prev;
@@ -184,19 +172,25 @@ void KempstonMouseDevice::update() {
     }
 }
 
-uint8_t KempstonMouseDevice::onIorqRdFBDF() {
-    update();
-    return portFBDF;
+uint8_t KempstonMouseDevice::onIorqRdFBDF(void* data, int /* iorqRdLayer */, uint16_t port) {
+    auto self = static_cast<KempstonMouseDevice*>(data);
+
+    self->update();
+    return self->portFBDF;
 }
 
-uint8_t KempstonMouseDevice::onIorqRdFFDF() {
-    update();
-    return portFFDF;
+uint8_t KempstonMouseDevice::onIorqRdFFDF(void* data, int /* iorqRdLayer */, uint16_t port) {
+    auto self = static_cast<KempstonMouseDevice*>(data);
+
+    self->update();
+    return self->portFFDF;
 }
 
-uint8_t KempstonMouseDevice::onIorqRdFADF() {
-    update();
-    return portFADF;
+uint8_t KempstonMouseDevice::onIorqRdFADF(void* data, int /* iorqRdLayer */, uint16_t port) {
+    auto self = static_cast<KempstonMouseDevice*>(data);
+
+    self->update();
+    return self->portFADF;
 }
 
 }

@@ -33,8 +33,6 @@
 
 namespace zemux {
 
-void onCovoxDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-
 class CovoxDevice final : public Device, private NonCopyable {
 public:
 
@@ -51,9 +49,7 @@ private:
     SoundDesk* soundDesk;
     SoundResampler soundResampler;
 
-    void onIorqWr(uint8_t value);
-
-    friend void onCovoxDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static void onIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 };
 
 }

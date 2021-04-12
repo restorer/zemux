@@ -31,43 +31,6 @@
 
 namespace zemux {
 
-uint8_t onMemoryDeviceMreqRdRom(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
-    return static_cast<MemoryDevice*>(data)->onMreqRdRom(address);
-}
-
-uint8_t onMemoryDeviceMreqRdRamBank2(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
-    return static_cast<MemoryDevice*>(data)->onMreqRdRamBank2(address);
-}
-
-uint8_t onMemoryDeviceMreqRdRamBank5(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
-    return static_cast<MemoryDevice*>(data)->onMreqRdRamBank5(address);
-}
-
-uint8_t onMemoryDeviceMreqRdRamBankSel(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
-    return static_cast<MemoryDevice*>(data)->onMreqRdRamBankSel(address);
-}
-
-void onMemoryDeviceMreqWrRom(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
-    auto self = static_cast<MemoryDevice*>(data);
-    (self->*(self->onMreqWrRomPtr))(address, value);
-}
-
-void onMemoryDeviceMreqWrRamBank2(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
-    static_cast<MemoryDevice*>(data)->onMreqWrRamBank2(address, value);
-}
-
-void onMemoryDeviceMreqWrRamBank5(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
-    static_cast<MemoryDevice*>(data)->onMreqWrRamBank5(address, value);
-}
-
-void onMemoryDeviceMreqWrRamBankSel(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
-    static_cast<MemoryDevice*>(data)->onMreqWrRamBankSel(address, value);
-}
-
-void onMemoryDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t port, uint8_t value) {
-    static_cast<MemoryDevice*>(data)->onIorqWr(port, value);
-}
-
 MemoryDevice::MemoryDevice(Bus* bus) : Device { bus } {
     rom.reset(new uint8_t[SIZE_BANK * BANKS_ROM]);
     ram.reset(new uint8_t[SIZE_BANK * BANKS_RAM]);
@@ -122,18 +85,18 @@ BusMreqRdElement MemoryDevice::onConfigureMreqRd(
         bool /* isM1 */) {
 
     if (address < SIZE_BANK) {
-        return BusMreqRdElement { .callback = onMemoryDeviceMreqRdRom, .data = this };
+        return BusMreqRdElement { .callback = onMreqRdRom, .data = this };
     }
 
     if (address < SIZE_BANK * 2) {
-        return BusMreqRdElement { .callback = onMemoryDeviceMreqRdRamBank2, .data = this };
+        return BusMreqRdElement { .callback = onMreqRdRamBank2, .data = this };
     }
 
     if (address < SIZE_BANK * 3) {
-        return BusMreqRdElement { .callback = onMemoryDeviceMreqRdRamBank5, .data = this };
+        return BusMreqRdElement { .callback = onMreqRdRamBank5, .data = this };
     }
 
-    return BusMreqRdElement { .callback = onMemoryDeviceMreqRdRamBankSel, .data = this };
+    return BusMreqRdElement { .callback = onMreqRdRamBankSel, .data = this };
 }
 
 BusMreqWrElement MemoryDevice::onConfigureMreqWr(
@@ -142,24 +105,22 @@ BusMreqWrElement MemoryDevice::onConfigureMreqWr(
         uint16_t address) {
 
     if (address < SIZE_BANK) {
-        return BusMreqWrElement { .callback = onMemoryDeviceMreqWrRom, .data = this };
+        return BusMreqWrElement { .callback = onMreqWrRom, .data = this };
     }
 
     if (address < SIZE_BANK * 2) {
-        return BusMreqWrElement { .callback = onMemoryDeviceMreqWrRamBank2, .data = this };
+        return BusMreqWrElement { .callback = onMreqWrRamBank2, .data = this };
     }
 
     if (address < SIZE_BANK * 3) {
-        return BusMreqWrElement { .callback = onMemoryDeviceMreqWrRamBank5, .data = this };
+        return BusMreqWrElement { .callback = onMreqWrRamBank5, .data = this };
     }
 
-    return BusMreqWrElement { .callback = onMemoryDeviceMreqWrRamBankSel, .data = this };
+    return BusMreqWrElement { .callback = onMreqWrRamBankSel, .data = this };
 }
 
 BusIorqWrElement MemoryDevice::onConfigureIorqWr(BusIorqWrElement prev, int /* iorqWrLayer */, uint16_t port) {
-    return ((port & 0x8003) == 0x0001)
-            ? BusIorqWrElement { .callback = onMemoryDeviceIorqWr, .data = this }
-            : prev;
+    return ((port & 0x8003) == 0x0001) ? BusIorqWrElement { .callback = onIorqWr, .data = this } : prev;
 }
 
 void MemoryDevice::onReset() {
@@ -198,27 +159,9 @@ void MemoryDevice::remap() {
     }
 }
 
-bool MemoryDevice::tryEnableBasic48Rom() {
-    onIorqWr(PORT_7FFD, BIT_ROM_BANK_1);
-    return isBasic48Rom();
-}
-
-uint8_t MemoryDevice::onMreqRdRom(uint16_t address) {
-    return romBankPtr[address];
-}
-
-uint8_t MemoryDevice::onMreqRdRamBank2(uint16_t address) {
-    // address - 0x8000 + SIZE_BANK * 2 === address
-    return ram[address];
-}
-
-uint8_t MemoryDevice::onMreqRdRamBank5(uint16_t address) {
-    // address - 0x4000 + SIZE_BANK * 5 === address + SIZE_BANK * 4
-    return ram[address + SIZE_BANK * 4];
-}
-
-uint8_t MemoryDevice::onMreqRdRamBankSel(uint16_t address) {
-    return ramBankPtr[address - SIZE_BANK * 3];
+void MemoryDevice::enableBasic48Rom() {
+    port7FFD |= BIT_ROM_BANK_1;
+    remap();
 }
 
 void MemoryDevice::onMreqWrRomNone(uint16_t /* address */, uint8_t /* value */) {
@@ -228,38 +171,80 @@ void MemoryDevice::onMreqWrRomRam(uint16_t address, uint8_t value) {
     ram[address] = value;
 }
 
-void MemoryDevice::onMreqWrRamBank2(uint16_t address, uint8_t value) {
+uint8_t MemoryDevice::onMreqRdRom(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
+    auto self = static_cast<MemoryDevice*>(data);
+    return self->romBankPtr[address];
+}
+
+uint8_t MemoryDevice::onMreqRdRamBank2(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
     // address - 0x8000 + SIZE_BANK * 2 === address
-    ram[address] = value;
+
+    auto self = static_cast<MemoryDevice*>(data);
+    return self->ram[address];
 }
 
-void MemoryDevice::onMreqWrRamBank5(uint16_t address, uint8_t value) {
+uint8_t MemoryDevice::onMreqRdRamBank5(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
     // address - 0x4000 + SIZE_BANK * 5 === address + SIZE_BANK * 4
-    ram[address + SIZE_BANK * 4] = value;
+
+    auto self = static_cast<MemoryDevice*>(data);
+    return self->ram[address + SIZE_BANK * 4];
 }
 
-void MemoryDevice::onMreqWrRamBankSel(uint16_t address, uint8_t value) {
-    ram[address - SIZE_BANK * 3] = value;
+uint8_t MemoryDevice::onMreqRdRamBankSel(void* data, int /* mreqRdLayer */, uint16_t address, bool /* isM1 */) {
+    auto self = static_cast<MemoryDevice*>(data);
+    return self->ramBankPtr[address - SIZE_BANK * 3];
 }
 
-void MemoryDevice::onIorqWr(uint16_t port, uint8_t value) {
+void MemoryDevice::onMreqWrRom(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
+    auto self = static_cast<MemoryDevice*>(data);
+    (self->*(self->onMreqWrRomPtr))(address, value);
+}
+
+void MemoryDevice::onMreqWrRamBank2(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
+    // address - 0x8000 + SIZE_BANK * 2 === address
+
+    auto self = static_cast<MemoryDevice*>(data);
+    self->ram[address] = value;
+}
+
+void MemoryDevice::onMreqWrRamBank5(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
+    // address - 0x4000 + SIZE_BANK * 5 === address + SIZE_BANK * 4
+
+    auto self = static_cast<MemoryDevice*>(data);
+    self->ram[address + SIZE_BANK * 4] = value;
+}
+
+void MemoryDevice::onMreqWrRamBankSel(void* data, int /* mreqWrLayer */, uint16_t address, uint8_t value) {
+    auto self = static_cast<MemoryDevice*>(data);
+    self->ram[address - SIZE_BANK * 3] = value;
+}
+
+void MemoryDevice::onIorqWr(void* data, int /* iorqWrLayer */, uint16_t port, uint8_t value) {
+    auto self = static_cast<MemoryDevice*>(data);
+    auto mode = self->mode;
+
     if (mode == Mode48) {
         return;
     }
 
-    bool isExtPortLock = (bus->extPortDevice != nullptr && bus->extPortDevice->is128Lock());
+    auto extPortDevice = self->bus->extPortDevice;
 
-    if ((port7FFD & BIT_LOCK) != 0 && (mode != Mode1024 || isExtPortLock)) {
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "NullDereferences"
+    bool isExtPortLock = (extPortDevice != nullptr && extPortDevice->is128Lock());
+#pragma clang diagnostic pop
+
+    if ((self->port7FFD & BIT_LOCK) != 0 && (mode != Mode1024 || isExtPortLock)) {
         return;
     }
 
     if (mode != Mode128 && port == PORT_7FFD && !isExtPortLock) {
-        port7FFD = value;
+        self->port7FFD = value;
     } else {
-        port7FFD = value & MASK_WRITE_128;
+        self->port7FFD = value & MASK_WRITE_128;
     }
 
-    remap();
+    self->remap();
 }
 
 }

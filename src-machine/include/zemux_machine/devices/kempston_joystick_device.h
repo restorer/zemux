@@ -33,8 +33,6 @@
 
 namespace zemux {
 
-uint8_t onKempstonJoystickDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-
 class KempstonJoystickDevice final : public Device, private NonCopyable {
 public:
 
@@ -69,9 +67,7 @@ private:
     uint8_t state = 0;
     uint8_t stateModifier = STATE_MODIFIER_NORMAL;
 
-    uint8_t onIorqRd();
-
-    friend uint8_t onKempstonJoystickDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static uint8_t onIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
 };
 
 }

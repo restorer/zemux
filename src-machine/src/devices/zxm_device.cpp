@@ -31,26 +31,6 @@
 
 namespace zemux {
 
-uint8_t onZxmDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
-    return static_cast<ZxmDevice*>(data)->onIorqRd();
-}
-
-void onZxmDeviceIorqWr00FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<ZxmDevice*>(data)->onIorqWr00FF(value);
-}
-
-void onZxmDeviceIorqWr01FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<ZxmDevice*>(data)->onIorqWr01FF(value);
-}
-
-void onZxmDeviceIorqWrBFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<ZxmDevice*>(data)->onIorqWrBFFD(value);
-}
-
-void onZxmDeviceIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<ZxmDevice*>(data)->onIorqWrFFFD(value);
-}
-
 ZxmDevice::ZxmDevice(Bus* bus, SoundDesk* soundDesk) : Device { bus },
         soundDesk { soundDesk },
         ym2203Chronometer { 1, Ym2203Chip::SAMPLING_RATE },
@@ -160,27 +140,27 @@ void ZxmDevice::onDetach() {
 BusIorqRdElement ZxmDevice::onConfigureIorqRd(BusIorqRdElement prev, int /* iorqRdLayer */, uint16_t port) {
     // 0xFFFD
     return ((port & 0b11000000'00000010) == 0b11000000'00000000)
-            ? BusIorqRdElement { .callback = onZxmDeviceIorqRd, .data = this }
+            ? BusIorqRdElement { .callback = onIorqRd, .data = this }
             : prev;
 }
 
 BusIorqWrElement ZxmDevice::onConfigureIorqWr(BusIorqWrElement prev, int /* iorqRdLayer */, uint16_t port) {
     if (port == PORT_00FF) {
-        return (mode == ModeZxm) ? BusIorqWrElement { .callback = onZxmDeviceIorqWr00FF, .data = this } : prev;
+        return (mode == ModeZxm) ? BusIorqWrElement { .callback = onIorqWr00FF, .data = this } : prev;
     }
 
     if (port == PORT_01FF) {
-        return (mode == ModeZxm) ? BusIorqWrElement { .callback = onZxmDeviceIorqWr01FF, .data = this } : prev;
+        return (mode == ModeZxm) ? BusIorqWrElement { .callback = onIorqWr01FF, .data = this } : prev;
     }
 
     // 0xBFFD
     if ((port & 0b11000000'00000010) == 0b10000000'00000000) {
-        return BusIorqWrElement { .callback = onZxmDeviceIorqWrBFFD, .data = this };
+        return BusIorqWrElement { .callback = onIorqWrBFFD, .data = this };
     }
 
     // 0xFFFD
     if ((port & 0b11000000'00000010) == 0b11000000'00000000) {
-        return BusIorqWrElement { .callback = onZxmDeviceIorqWrFFFD, .data = this };
+        return BusIorqWrElement { .callback = onIorqWrFFFD, .data = this };
     }
 
     return prev;
@@ -252,57 +232,75 @@ void ZxmDevice::onAyDataOut(uint8_t /* port */, uint8_t /* value */) {
     // Stub for AY-Mouse
 }
 
-uint8_t ZxmDevice::onIorqRd() {
-    if (mode >= ModeTsFm) {
-        auto chipNum = getChipNum();
+uint8_t ZxmDevice::onIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
+    auto self = static_cast<ZxmDevice*>(data);
+    auto mode = self->mode;
 
-        if ((pseudoReg & (PSEUDO_BIT_STATUS | PSEUDO_BIT_FM)) == 0) {
-            return ym2203Chips[chipNum].readStatus();
+    if (mode >= ModeTsFm) {
+        auto chipNum = self->getChipNum();
+
+        if ((self->pseudoReg & (PSEUDO_BIT_STATUS | PSEUDO_BIT_FM)) == 0) {
+            return self->ym2203Chips[chipNum].readStatus();
         }
 
-        return (selectedReg < SELECTED_REG_FM)
-                ? ayChips[chipNum].read()
-                : ym2203Chips[chipNum].read();
+        return (self->selectedReg < SELECTED_REG_FM)
+                ? self->ayChips[chipNum].read()
+                : self->ym2203Chips[chipNum].read();
     }
 
-    return ayChips[mode >= ModeTs ? getChipNum() : 0].read();
+    return self->ayChips[mode >= ModeTs ? self->getChipNum() : 0].read();
 }
 
-void ZxmDevice::onIorqWr00FF(uint8_t value) {
-    saa1099Chip->step(saa1099Chronometer.srcForwardToDelta(bus->getFrameTicksPassed()));
+void ZxmDevice::onIorqWr00FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
+    auto self = static_cast<ZxmDevice*>(data);
+    auto& saa1099Chip = self->saa1099Chip;
+
+    saa1099Chip->step(self->saa1099Chronometer.srcForwardToDelta(self->bus->getFrameTicksPassed()));
     saa1099Chip->writeData(value);
 }
 
-void ZxmDevice::onIorqWr01FF(uint8_t value) {
-    saa1099Chip->step(saa1099Chronometer.srcForwardToDelta(bus->getFrameTicksPassed()));
+void ZxmDevice::onIorqWr01FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
+    auto self = static_cast<ZxmDevice*>(data);
+    auto& saa1099Chip = self->saa1099Chip;
+
+    saa1099Chip->step(self->saa1099Chronometer.srcForwardToDelta(self->bus->getFrameTicksPassed()));
     saa1099Chip->writeAddress(value);
 }
 
-void ZxmDevice::onIorqWrBFFD(uint8_t value) {
-    auto chipNum = (mode >= ModeTs ? getChipNum() : 0);
+void ZxmDevice::onIorqWrBFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
+    auto self = static_cast<ZxmDevice*>(data);
+    auto mode = self->mode;
+    auto chipNum = (mode >= ModeTs ? self->getChipNum() : 0);
 
-    if (mode >= ModeTsFm && selectedReg >= SELECTED_REG_FM) {
-        ym2203Chips[chipNum].step(ym2203Chronometer.srcForwardToDelta(bus->getFrameTicksPassed()));
+    if (mode >= ModeTsFm && self->selectedReg >= SELECTED_REG_FM) {
+        auto& ym2203Chips = self->ym2203Chips;
+
+        ym2203Chips[chipNum].step(self->ym2203Chronometer.srcForwardToDelta(self->bus->getFrameTicksPassed()));
         ym2203Chips[chipNum].write(value);
     } else {
-        ayChips[chipNum].step(ayChronometer.srcForwardToDelta(bus->getFrameTicksPassed()));
+        auto& ayChips = self->ayChips;
+
+        ayChips[chipNum].step(self->ayChronometer.srcForwardToDelta(self->bus->getFrameTicksPassed()));
         ayChips[chipNum].write(value);
     }
 }
 
-void ZxmDevice::onIorqWrFFFD(uint8_t value) {
+void ZxmDevice::onIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
+    auto self = static_cast<ZxmDevice*>(data);
+    auto mode = self->mode;
+
     if (mode >= ModeTs && (value & PSEUDO_CHECK_MASK) == PSEUDO_CHECK_MASK) {
-        pseudoReg = value & PSEUDO_VALUE_MASK;
+        self->pseudoReg = value & PSEUDO_VALUE_MASK;
         return;
     }
 
-    selectedReg = value;
-    auto chipNum = (mode >= ModeTs ? getChipNum() : 0);
+    self->selectedReg = value;
+    auto chipNum = (mode >= ModeTs ? self->getChipNum() : 0);
 
     if (mode >= ModeTsFm && value >= SELECTED_REG_FM) {
-        ym2203Chips[chipNum].select(value);
+        self->ym2203Chips[chipNum].select(value);
     } else {
-        ayChips[chipNum].select(value);
+        self->ayChips[chipNum].select(value);
     }
 }
 

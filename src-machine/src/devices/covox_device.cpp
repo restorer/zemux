@@ -29,10 +29,6 @@
 
 namespace zemux {
 
-void onCovoxDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<CovoxDevice*>(data)->onIorqWr(value);
-}
-
 CovoxDevice::CovoxDevice(Bus* bus, SoundDesk* soundDesk) : Device { bus }, soundDesk { soundDesk } {
 }
 
@@ -47,16 +43,18 @@ void CovoxDevice::onDetach() {
 }
 
 BusIorqWrElement CovoxDevice::onConfigureIorqWr(BusIorqWrElement prev, int /* iorqWrLayer */, uint16_t port) {
-    return ((port & 0x07) == 0x03) ? BusIorqWrElement { .callback = onCovoxDeviceIorqWr, .data = this } : prev;
+    return ((port & 0x07) == 0x03) ? BusIorqWrElement { .callback = onIorqWr, .data = this } : prev;
 }
 
 void CovoxDevice::onReset() {
     soundResampler.sinkAdvanceBy(0, 0, 0);
 }
 
-void CovoxDevice::onIorqWr(uint8_t value) {
+void CovoxDevice::onIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
+    auto self = static_cast<CovoxDevice*>(data);
+
     uint16_t volume = static_cast<uint16_t>(value) << 8;
-    soundResampler.sinkForwardTo(volume, volume, bus->getFrameTicksPassed());
+    self->soundResampler.sinkForwardTo(volume, volume, self->bus->getFrameTicksPassed());
 }
 
 }

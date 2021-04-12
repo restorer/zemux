@@ -42,12 +42,6 @@ namespace zemux {
 class Ym2203Chip;
 class Saa1099Chip;
 
-uint8_t onZxmDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-void onZxmDeviceIorqWr00FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-void onZxmDeviceIorqWr01FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-void onZxmDeviceIorqWrBFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-void onZxmDeviceIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-
 class ZxmDevice final : public Device, public AyChipCallback, private NonCopyable {
 public:
 
@@ -123,21 +117,15 @@ private:
     Container<Ym2203Chip> ym2203Chips { TSFM_CHIPS_COUNT };
     std::unique_ptr<Saa1099Chip> saa1099Chip;
 
-    uint8_t onIorqRd();
-    void onIorqWr00FF(uint8_t value);
-    void onIorqWr01FF(uint8_t value);
-    void onIorqWrBFFD(uint8_t value);
-    void onIorqWrFFFD(uint8_t value);
-
     ZEMUX_FORCE_INLINE int getChipNum() {
         return ((~pseudoReg) & PSEUDO_BIT_CHIP_NUM) >> PSEUDO_SHIFT_CHIP_NUM;
     }
 
-    friend uint8_t onZxmDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-    friend void onZxmDeviceIorqWr00FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-    friend void onZxmDeviceIorqWr01FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-    friend void onZxmDeviceIorqWrBFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-    friend void onZxmDeviceIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static uint8_t onIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static void onIorqWr00FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static void onIorqWr01FF(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static void onIorqWrBFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static void onIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 };
 
 }

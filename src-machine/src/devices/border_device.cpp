@@ -29,10 +29,6 @@
 
 namespace zemux {
 
-void onBorderDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
-    static_cast<BorderDevice*>(data)->onIorqWr(value);
-}
-
 BorderDevice::BorderDevice(Bus* bus, SoundDesk* soundDesk) : Device { bus }, soundDesk { soundDesk } {
 }
 
@@ -47,11 +43,13 @@ void BorderDevice::onDetach() {
 }
 
 BusIorqWrElement BorderDevice::onConfigureIorqWr(BusIorqWrElement prev, int /* iorqWrLayer */, uint16_t port) {
-    return (port & 1) ? prev : BusIorqWrElement { .callback = onBorderDeviceIorqWr, .data = this };
+    return (port & 1) ? prev : BusIorqWrElement { .callback = onIorqWr, .data = this };
 }
 
-void BorderDevice::onIorqWr(uint8_t value) {
-    uint32_t ticks = bus->getFrameTicksPassed();
+void BorderDevice::onIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value) {
+    auto self = static_cast<BorderDevice*>(data);
+
+    uint32_t ticks = self->bus->getFrameTicksPassed();
     uint16_t volume = 0;
 
     if (value & BIT_TAPE) {
@@ -62,13 +60,13 @@ void BorderDevice::onIorqWr(uint8_t value) {
         volume += VOLUME_SPEAKER;
     }
 
-    soundResampler.sinkForwardTo(volume, volume, ticks);
+    self->soundResampler.sinkForwardTo(volume, volume, ticks);
 
-    if ((value & MASK_COLOR) != (portFB & MASK_COLOR)) {
+    if ((value & MASK_COLOR) != (self->portFB & MASK_COLOR)) {
         // videoDevice->renderStepTo(ticks);
     }
 
-    portFB = value;
+    self->portFB = value;
 }
 
 }

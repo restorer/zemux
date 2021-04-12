@@ -29,10 +29,6 @@
 
 namespace zemux {
 
-uint8_t onKempstonJoystickDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
-    return static_cast<KempstonJoystickDevice*>(data)->onIorqRd();
-}
-
 KempstonJoystickDevice::KempstonJoystickDevice(Bus* bus) : Device { bus } {
 }
 
@@ -63,11 +59,12 @@ EventOutput KempstonJoystickDevice::onEvent(uint32_t type, EventInput input) {
 }
 
 BusIorqRdElement KempstonJoystickDevice::onConfigureIorqRd(BusIorqRdElement prev, int, uint16_t port) {
-    return (port & 0x20) ? prev : BusIorqRdElement { .callback = onKempstonJoystickDeviceIorqRd, .data = this };
+    return (port & 0x20) ? prev : BusIorqRdElement { .callback = onIorqRd, .data = this };
 }
 
-uint8_t KempstonJoystickDevice::onIorqRd() {
-    return state ^ stateModifier;
+uint8_t KempstonJoystickDevice::onIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */) {
+    auto self = static_cast<KempstonJoystickDevice*>(data);
+    return self->state ^ self->stateModifier;
 }
 
 }

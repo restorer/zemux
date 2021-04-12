@@ -37,8 +37,6 @@ ZEMUX_FORCE_INLINE static constexpr uint16_t keyboardDeviceMakeKey(uint8_t addre
     return (static_cast<uint16_t>(addressLine) << 8) | static_cast<uint16_t>(dataMask);
 }
 
-uint8_t onKeyboardDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t port);
-
 class KeyboardDevice final : public Device, private NonCopyable {
 public:
 
@@ -116,10 +114,9 @@ private:
     uint8_t keyboard[NUM_ADDRESS_LINES];
     bool isCheapMatrixMode = false;
 
-    uint8_t onIorqRd(uint16_t port);
     void resetKeys();
 
-    friend uint8_t onKeyboardDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static uint8_t onIorqRd(void* data, int /* iorqRdLayer */, uint16_t port);
 };
 
 }

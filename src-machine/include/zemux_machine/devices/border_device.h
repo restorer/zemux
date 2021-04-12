@@ -35,8 +35,6 @@
 
 namespace zemux {
 
-void onBorderDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
-
 class BorderDevice final : public Device, private NonCopyable {
 public:
 
@@ -65,9 +63,7 @@ private:
     SoundResampler soundResampler;
     uint8_t portFB = 0;
 
-    void onIorqWr(uint8_t value);
-
-    friend void onBorderDeviceIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
+    static void onIorqWr(void* data, int /* iorqWrLayer */, uint16_t /* port */, uint8_t value);
 };
 
 }

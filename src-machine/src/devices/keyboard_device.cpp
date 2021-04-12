@@ -31,10 +31,6 @@
 
 namespace zemux {
 
-uint8_t onKeyboardDeviceIorqRd(void* data, int /* iorqRdLayer */, uint16_t port) {
-    return static_cast<KeyboardDevice*>(data)->onIorqRd(port);
-}
-
 KeyboardDevice::KeyboardDevice(Bus* bus) : Device { bus } {
     resetKeys();
 }
@@ -70,12 +66,21 @@ EventOutput KeyboardDevice::onEvent(uint32_t type, EventInput input) {
 }
 
 BusIorqRdElement KeyboardDevice::onConfigureIorqRd(BusIorqRdElement prev, int /* iorqRdLayer */, uint16_t port) {
-    return (port & 1) ? prev : BusIorqRdElement { .callback = onKeyboardDeviceIorqRd, .data = this };
+    return (port & 1) ? prev : BusIorqRdElement { .callback = onIorqRd, .data = this };
 }
 
-uint8_t KeyboardDevice::onIorqRd(uint16_t port) {
+void KeyboardDevice::resetKeys() {
+    for (int i = 0; i < NUM_ADDRESS_LINES; ++i) {
+        keyboard[i] = 0xFF;
+    }
+}
+
+uint8_t KeyboardDevice::onIorqRd(void* data, int /* iorqRdLayer */, uint16_t port) {
+    auto self = static_cast<KeyboardDevice*>(data);
+
     uint8_t result = 0xFF;
     uint8_t hiPort = port >> 8;
+    uint8_t* keyboard = self->keyboard;
 
     UnrollWithIndex<8>::loop([&](const int index) {
         if ((hiPort & (1 << index)) == 0) {
@@ -83,7 +88,7 @@ uint8_t KeyboardDevice::onIorqRd(uint16_t port) {
         }
     });
 
-    if (isCheapMatrixMode && hiPort != 0) {
+    if (self->isCheapMatrixMode && hiPort != 0) {
         for (;;) {
             bool shouldBreak = true;
 
@@ -103,17 +108,13 @@ uint8_t KeyboardDevice::onIorqRd(uint16_t port) {
         }
     }
 
-    if (bus->tape != nullptr && !bus->tape->getVolumeBit()) {
+    auto tape = self->bus->tape;
+
+    if (tape != nullptr && !tape->getVolumeBit()) {
         result &= MASK_TAPE;
     }
 
     return result;
-}
-
-void KeyboardDevice::resetKeys() {
-    for (int i = 0; i < NUM_ADDRESS_LINES; ++i) {
-        keyboard[i] = 0xFF;
-    }
 }
 
 }
