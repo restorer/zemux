@@ -28,9 +28,9 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <zemux_core/data_io.h>
-#include <zemux_peripherals/tape.h>
-#include <zemux_peripherals/tape_tap.h>
-#include <zemux_peripherals/tape_wav.h>
+#include <zemux_integrated/tape.h>
+#include <zemux_integrated/tape_tap.h>
+#include <zemux_integrated/tape_wav.h>
 #include "stub_data_io.h"
 #include "stub_sound_sink.h"
 

@@ -1,5 +1,5 @@
-#ifndef ZEMUX_CHIPS__AY_CHIP
-#define ZEMUX_CHIPS__AY_CHIP
+#ifndef ZEMUX_INTEGRATED__AY_CHIP
+#define ZEMUX_INTEGRATED__AY_CHIP
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)

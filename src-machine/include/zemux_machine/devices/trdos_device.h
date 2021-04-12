@@ -1,5 +1,5 @@
-#ifndef ZEMUX_MACHINE__ACTION_HANDLER
-#define ZEMUX_MACHINE__ACTION_HANDLER
+#ifndef ZEMUX_MACHINE__TRDOS_DEVICE
+#define ZEMUX_MACHINE__TRDOS_DEVICE
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,58 +25,29 @@
  * THE SOFTWARE.
  */
 
-#include <memory>
+#include "bus.h"
+#include "device.h"
+#include <zemux_core/non_copyable.h>
 
 namespace zemux {
 
-namespace Event {
-
-static constexpr int SHIFT_CATEGORY = 16;
-
-enum Category {
-    CategoryHost = 1 << SHIFT_CATEGORY,
-    CategoryMemory = 2 << SHIFT_CATEGORY,
-    CategoryKempstonJoystick = 3 << SHIFT_CATEGORY,
-    CategoryKempstonMouse = 4 << SHIFT_CATEGORY,
-    CategoryExtPort = 5 << SHIFT_CATEGORY,
-    CategoryZxm = 6 << SHIFT_CATEGORY,
-    CategoryKeyboard = 7 << SHIFT_CATEGORY,
-    CategoryTrDos = 8 << SHIFT_CATEGORY,
-};
-
-}
-
-union EventInput {
-    int32_t value;
-    void* pointer;
-};
-
-struct EventOutput {
-    bool isHandled = false;
-    int32_t value = 0;
-};
-
-class EventEmitter {
+class TrDosDevice final : public Device, private NonCopyable {
 public:
 
-    virtual EventOutput emitEvent(uint32_t event, EventInput input) = 0;
-};
+    enum EventType {
+        EventLoadRom = Event::CategoryTrDos | 1,
+    };
 
-class EventListener {
-public:
+    explicit TrDosDevice(Bus* bus);
+    virtual ~TrDosDevice() = default;
 
-    virtual uint32_t getEventCategory() {
-        return 0;
-    }
+    uint32_t getEventCategory() override;
+    EventOutput onEvent(uint32_t type, EventInput input) override;
 
-    virtual EventOutput onEvent([[maybe_unused]] uint32_t type, [[maybe_unused]] EventInput input) {
-        return EventOutput {};
-    }
+    void onAttach() override;
+    void onDetach() override;
 
-protected:
-
-    constexpr EventListener() = default;
-    virtual ~EventListener() = default;
+private:
 };
 
 }

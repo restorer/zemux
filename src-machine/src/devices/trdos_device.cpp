@@ -1,5 +1,5 @@
-#ifndef ZEMUX_MACHINE__ACTION_HANDLER
-#define ZEMUX_MACHINE__ACTION_HANDLER
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -25,60 +25,8 @@
  * THE SOFTWARE.
  */
 
-#include <memory>
+#include "devices/trdos_device.h"
 
 namespace zemux {
 
-namespace Event {
-
-static constexpr int SHIFT_CATEGORY = 16;
-
-enum Category {
-    CategoryHost = 1 << SHIFT_CATEGORY,
-    CategoryMemory = 2 << SHIFT_CATEGORY,
-    CategoryKempstonJoystick = 3 << SHIFT_CATEGORY,
-    CategoryKempstonMouse = 4 << SHIFT_CATEGORY,
-    CategoryExtPort = 5 << SHIFT_CATEGORY,
-    CategoryZxm = 6 << SHIFT_CATEGORY,
-    CategoryKeyboard = 7 << SHIFT_CATEGORY,
-    CategoryTrDos = 8 << SHIFT_CATEGORY,
-};
-
 }
-
-union EventInput {
-    int32_t value;
-    void* pointer;
-};
-
-struct EventOutput {
-    bool isHandled = false;
-    int32_t value = 0;
-};
-
-class EventEmitter {
-public:
-
-    virtual EventOutput emitEvent(uint32_t event, EventInput input) = 0;
-};
-
-class EventListener {
-public:
-
-    virtual uint32_t getEventCategory() {
-        return 0;
-    }
-
-    virtual EventOutput onEvent([[maybe_unused]] uint32_t type, [[maybe_unused]] EventInput input) {
-        return EventOutput {};
-    }
-
-protected:
-
-    constexpr EventListener() = default;
-    virtual ~EventListener() = default;
-};
-
-}
-
-#endif

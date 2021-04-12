@@ -1,5 +1,5 @@
-#ifndef ZEMUX_CHIPS__Z80_CHIP_CORE
-#define ZEMUX_CHIPS__Z80_CHIP_CORE
+#ifndef ZEMUX_INTEGRATED__Z80_CHIP_CORE
+#define ZEMUX_INTEGRATED__Z80_CHIP_CORE
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)

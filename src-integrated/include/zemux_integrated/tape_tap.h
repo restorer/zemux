@@ -1,5 +1,5 @@
-#ifndef ZEMUX_PERIPHERALS__TAPE_TAP
-#define ZEMUX_PERIPHERALS__TAPE_TAP
+#ifndef ZEMUX_INTEGRATED__TAPE_TAP
+#define ZEMUX_INTEGRATED__TAPE_TAP
 
 /*
  * MIT License (http://www.opensource.org/licenses/mit-license.php)

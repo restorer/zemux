@@ -31,11 +31,11 @@
 #include <array>
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/chronometer.h>
-#include <zemux_chips/z80_chip.h>
-#include <zemux_peripherals/tape.h>
 
 namespace zemux {
 
+class Z80Chip;
+class Tape;
 class MemoryDevice;
 class ExtPortDevice;
 

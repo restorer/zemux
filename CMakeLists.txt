@@ -63,11 +63,8 @@ link_directories ("${CMAKE_BINARY_DIR}/vendor-saa1099")
 add_subdirectory (src-core "${CMAKE_BINARY_DIR}/src-core")
 link_directories ("${CMAKE_BINARY_DIR}/src-core")
 
-add_subdirectory (src-chips "${CMAKE_BINARY_DIR}/src-chips")
+add_subdirectory (src-integrated "${CMAKE_BINARY_DIR}/src-chips")
 link_directories ("${CMAKE_BINARY_DIR}/src-chips")
-
-add_subdirectory (src-peripherals "${CMAKE_BINARY_DIR}/src-peripherals")
-link_directories ("${CMAKE_BINARY_DIR}/src-peripherals")
 
 add_subdirectory (src-vendor "${CMAKE_BINARY_DIR}/src-vendor")
 link_directories ("${CMAKE_BINARY_DIR}/src-vendor")
@@ -84,8 +81,7 @@ add_executable (zemux WIN32
 
 target_link_libraries (zemux PRIVATE
         zemux_core
-        zemux_chips
-        zemux_peripherals
+        zemux_integrated
         zemux_machine
         zemux_vendor
         vendor_ym2203
@@ -127,12 +123,8 @@ add_executable (zemux_test WIN32
 
 target_link_libraries (zemux_test PRIVATE
         zemux_core
-        zemux_chips
-        zemux_peripherals
-        zemux_machine
+        zemux_integrated
         z80ex_wrapper
-        vendor_ym2203
-        vendor_saa1099
         ${Boost_LIBRARIES})
 
 target_include_directories (zemux_test PRIVATE test)

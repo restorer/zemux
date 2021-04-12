@@ -1,8 +1,8 @@
 #include <iostream>
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/sound.h>
-#include <zemux_chips/z80_chip.h>
-#include <zemux_chips/ay_chip.h>
+#include <zemux_integrated/z80_chip.h>
+#include <zemux_integrated/ay_chip.h>
 
 namespace zemux {
 

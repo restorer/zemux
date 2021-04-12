@@ -78,7 +78,7 @@ public:
     static constexpr uint8_t BIT_ROM_BANK_1 = 0b0001'0000;
     static constexpr uint8_t BIT_LOCK = 0b0010'0000;
 
-    MemoryDevice(Bus* bus);
+    explicit MemoryDevice(Bus* bus);
     virtual ~MemoryDevice() = default;
 
     uint32_t getEventCategory() override;

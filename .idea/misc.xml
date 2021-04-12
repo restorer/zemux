@@ -3,8 +3,8 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
-      <file path="$PROJECT_DIR$/src-chips/include" />
       <file path="$PROJECT_DIR$/src-core/include" />
+      <file path="$PROJECT_DIR$/src-integrated/include" />
       <file path="$PROJECT_DIR$/src-machine/include" />
       <file path="$PROJECT_DIR$/src-peripherals/include" />
       <file path="$PROJECT_DIR$/src-vendor/include" />

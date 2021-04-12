@@ -32,7 +32,7 @@
 #include <cstring>
 #include <chrono>
 #include <boost/test/unit_test.hpp>
-#include <zemux_chips/z80_chip.h>
+#include <zemux_integrated/z80_chip.h>
 
 extern "C" {
 #include <lib_z80/cpu.h>

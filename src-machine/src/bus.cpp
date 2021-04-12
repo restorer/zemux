@@ -26,6 +26,7 @@
  */
 
 #include "bus.h"
+#include <zemux_integrated/z80_chip.h>
 
 namespace zemux {
 

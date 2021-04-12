@@ -33,12 +33,14 @@
 #include <zemux_core/force_inline.h>
 #include <zemux_core/container.h>
 #include <zemux_core/sound.h>
-#include <zemux_chips/ay_chip.h>
-#include <zemux_vendor/ym2203_chip.h>
-#include <zemux_vendor/saa1099_chip.h>
+#include <zemux_integrated/ay_chip.h>
 #include <cstdint>
+#include <memory>
 
 namespace zemux {
+
+class Ym2203Chip;
+class Saa1099Chip;
 
 uint8_t onZxmDeviceIorqRd(void* data, uint16_t /* port */);
 void onZxmDeviceIorqWr00FF(void* data, uint16_t /* port */, uint8_t value);
@@ -102,21 +104,24 @@ public:
 
 private:
 
+    SoundDesk* soundDesk;
+
     Mode mode = ModeTs;
     Mode attachedMode;
-    ChronometerNarrow ayChronometer { 1, AyChip::DEFAULT_RATE };
-    ChronometerNarrow ym2203Chronometer { 1, Ym2203Chip::SAMPLING_RATE };
-    ChronometerNarrow saa1099Chronometer { 1, Saa1099Chip::SAMPLING_RATE };
     uint8_t selectedReg = 0;
     uint8_t pseudoReg = PSEUDO_VALUE_MASK;
 
-    SoundDesk* soundDesk;
+    ChronometerNarrow ayChronometer { 1, AyChip::DEFAULT_RATE };
+    ChronometerNarrow ym2203Chronometer;
+    ChronometerNarrow saa1099Chronometer;
+
     Container<SoundResampler> ayResamplers { TSFM_CHIPS_COUNT };
     Container<SoundResampler> ym2203Resamplers { TSFM_CHIPS_COUNT };
-    SoundResampler saa1099Resampler { &saa1099Chronometer };
+    SoundResampler saa1099Resampler;
+
     Container<AyChip> ayChips { TSFM_CHIPS_COUNT };
     Container<Ym2203Chip> ym2203Chips { TSFM_CHIPS_COUNT };
-    Saa1099Chip saa1099Chip { &saa1099Resampler };
+    std::unique_ptr<Saa1099Chip> saa1099Chip;
 
     uint8_t onIorqRd();
     void onIorqWr00FF(uint8_t value);

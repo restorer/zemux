@@ -22,8 +22,11 @@
 
 cmake_minimum_required (VERSION 3.10)
 
-add_library (zemux_chips SHARED
+add_library (zemux_integrated SHARED
         src/ay_chip.cpp
+        src/tape.cpp
+        src/tape_tap.cpp
+        src/tape_wav.cpp
         src/z80_chip.cpp
         src/z80_chip_optable_00.cpp
         src/z80_chip_optable_CB.cpp
@@ -33,14 +36,14 @@ add_library (zemux_chips SHARED
         src/z80_chip_optable_DD_CB.cpp
         src/z80_chip_optable_FD_CB.cpp)
 
-target_include_directories (zemux_chips
+target_include_directories (zemux_integrated
         PUBLIC include
-        PRIVATE src include/zemux_chips)
+        PRIVATE src include/zemux_integrated)
 
-target_link_libraries (zemux_chips PRIVATE zemux_core)
-target_compile_features (zemux_chips PRIVATE cxx_std_17)
+target_link_libraries (zemux_integrated PRIVATE zemux_core)
+target_compile_features (zemux_integrated PRIVATE cxx_std_17)
 
-target_compile_options (zemux_chips PRIVATE
+target_compile_options (zemux_integrated PRIVATE
         -Wall
         -Wextra
         -Werror

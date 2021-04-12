@@ -27,6 +27,7 @@
 
 #include "devices/keyboard_device.h"
 #include <zemux_core/unroll.h>
+#include <zemux_integrated/tape.h>
 
 namespace zemux {
 
@@ -89,7 +90,7 @@ uint8_t KeyboardDevice::onIorqRd(uint16_t port) {
             UnrollWithIndex<8>::loop([&](const int index) {
                 const uint8_t hiPortBit = (1 << index);
 
-                if ((hiPort & hiPortBit) && ~(keyboard[index] | result)) {
+                if ((hiPort & hiPortBit) && ((keyboard[index] | result) ^ 0xFF)) {
                     result &= keyboard[index];
                     hiPort &= hiPortBit;
                     shouldBreak = false;

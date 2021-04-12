@@ -26,6 +26,8 @@
  */
 
 #include "devices/zxm_device.h"
+#include <zemux_vendor/ym2203_chip.h>
+#include <zemux_vendor/saa1099_chip.h>
 
 namespace zemux {
 
@@ -49,7 +51,13 @@ void onZxmDeviceIorqWrFFFD(void* data, uint16_t /* port */, uint8_t value) {
     static_cast<ZxmDevice*>(data)->onIorqWrFFFD(value);
 }
 
-ZxmDevice::ZxmDevice(Bus* bus, SoundDesk* soundDesk) : Device { bus }, soundDesk { soundDesk } {
+ZxmDevice::ZxmDevice(Bus* bus, SoundDesk* soundDesk) : Device { bus },
+        soundDesk { soundDesk },
+        ym2203Chronometer { 1, Ym2203Chip::SAMPLING_RATE },
+        saa1099Chronometer { 1, Saa1099Chip::SAMPLING_RATE },
+        saa1099Resampler { &saa1099Chronometer },
+        saa1099Chip { new Saa1099Chip { &saa1099Resampler }} {
+
     ayResamplers.emplace_back(&ayChronometer);
     ayResamplers.emplace_back(&ayChronometer);
 
@@ -191,7 +199,7 @@ void ZxmDevice::onFrameFinished(uint32_t ticks) {
 
     switch (mode) {
         case ModeZxm:
-            saa1099Chip.step(saa1099Ticks);
+            saa1099Chip->step(saa1099Ticks);
             [[fallthrough]];
 
         case ModeTsFm:
@@ -261,13 +269,13 @@ uint8_t ZxmDevice::onIorqRd() {
 }
 
 void ZxmDevice::onIorqWr00FF(uint8_t value) {
-    saa1099Chip.step(saa1099Chronometer.srcForwardToDelta(bus->getFrameTicksPassed()));
-    saa1099Chip.writeData(value);
+    saa1099Chip->step(saa1099Chronometer.srcForwardToDelta(bus->getFrameTicksPassed()));
+    saa1099Chip->writeData(value);
 }
 
 void ZxmDevice::onIorqWr01FF(uint8_t value) {
-    saa1099Chip.step(saa1099Chronometer.srcForwardToDelta(bus->getFrameTicksPassed()));
-    saa1099Chip.writeAddress(value);
+    saa1099Chip->step(saa1099Chronometer.srcForwardToDelta(bus->getFrameTicksPassed()));
+    saa1099Chip->writeAddress(value);
 }
 
 void ZxmDevice::onIorqWrBFFD(uint8_t value) {
