@@ -22,18 +22,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-integrated/include/zemux_integrated/ay_chip.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-integrated/include/zemux_integrated/ay_chip.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-integrated/include/zemux_integrated/z80_chip.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-integrated/include/zemux_integrated/z80_chip.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-integrated/src/ay_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-integrated/src/ay_chip.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-integrated/src/z80_chip.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-integrated/src/z80_chip.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/zxm_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/zxm_device.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/zxm_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/zxm_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/zemux.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/zemux.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/z80_correctness_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/z80_correctness_test.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/z80_speed_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/z80_speed_test.cpp" afterDir="false" />
-    </list>
+    <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -185,7 +174,7 @@
       <workItem from="1617443921024" duration="9069000" />
       <workItem from="1617469921803" duration="44684000" />
       <workItem from="1618042956171" duration="56477000" />
-      <workItem from="1618238749661" duration="5939000" />
+      <workItem from="1618238749661" duration="6367000" />
     </task>
     <servers />
   </component>
