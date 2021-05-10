@@ -21,7 +21,7 @@ CSAAFreq::CSAAFreq(CSAANoise * const NoiseGenerator, CSAAEnv * const EnvGenerato
 :
 m_nCounter(0), m_nAdd(0), m_nLevel(0),
 m_nCurrentOffset(0), m_nCurrentOctave(0), m_nNextOffset(0), m_nNextOctave(0),
-m_bIgnoreOffsetData(false), m_bNewData(false), 
+m_bIgnoreOffsetData(false), m_bNewData(false),
 m_bSync(false),
 m_nSampleRateMode(2), m_nSampleRateTimes4K(11025<<12),
 m_pcConnectedNoiseGenerator(NoiseGenerator),
@@ -108,7 +108,7 @@ void CSAAFreq::UpdateOctaveOffsetData(void)
 	// then set new period based on JUST THE OCTAVE DATA, and continue
 	// signalling the offset data as 'new', so it will be acted upon
 	// next half-cycle
-	// 
+	//
 	// Weird, I know. But that's how it works. Philips even documented as much.
 
 	if (!m_bNewData)
@@ -116,7 +116,7 @@ void CSAAFreq::UpdateOctaveOffsetData(void)
 		// optimise for the most common case! No new data!
 		return;
 	}
-		
+
 	m_nCurrentOctave=m_nNextOctave;
 	if (!m_bIgnoreOffsetData)
 	{
@@ -166,7 +166,7 @@ void CSAAFreq::SetClockRate(int nClockRate)
 	// the frequency)
 	//
 	// Finally, note that the standard formula corresponds to a 8MHz base clock
-	// so we rescale the final result by the ratio nClockRate/8000000
+	// so we rescale the final result by the volume nClockRate/8000000
 
 	int ix = 0;
 	for (int nOctave = 0; nOctave < 8; nOctave++)
@@ -210,7 +210,7 @@ unsigned short CSAAFreq::Tick(void)
 				m_nCounter-=m_nSampleRateTimes4K;
 				// flip state - from 0 to -2 or vice versa
 				m_nLevel=2-m_nLevel;
-					
+
 				// trigger any connected devices
 				switch (m_nConnectedMode)
 				{
@@ -218,12 +218,12 @@ unsigned short CSAAFreq::Tick(void)
 						// env trigger
 						m_pcConnectedEnvGenerator->InternalClock();
 						break;
-			
+
 					case 2:
 						// noise trigger
 						m_pcConnectedNoiseGenerator->Trigger();
 						break;
-				
+
 					default:
 						// do nothing
 						break;
@@ -233,7 +233,7 @@ unsigned short CSAAFreq::Tick(void)
 			// get new frequency (set period length m_nAdd) if new data is waiting:
 			UpdateOctaveOffsetData();
 		}
-	
+
 	}
 	return GetLevel(m_nLevel);
 }

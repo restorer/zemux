@@ -29,7 +29,8 @@
 #include <vector>
 #include <zemux_core/non_copyable.h>
 #include "bus.h"
-#include "video_surface.h"
+#include "video/video_surface.h"
+#include "sound/sound_desk.h"
 
 namespace zemux {
 
@@ -38,6 +39,43 @@ public:
 
     Bus bus;
     VideoSurface videoSurface;
+    SoundDesk soundDesk;
+
+private:
+
+    // Pentagon:
+    uint32_t ulaLineTotalTicks = 224;
+    uint32_t ulaHBlankTicks = 32;
+    uint32_t ulaVBlankTicks = 16 * ulaLineTotalTicks;
+    uint32_t ulaFrameTicks = ulaVBlankTicks + (64 + 192 + 48) * ulaLineTotalTicks;
+    uint32_t ulaIntBeginTicks = 0;
+    uint32_t ulaIntEndTicks = ulaIntBeginTicks + 32;
+
+    // Scorpion:
+    // uint32_t ulaLineTotalTicks = 224;
+    // uint32_t ulaHBlankTicks = 40;
+    // uint32_t ulaVBlankTicks = 16 * ulaLineTotalTicks;
+    // uint32_t ulaFrameTicks = ulaVBlankTicks + (64 + 192 + 40) * ulaLineTotalTicks;
+    // uint32_t ulaIntBeginTicks = ulaVBlankTicks;
+    // uint32_t ulaIntEndTicks = ulaIntBeginTicks + 32;
+
+    // Spectrum48:
+    // uint32_t ulaLineTotalTicks = 224;
+    // uint32_t ulaHBlankTicks = 48;
+    // uint32_t ulaVBlankTicks = 16 * ulaLineTotalTicks;
+    // uint32_t ulaFrameTicks = ulaVBlankTicks + (48 + 192 + 56) * ulaLineTotalTicks;
+    // uint32_t ulaIntBeginTicks = 0;
+    // uint32_t ulaIntEndTicks = ulaIntBeginTicks + 32;
+
+    // Spectrum128:
+    // uint32_t ulaLineTotalTicks = 224;
+    // uint32_t ulaHBlankTicks = 48;
+    // uint32_t ulaVBlankTicks = 15 * ulaLineTotalTicks;
+    // uint32_t ulaFrameTicks = ulaVBlankTicks + (48 + 192 + 56) * ulaLineTotalTicks;
+    // uint32_t ulaIntBeginTicks = 0;
+    // uint32_t ulaIntEndTicks = ulaIntBeginTicks + 32;
+
+    uint32_t ulaLineVisibleTicks = ulaLineTotalTicks - ulaHBlankTicks;
 };
 
 }

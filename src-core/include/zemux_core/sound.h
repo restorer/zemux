@@ -66,26 +66,6 @@ protected:
     virtual ~SoundCable() = default;
 };
 
-class SoundDesk {
-public:
-
-    struct Sample {
-        uint32_t left;
-        uint32_t right;
-    };
-
-    virtual void attachCable(SoundCable* source) = 0;
-    virtual void detachCable(SoundCable* source) = 0;
-    virtual void onFrameFinished(uint32_t ticks) = 0;
-    virtual void onReconfigure(uint32_t ticksPerSecond, uint32_t samplesPerSecond) = 0;
-    virtual Sample* getBuffer() = 0;
-
-protected:
-
-    constexpr SoundDesk() = default;
-    virtual ~SoundDesk() = default;
-};
-
 }
 
 #endif

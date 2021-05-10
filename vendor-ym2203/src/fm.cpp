@@ -2119,7 +2119,7 @@ void ym2203_update_one(void *chip, zemux::SoundSink* sink, int length) /* @resto
 	ym2203_state *F2203 = (ym2203_state *)chip;
 	FM_OPN *OPN =   &F2203->OPN;
 	int i;
-	// FMSAMPLE *buf = buffer; /* @restorer: commented for ZemuX */
+	// FMSAMPLE *buf = samples; /* @restorer: commented for ZemuX */
 	FM_CH   *cch[3];
 
 	cch[0]   = &F2203->CH[0];
@@ -2733,7 +2733,7 @@ static inline void YM2608IRQMaskWrite(FM_OPN *OPN, ym2608_state *F2608, int v)
 }
 
 /* Generate samples for one of the YM2608s */
-void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
+void ym2608_update_one(void *chip, FMSAMPLE **samples, int length)
 {
 	ym2608_state *F2608 = (ym2608_state *)chip;
 	FM_OPN *OPN   = &F2608->OPN;
@@ -2744,8 +2744,8 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
 	int32_t *out_fm = OPN->out_fm;
 
 	/* set bufer */
-	bufL = buffer[0];
-	bufR = buffer[1];
+	bufL = samples[0];
+	bufR = samples[1];
 
 	cch[0]   = &F2608->CH[0];
 	cch[1]   = &F2608->CH[1];
@@ -3281,7 +3281,7 @@ int ym2608_timer_over(void *chip,int c)
 /* YM2610(OPNB) */
 
 /* Generate samples for one of the YM2610s */
-void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
+void ym2610_update_one(void *chip, FMSAMPLE **samples, int length)
 {
 	ym2610_state *F2610 = (ym2610_state *)chip;
 	FM_OPN *OPN   = &F2610->OPN;
@@ -3291,9 +3291,9 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
 	FM_CH   *cch[4];
 	int32_t *out_fm = OPN->out_fm;
 
-	/* buffer setup */
-	bufL = buffer[0];
-	bufR = buffer[1];
+	/* samples setup */
+	bufL = samples[0];
+	bufR = samples[1];
 
 	cch[0] = &F2610->CH[1];
 	cch[1] = &F2610->CH[2];
@@ -3417,7 +3417,7 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
 
 #if BUILD_YM2610B
 /* Generate samples for one of the YM2610Bs */
-void ym2610b_update_one(void *chip, FMSAMPLE **buffer, int length)
+void ym2610b_update_one(void *chip, FMSAMPLE **samples, int length)
 {
 	ym2610_state *F2610 = (ym2610_state *)chip;
 	FM_OPN *OPN   = &F2610->OPN;
@@ -3427,9 +3427,9 @@ void ym2610b_update_one(void *chip, FMSAMPLE **buffer, int length)
 	FM_CH   *cch[6];
 	int32_t *out_fm = OPN->out_fm;
 
-	/* buffer setup */
-	bufL = buffer[0];
-	bufR = buffer[1];
+	/* samples setup */
+	bufL = samples[0];
+	bufR = samples[1];
 
 	cch[0] = &F2610->CH[0];
 	cch[1] = &F2610->CH[1];

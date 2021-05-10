@@ -22,7 +22,24 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="" />
+    <list default="true" id="5592b241-a993-4441-bed8-71af340fa30b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/math_ext.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/math_ext.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-core/include/zemux_core/sound.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-core/include/zemux_core/sound.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/border_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/covox_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/zxm_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/devices/zxm_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/machine.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/machine.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/sound/sound_mixer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/sound/sound_desk.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/include/zemux_machine/video_surface.h" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/include/zemux_machine/video/video_surface.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/devices/extport_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/devices/extport_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src-machine/src/video_surface.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src-machine/src/video/video_surface.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/chronometer_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/chronometer_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor-saa1099/src/SAAFreq.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/vendor-saa1099/src/SAAFreq.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor-ym2203/include/vendor_ym2203/fm.h" beforeDir="false" afterPath="$PROJECT_DIR$/vendor-ym2203/include/vendor_ym2203/fm.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor-ym2203/src/fm.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/vendor-ym2203/src/fm.cpp" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,81 +76,85 @@
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
+    <property name="cidr.known.project.marker" value="true" />
+    <property name="cmake.loaded.for.project" value="true" />
     <property name="ctest.advertisement.all.test.configuration.is.created" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="CPPToolchains" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="build.tools" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src-machine/src/video" />
+      <recent name="$PROJECT_DIR$/src-machine/include/zemux_machine/video" />
       <recent name="$PROJECT_DIR$/src-integrated/src" />
       <recent name="$PROJECT_DIR$/src-integrated/include/zemux_integrated" />
       <recent name="$PROJECT_DIR$/vendor-ym2203/src" />
-      <recent name="$PROJECT_DIR$/vendor-ym2203/include/vendor_ym2203" />
-      <recent name="$PROJECT_DIR$/src-machine/src/sound" />
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.zemux">
-    <configuration name="TapeTapTest" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" temporary="true" PROGRAM_PARAMS="--logger=HRF,test_suite" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux_test" TEST_METHOD="TapeTapTest" TEST_MODE="SUITE_TEST">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TapeTapTest" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" temporary="true" PROGRAM_PARAMS="--logger=HRF,test_suite" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux_test" TEST_METHOD="TapeTapTest" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TapeWavTest" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" temporary="true" PROGRAM_PARAMS="--logger=HRF,test_suite" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux_test" TEST_METHOD="TapeWavTest" TEST_MODE="SUITE_TEST">
+    <configuration name="TapeWavTest" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" temporary="true" PROGRAM_PARAMS="--logger=HRF,test_suite" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux_test" TEST_METHOD="TapeWavTest" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="vendor_saa1099" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="vendor_saa1099" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="vendor_saa1099" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="vendor_saa1099" CONFIG_NAME="Debug">
+    <configuration name="vendor_ym2203" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="vendor_ym2203" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="vendor_ym2203" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="vendor_ym2203" CONFIG_NAME="Debug">
+    <configuration name="z80ex_wrapper" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="z80ex_wrapper" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="z80ex_wrapper" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="z80ex_wrapper" CONFIG_NAME="Debug">
+    <configuration name="zemux" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="zemux" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ZemuX" RUN_TARGET_NAME="zemux">
+    <configuration name="zemux_core" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_core" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="zemux_core" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_core" CONFIG_NAME="Debug">
+    <configuration name="zemux_integrated" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_integrated" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="zemux_integrated" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_integrated" CONFIG_NAME="Debug">
+    <configuration name="zemux_machine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_machine" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="zemux_machine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_machine" CONFIG_NAME="Debug">
+    <configuration name="zemux_vendor" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_vendor" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="zemux_vendor" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ZemuX" TARGET_NAME="zemux_vendor" CONFIG_NAME="Debug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -175,6 +196,12 @@
       <workItem from="1617469921803" duration="44684000" />
       <workItem from="1618042956171" duration="56477000" />
       <workItem from="1618238749661" duration="6367000" />
+      <workItem from="1618318753405" duration="461000" />
+      <workItem from="1618319232500" duration="55000" />
+      <workItem from="1618766047069" duration="7235000" />
+      <workItem from="1620455909015" duration="806000" />
+      <workItem from="1620490243559" duration="670000" />
+      <workItem from="1620628186444" duration="10981000" />
     </task>
     <servers />
   </component>

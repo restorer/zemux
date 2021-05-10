@@ -102,7 +102,7 @@ void ExtPortDevice::onReset() {
         // Disable turbo by default
 
         if ((portEFF7 & BIT_GIGASCREEN_OR_TURBO) == 0) {
-            // Change clock ratio only if it may have changed using the ext port, in other case leave it as is
+            // Change clock volume only if it may have changed using the ext port, in other case leave it as is
             bus->setCpuClockRatio(1);
         }
 

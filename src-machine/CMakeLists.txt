@@ -26,7 +26,6 @@ add_library (zemux_machine SHARED
         src/bus.cpp
         src/device.cpp
         src/machine.cpp
-        src/video_surface.cpp
         src/devices/border_device.cpp
         src/devices/covox_device.cpp
         src/devices/extport_device.cpp
@@ -36,7 +35,9 @@ add_library (zemux_machine SHARED
         src/devices/memory_device.cpp
         src/devices/trdos_device.cpp
         src/devices/zxm_device.cpp
-        src/sound/sound_resampler.cpp)
+        src/sound/sound_desk.cpp
+        src/sound/sound_resampler.cpp
+        src/video/video_surface.cpp)
 
 target_include_directories (zemux_machine
         PUBLIC include

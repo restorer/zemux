@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(ChronometerTest) {
     BOOST_REQUIRE(chrono.getSrcTicksPassed() == 0);
     BOOST_REQUIRE(chrono.getDstTicksPassed() == 0);
 
-    BOOST_TEST_MESSAGE("Clock ratio");
+    BOOST_TEST_MESSAGE("Clock volume");
 
     BOOST_REQUIRE(chrono.dstAdvanceBy(1) == 1);
     BOOST_REQUIRE(chrono.getSrcTicksPassed() == 1);

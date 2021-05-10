@@ -27,22 +27,53 @@
 
 #include <zemux_core/sound.h>
 #include <zemux_core/non_copyable.h>
+#include <zemux_core/force_inline.h>
+#include <cstdint>
+#include <memory>
+#include <vector>
 
 namespace zemux {
 
-class SoundMixer final : public SoundDesk, private NonCopyable {
+class SoundDeskJack;
+
+class SoundDesk final : private NonCopyable {
 public:
 
-    SoundMixer() = default;
-    virtual ~SoundMixer() = default;
+    struct Sample {
+        uint32_t left;
+        uint32_t right;
+    };
 
-    void attachCable(SoundCable* source) override;
-    void detachCable(SoundCable* source) override;
-    void onFrameFinished(uint32_t ticks) override;
-    void onReconfigure(uint32_t ticksPerSecond, uint32_t samplesPerSecond) override;
-    Sample* getBuffer() override;
+    SoundDesk() = default;
+    virtual ~SoundDesk() = default;
+
+    void attachCable(SoundCable* cable);
+    void detachCable(SoundCable* cable);
+    void onFrameStarted();
+    void onFrameFinished(uint32_t ticks);
+    void onReconfigure(uint32_t ticksPerSecond, uint32_t samplesPerSecond);
+
+    ZEMUX_FORCE_INLINE Sample* getBuffer() {
+        return samples.get();
+    }
+
+    ZEMUX_FORCE_INLINE uint32_t getBufferSize() {
+        return frameMinPosition;
+    }
 
 private:
+
+    uint32_t currentTicksPerSecond;
+    uint32_t currentSamplesPerSecond;
+    uint32_t bufferSize;
+    uint32_t positionMask;
+    std::unique_ptr<Sample[]> samples;
+    std::unique_ptr<uint32_t[]> volumes;
+    std::vector<std::unique_ptr<SoundDeskJack>> attachedJacks;
+    uint32_t frameMinPosition = 0;
+    uint32_t frameMaxPosition = 0;
+
+    friend class SoundDeskJack;
 };
 
 }
