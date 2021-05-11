@@ -32,10 +32,6 @@
 namespace zemux {
 
 TrDosDevice::TrDosDevice(Bus* bus) : Device(bus) {
-    for (int i = 0; i < Bus::LAYERS_MREQ_RD - 1; ++i) {
-        prevMreqRdMapLayers[i].reset(new BusMreqRdElement[Bus::ELEMENTS_MREQ_RD_BASE]);
-    }
-
     rom.reset(new uint8_t[MemoryDevice::SIZE_BANK]);
 }
 
@@ -62,6 +58,22 @@ EventOutput TrDosDevice::onEvent(uint32_t type, EventInput input) {
         default:
             return EventOutput {};
     }
+}
+
+void TrDosDevice::onAttach() {
+    Device::onAttach();
+
+    for (int i = 0; i < Bus::LAYERS_MREQ_RD - 1; ++i) {
+        prevMreqRdMapLayers[i].reset(new BusMreqRdElement[Bus::ELEMENTS_MREQ_RD_BASE]);
+    }
+}
+
+void TrDosDevice::onDetach() {
+    for (int i = 0; i < Bus::LAYERS_MREQ_RD - 1; ++i) {
+        prevMreqRdMapLayers[i].reset(nullptr);
+    }
+
+    Device::onDetach();
 }
 
 BusMreqRdElement TrDosDevice::onConfigureMreqRd(BusMreqRdElement prev, int mreqRdLayer, uint16_t address, bool isM1) {

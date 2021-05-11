@@ -35,8 +35,7 @@ ZxmDevice::ZxmDevice(Bus* bus, SoundDesk* soundDesk) : Device { bus },
         soundDesk { soundDesk },
         ym2203Chronometer { 1, Ym2203Chip::SAMPLING_RATE },
         saa1099Chronometer { 1, Saa1099Chip::SAMPLING_RATE },
-        saa1099Resampler { &saa1099Chronometer },
-        saa1099Chip { new Saa1099Chip { &saa1099Resampler }} {
+        saa1099Resampler { &saa1099Chronometer } {
 
     ayResamplers.emplace_back(&ayChronometer);
     ayResamplers.emplace_back(&ayChronometer);
@@ -47,8 +46,17 @@ ZxmDevice::ZxmDevice(Bus* bus, SoundDesk* soundDesk) : Device { bus },
     ayChips.emplace_back(&ayResamplers[0], this, onAyDataIn, onAyDataOut);
     ayChips.emplace_back(&ayResamplers[1]);
 
-    ym2203Chips.emplace_back(&ym2203Resamplers[0]);
-    ym2203Chips.emplace_back(&ym2203Resamplers[1]);
+    ym2203Chips[0] = new Ym2203Chip(&ym2203Resamplers[0]);
+    ym2203Chips[1] = new Ym2203Chip(&ym2203Resamplers[1]);
+
+    saa1099Chip = new Saa1099Chip(&saa1099Resampler);
+}
+
+ZxmDevice::~ZxmDevice() {
+    delete ym2203Chips[0];
+    delete ym2203Chips[1];
+
+    delete saa1099Chip;
 }
 
 uint32_t ZxmDevice::getEventCategory() {
@@ -197,8 +205,8 @@ void ZxmDevice::onFrameFinished(uint32_t ticks) {
             [[fallthrough]];
 
         case ModeTsFm:
-            ym2203Chips[0].step(ym2203Ticks);
-            ym2203Chips[1].step(ym2203Ticks);
+            ym2203Chips[0]->step(ym2203Ticks);
+            ym2203Chips[1]->step(ym2203Ticks);
             [[fallthrough]];
 
         case ModeTs:
@@ -220,12 +228,12 @@ void ZxmDevice::onReset() {
 
     switch (mode) {
         case ModeZxm:
-            saa1099Chip.reset();
+            saa1099Chip->reset();
             [[fallthrough]];
 
         case ModeTsFm:
-            ym2203Chips[0].reset();
-            ym2203Chips[1].reset();
+            ym2203Chips[0]->reset();
+            ym2203Chips[1]->reset();
             [[fallthrough]];
 
         case ModeTs:
@@ -245,12 +253,12 @@ uint8_t ZxmDevice::onIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port 
         auto chipNum = self->getChipNum();
 
         if ((self->pseudoReg & (PSEUDO_BIT_STATUS | PSEUDO_BIT_FM)) == 0) {
-            return self->ym2203Chips[chipNum].readStatus();
+            return self->ym2203Chips[chipNum]->readStatus();
         }
 
         return (self->selectedReg < SELECTED_REG_FM)
                 ? self->ayChips[chipNum].read()
-                : self->ym2203Chips[chipNum].read();
+                : self->ym2203Chips[chipNum]->read();
     }
 
     return self->ayChips[mode >= ModeTs ? self->getChipNum() : 0].read();
@@ -280,8 +288,8 @@ void ZxmDevice::onIorqWrBFFD(void* data, int /* iorqWrLayer */, uint16_t /* port
     if (mode >= ModeTsFm && self->selectedReg >= SELECTED_REG_FM) {
         auto& ym2203Chips = self->ym2203Chips;
 
-        ym2203Chips[chipNum].step(self->ym2203Chronometer.srcForwardToDelta(self->bus->getFrameTicksPassed()));
-        ym2203Chips[chipNum].write(value);
+        ym2203Chips[chipNum]->step(self->ym2203Chronometer.srcForwardToDelta(self->bus->getFrameTicksPassed()));
+        ym2203Chips[chipNum]->write(value);
     } else {
         auto& ayChips = self->ayChips;
 
@@ -303,7 +311,7 @@ void ZxmDevice::onIorqWrFFFD(void* data, int /* iorqWrLayer */, uint16_t /* port
     auto chipNum = (mode >= ModeTs ? self->getChipNum() : 0);
 
     if (mode >= ModeTsFm && value >= SELECTED_REG_FM) {
-        self->ym2203Chips[chipNum].select(value);
+        self->ym2203Chips[chipNum]->select(value);
     } else {
         self->ayChips[chipNum].select(value);
     }

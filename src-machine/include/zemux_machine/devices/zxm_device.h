@@ -90,7 +90,7 @@ public:
     static constexpr uint8_t SELECTED_REG_FM = 0x10;
 
     ZxmDevice(Bus* bus, SoundDesk* soundDesk);
-    virtual ~ZxmDevice() = default;
+    virtual ~ZxmDevice();
 
     uint32_t getEventCategory() override;
     EventOutput onEvent(uint32_t type, EventInput input) override;
@@ -121,8 +121,12 @@ private:
     SoundResampler saa1099Resampler;
 
     Container<AyChip> ayChips { TSFM_CHIPS_COUNT };
-    Container<Ym2203Chip> ym2203Chips { TSFM_CHIPS_COUNT };
-    std::unique_ptr<Saa1099Chip> saa1099Chip;
+
+    // raw pointer instead of unique_ptr to avoid including header files from "vendor" subproject
+    std::array<Ym2203Chip*, TSFM_CHIPS_COUNT> ym2203Chips;
+
+    // raw pointer instead of unique_ptr to avoid including header files from "vendor" subproject
+    Saa1099Chip* saa1099Chip;
 
     ZEMUX_FORCE_INLINE int getChipNum() {
         return ((~pseudoReg) & PSEUDO_BIT_CHIP_NUM) >> PSEUDO_SHIFT_CHIP_NUM;

@@ -25,21 +25,21 @@
  * THE SOFTWARE.
  */
 
-#include "devices/keyboard_device.h"
+#include "devices/zx_keyboard_device.h"
 #include <zemux_core/unroll.h>
 #include <zemux_integrated/tape.h>
 
 namespace zemux {
 
-KeyboardDevice::KeyboardDevice(Bus* bus) : Device { bus } {
+ZxKeyboardDevice::ZxKeyboardDevice(Bus* bus) : Device { bus } {
     resetKeys();
 }
 
-uint32_t KeyboardDevice::getEventCategory() {
+uint32_t ZxKeyboardDevice::getEventCategory() {
     return Event::CategoryKeyboard;
 }
 
-EventOutput KeyboardDevice::onEvent(uint32_t type, EventInput input) {
+EventOutput ZxKeyboardDevice::onEvent(uint32_t type, EventInput input) {
     switch (type) {
         case EventKeyDown:
             keyboard[input.value >> 8] &= static_cast<uint8_t>(input.value);
@@ -65,18 +65,18 @@ EventOutput KeyboardDevice::onEvent(uint32_t type, EventInput input) {
     }
 }
 
-BusIorqRdElement KeyboardDevice::onConfigureIorqRd(BusIorqRdElement prev, int /* iorqRdLayer */, uint16_t port) {
+BusIorqRdElement ZxKeyboardDevice::onConfigureIorqRd(BusIorqRdElement prev, int /* iorqRdLayer */, uint16_t port) {
     return (port & 1) ? prev : BusIorqRdElement { .callback = onIorqRd, .data = this };
 }
 
-void KeyboardDevice::resetKeys() {
+void ZxKeyboardDevice::resetKeys() {
     for (int i = 0; i < NUM_ADDRESS_LINES; ++i) {
         keyboard[i] = 0xFF;
     }
 }
 
-uint8_t KeyboardDevice::onIorqRd(void* data, int /* iorqRdLayer */, uint16_t port) {
-    auto self = static_cast<KeyboardDevice*>(data);
+uint8_t ZxKeyboardDevice::onIorqRd(void* data, int /* iorqRdLayer */, uint16_t port) {
+    auto self = static_cast<ZxKeyboardDevice*>(data);
 
     uint8_t result = 0xFF;
     uint8_t hiPort = port >> 8;

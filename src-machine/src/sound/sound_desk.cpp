@@ -34,64 +34,49 @@
 
 namespace zemux {
 
-class SoundDeskJack final : public SoundJack {
-public:
+SoundDeskJack::SoundDeskJack(SoundDesk* desk, SoundCable* cable) :  desk { desk }, cable { cable } {
+    cable->onCableAttach(this, desk->ticksPerSecond_, desk->samplesPerSecond_);
+}
 
-    static constexpr uint32_t VOLUME_MAX = 0x10000;
-    static constexpr uint32_t VOLUME_OVERMAX = VOLUME_MAX * 4;
-    static constexpr uint32_t VOLUME_STEP = 4;
+SoundDeskJack::~SoundDeskJack() {
+    cable->onCableDetach();
+}
 
-    SoundDesk* desk;
-    SoundCable* cable;
-    uint32_t position = 0;
-    uint32_t volume = 0;
-    uint16_t lastLeft = 0;
-    uint16_t lastRight = 0;
-
-    SoundDeskJack(SoundDesk* desk, SoundCable* cable) : desk { desk }, cable { cable } {
-        cable->onCableAttach(this, desk->currentTicksPerSecond, desk->currentSamplesPerSecond);
+void SoundDeskJack::jackWrite(uint16_t left, uint16_t right) {
+    if (lastLeft != left || lastRight != right) {
+        volume = std::min(VOLUME_OVERMAX, volume + VOLUME_STEP);
+    } else if (volume > VOLUME_STEP) {
+        volume -= VOLUME_STEP;
+    } else {
+        volume = 0;
     }
 
-    virtual ~SoundDeskJack() {
-        cable->onCableDetach();
-    }
+    auto currentVolume = std::min(VOLUME_MAX, volume);
+    auto& sample = desk->samples[position];
 
-    void jackWrite(uint16_t left, uint16_t right) override {
-        if (lastLeft != left || lastRight != right) {
-            volume = std::min(VOLUME_OVERMAX, volume + VOLUME_STEP);
-        } else if (volume > VOLUME_STEP) {
-            volume -= VOLUME_STEP;
-        } else {
-            volume = 0;
-        }
+    sample.left += static_cast<uint32_t>(left) * currentVolume;
+    sample.right += static_cast<uint32_t>(right) * currentVolume;
+    desk->volumes[position] += currentVolume;
 
-        auto currentVolume = std::min(VOLUME_MAX, volume);
-        auto& sample = desk->samples[position];
-
-        sample.left += static_cast<uint32_t>(left) * currentVolume;
-        sample.right += static_cast<uint32_t>(right) * currentVolume;
-        desk->volumes[position] += currentVolume;
-
-        position = (position + 1) & desk->positionMask;
-        lastLeft = left;
-        lastRight = right;
-    }
-};
+    position = (position + 1) & desk->positionMask;
+    lastLeft = left;
+    lastRight = right;
+}
 
 void SoundDesk::attachCable(SoundCable* cable) {
     attachedJacks.push_back(std::make_unique<SoundDeskJack>(this, cable));
 }
 
 void SoundDesk::detachCable(SoundCable* cable) {
-    vectorEraseIf(attachedJacks, [&](const SoundDeskJack& jack) -> bool {
-        return jack.cable == cable;
+    vectorEraseIf(attachedJacks, [&](const std::unique_ptr<SoundDeskJack>& jack) -> bool {
+        return jack->cable == cable;
     });
 }
 
 void SoundDesk::onFrameStarted() {
     if (frameMinPosition && frameMaxPosition > frameMinPosition) {
-        std::copy(samples[frameMinPosition], samples[frameMaxPosition], samples.get());
-        std::copy(volumes[frameMinPosition], volumes[frameMaxPosition], volumes.get());
+        std::copy(&samples[frameMinPosition], &samples[frameMaxPosition], samples.get());
+        std::copy(&volumes[frameMinPosition], &volumes[frameMaxPosition], volumes.get());
     }
 
     auto position = frameMaxPosition - frameMinPosition;
@@ -141,8 +126,8 @@ void SoundDesk::onFrameFinished(uint32_t ticks) {
 }
 
 void SoundDesk::onReconfigure(uint32_t ticksPerSecond, uint32_t samplesPerSecond) {
-    currentTicksPerSecond = ticksPerSecond;
-    currentSamplesPerSecond = samplesPerSecond;
+    ticksPerSecond_ = ticksPerSecond;
+    samplesPerSecond_ = samplesPerSecond;
 
     bufferSize = getNearestPot(samplesPerSecond * 2 / Core::FRAMES_PER_SECOND);
     positionMask = bufferSize - 1;
@@ -154,6 +139,9 @@ void SoundDesk::onReconfigure(uint32_t ticksPerSecond, uint32_t samplesPerSecond
         jack->cable->onCableReconfigure(ticksPerSecond, samplesPerSecond);
         jack->position = 0;
     }
+
+    memset(samples.get(), 0, bufferSize * sizeof(Sample));
+    memset(volumes.get(), 0, bufferSize * sizeof(uint32_t));
 }
 
 }

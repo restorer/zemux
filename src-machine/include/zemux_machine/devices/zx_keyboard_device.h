@@ -37,7 +37,7 @@ ZEMUX_FORCE_INLINE static constexpr uint16_t keyboardDeviceMakeKey(uint8_t addre
     return (static_cast<uint16_t>(addressLine) << 8) | static_cast<uint16_t>(dataMask);
 }
 
-class KeyboardDevice final : public Device, private NonCopyable {
+class ZxKeyboardDevice final : public Device, private NonCopyable {
 public:
 
     enum EventType {
@@ -101,8 +101,8 @@ public:
     static constexpr uint8_t MASK_TAPE = ~0x40;
     static constexpr int NUM_ADDRESS_LINES = 8;
 
-    explicit KeyboardDevice(Bus* bus);
-    virtual ~KeyboardDevice() = default;
+    explicit ZxKeyboardDevice(Bus* bus);
+    virtual ~ZxKeyboardDevice() = default;
 
     uint32_t getEventCategory() override;
     EventOutput onEvent(uint32_t type, EventInput input) override;

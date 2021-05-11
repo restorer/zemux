@@ -26,9 +26,13 @@
  */
 
 #include <memory>
-#include <vector>
+#include <map>
 #include <zemux_core/non_copyable.h>
+#include <zemux_core/chronometer.h>
+#include <zemux_integrated/z80_chip.h>
 #include "bus.h"
+#include "event.h"
+#include "devices/device.h"
 #include "video/video_surface.h"
 #include "sound/sound_desk.h"
 
@@ -37,11 +41,22 @@ namespace zemux {
 class Machine final : private NonCopyable {
 public:
 
+    Z80Chip cpu;
+    ChronometerNarrow cpuChronometer { 1, 1 };
     Bus bus;
+
     VideoSurface videoSurface;
     SoundDesk soundDesk;
 
+    Machine();
+    ~Machine() = default;
+
+    void renderFrame();
+
 private:
+
+    std::map<int, std::unique_ptr<Device>> deviceMap;
+    std::map<int, EventListener*> eventListenerMap;
 
     // Pentagon:
     uint32_t ulaLineTotalTicks = 224;
@@ -76,6 +91,16 @@ private:
     // uint32_t ulaIntEndTicks = ulaIntBeginTicks + 32;
 
     uint32_t ulaLineVisibleTicks = ulaLineTotalTicks - ulaHBlankTicks;
+
+    void prepareDevice(Device::DeviceKind kind, std::unique_ptr<Device> device);
+    void reconfigure();
+
+    static uint8_t onCpuMreqRd(void* data, uint16_t address, bool isM1);
+    static void onCpuMreqWr(void* data, uint16_t address, uint8_t value);
+    static uint8_t onCpuIorqRd(void* data, uint16_t port);
+    static void onCpuIorqWr(void* data, uint16_t port, uint8_t value);
+    static uint8_t onCpuIorqM1(void* data);
+    static void onCpuPutAddress(void* data, uint16_t address, uint_fast32_t cycles);
 };
 
 }

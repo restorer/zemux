@@ -34,6 +34,20 @@ namespace zemux {
 class Device : public EventListener {
 public:
 
+    enum DeviceKind {
+        KindMemory = 1,
+        KindBorder = 2,
+        KindZxKeyboard = 3,
+        KindKempstonJoystick = 4,
+        KindKempstonMouse = 5,
+        KindCovox = 6,
+        KindZxm = 7,
+        KindTrDos = 8,
+        KindExtPort = 9,
+    };
+
+    virtual ~Device() = default;
+
     virtual void onAttach() {
         isAttached_ = true;
     }
@@ -90,7 +104,6 @@ protected:
     Bus* bus;
 
     explicit Device(Bus* bus);
-    virtual ~Device() = default;
 
 private:
 

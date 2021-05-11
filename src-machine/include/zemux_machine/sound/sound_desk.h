@@ -34,7 +34,27 @@
 
 namespace zemux {
 
-class SoundDeskJack;
+class SoundDesk;
+
+class SoundDeskJack final : public SoundJack {
+public:
+
+    static constexpr uint32_t VOLUME_MAX = 0x10000;
+    static constexpr uint32_t VOLUME_OVERMAX = VOLUME_MAX * 4;
+    static constexpr uint32_t VOLUME_STEP = 4;
+
+    SoundDesk* desk;
+    SoundCable* cable;
+    uint32_t position = 0;
+    uint32_t volume = 0;
+    uint16_t lastLeft = 0;
+    uint16_t lastRight = 0;
+
+    SoundDeskJack(SoundDesk* desk, SoundCable* cable);
+    virtual ~SoundDeskJack();
+
+    void jackWrite(uint16_t left, uint16_t right) override;
+};
 
 class SoundDesk final : private NonCopyable {
 public:
@@ -63,10 +83,10 @@ public:
 
 private:
 
-    uint32_t currentTicksPerSecond;
-    uint32_t currentSamplesPerSecond;
-    uint32_t bufferSize;
-    uint32_t positionMask;
+    uint32_t ticksPerSecond_;
+    uint32_t samplesPerSecond_;
+    uint32_t bufferSize = 0;
+    uint32_t positionMask = 0;
     std::unique_ptr<Sample[]> samples;
     std::unique_ptr<uint32_t[]> volumes;
     std::vector<std::unique_ptr<SoundDeskJack>> attachedJacks;

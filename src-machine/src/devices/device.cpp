@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-#include "device.h"
+#include "devices/device.h"
 
 namespace zemux {
 

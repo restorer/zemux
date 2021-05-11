@@ -51,6 +51,9 @@ public:
     uint32_t getEventCategory() override;
     EventOutput onEvent(uint32_t type, EventInput input) override;
 
+    void onAttach() override;
+    void onDetach() override;
+
     BusMreqRdElement onConfigureMreqRd(BusMreqRdElement prev, int mreqRdLayer, uint16_t address, bool isM1) override;
     BusIorqRdElement onConfigureIorqRd(BusIorqRdElement prev, int iorqRdLayer, uint16_t port) override;
     BusIorqWrElement onConfigureIorqWr(BusIorqWrElement prev, int iorqWrLayer, uint16_t port) override;

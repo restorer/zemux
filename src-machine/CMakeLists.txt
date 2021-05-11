@@ -24,14 +24,14 @@ cmake_minimum_required (VERSION 3.10)
 
 add_library (zemux_machine SHARED
         src/bus.cpp
-        src/device.cpp
+        src/devices/device.cpp
         src/machine.cpp
         src/devices/border_device.cpp
         src/devices/covox_device.cpp
         src/devices/extport_device.cpp
         src/devices/kempston_joystick_device.cpp
         src/devices/kempston_mouse_device.cpp
-        src/devices/keyboard_device.cpp
+        src/devices/zx_keyboard_device.cpp
         src/devices/memory_device.cpp
         src/devices/trdos_device.cpp
         src/devices/zxm_device.cpp
