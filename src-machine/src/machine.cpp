@@ -38,29 +38,51 @@
 
 namespace zemux {
 
-Machine::Machine() : cpu { this,
-        &onCpuMreqRd,
-        &onCpuMreqWr,
-        &onCpuIorqRd,
-        &onCpuIorqWr,
-        &onCpuIorqM1,
-        &onCpuPutAddress }, bus { &cpu, &cpuChronometer } {
+Machine::Machine() : bus { this, &cpuChronometer }, cpu { &bus,
+        &Bus::onCpuMreqRd,
+        &Bus::onCpuMreqWr,
+        &Bus::onCpuIorqRd,
+        &Bus::onCpuIorqWr,
+        &Bus::onCpuIorqM1,
+        &Bus::onCpuPutAddress } {
 
-    prepareDevice(Device::KindMemory, std::make_unique<MemoryDevice>(&bus));
-    prepareDevice(Device::KindBorder, std::make_unique<BorderDevice>(&bus, &soundDesk));
-    prepareDevice(Device::KindZxKeyboard, std::make_unique<ZxKeyboardDevice>(&bus));
-    prepareDevice(Device::KindKempstonJoystick, std::make_unique<KempstonJoystickDevice>(&bus));
-    prepareDevice(Device::KindKempstonMouse, std::make_unique<KempstonMouseDevice>(&bus));
-    prepareDevice(Device::KindCovox, std::make_unique<CovoxDevice>(&bus, &soundDesk));
-    prepareDevice(Device::KindZxm, std::make_unique<ZxmDevice>(&bus, &soundDesk));
-    prepareDevice(Device::KindTrDos, std::make_unique<TrDosDevice>(&bus));
-    prepareDevice(Device::KindExtPort, std::make_unique<ExtPortDevice>(&bus));
+    brazeDevice(Device::KindMemory, std::make_unique<MemoryDevice>(&bus));
+    brazeDevice(Device::KindBorder, std::make_unique<BorderDevice>(&bus, &soundDesk));
+    brazeDevice(Device::KindZxKeyboard, std::make_unique<ZxKeyboardDevice>(&bus));
+    brazeDevice(Device::KindKempstonJoystick, std::make_unique<KempstonJoystickDevice>(&bus));
+    brazeDevice(Device::KindKempstonMouse, std::make_unique<KempstonMouseDevice>(&bus));
+    brazeDevice(Device::KindCovox, std::make_unique<CovoxDevice>(&bus, &soundDesk));
+    brazeDevice(Device::KindZxm, std::make_unique<ZxmDevice>(&bus, &soundDesk));
+    brazeDevice(Device::KindTrDos, std::make_unique<TrDosDevice>(&bus));
+    brazeDevice(Device::KindExtPort, std::make_unique<ExtPortDevice>(&bus));
+
+    deviceMap[Device::KindMemory]->onAttach();
+    deviceMap[Device::KindBorder]->onAttach();
+    deviceMap[Device::KindZxKeyboard]->onAttach();
+    deviceMap[Device::KindKempstonJoystick]->onAttach();
+    deviceMap[Device::KindKempstonMouse]->onAttach();
+    deviceMap[Device::KindCovox]->onAttach();
+    deviceMap[Device::KindZxm]->onAttach();
+    deviceMap[Device::KindTrDos]->onAttach();
+    deviceMap[Device::KindExtPort]->onAttach();
+
+    onBusReconfigure();
+    onBusReset();
 }
 
 void Machine::renderFrame() {
+    // TODO: ...
+
+    auto frameTicks = cpuChronometer.getSrcTicksPassed();
+
+    for (auto& device : attachedDevices) {
+        device->onFrameFinished(frameTicks);
+    }
+
+    cpuChronometer.srcConsume(frameTicks);
 }
 
-void Machine::prepareDevice(Device::DeviceKind kind, std::unique_ptr<Device> device) {
+void Machine::brazeDevice(Device::DeviceKind kind, std::unique_ptr<Device> device) {
     deviceMap[kind] = std::move(device);
 
     if (device->getEventCategory()) {
@@ -68,65 +90,31 @@ void Machine::prepareDevice(Device::DeviceKind kind, std::unique_ptr<Device> dev
     }
 }
 
-void Machine::reconfigure() {
-    auto& attachedDevices = bus.attachedDevices;
-
-    for (auto it = attachedDevices.begin(); it != attachedDevices.end(); ++it) {
-        (*it)->onDetach();
-    }
-
+void Machine::onBusReconfigure() {
     attachedDevices.clear();
 
-    for (auto it = deviceMap.begin(); it != deviceMap.end(); ++it) {
-        auto device = it->second.get();
+    for (auto& entry : deviceMap) {
+        auto* device = entry.second.get();
 
         if (device->isAttached()) {
             attachedDevices.push_back(device);
-            device->onConfigureTimings(ulaFrameTicks);
         }
     }
 
-    bus.performReconfigure();
+    for (auto& device : attachedDevices) {
+        device->onConfigureTimings(ulaFrameTicks);
+    }
+
+    bus.onMachineReconfigure(attachedDevices);
 }
 
-uint8_t Machine::onCpuMreqRd(void* data, uint16_t address, bool isM1) {
-    auto self = static_cast<Machine*>(data);
-    auto& bus = self->bus;
+void Machine::onBusReset() {
+    bus.onMachineReset();
+    cpu.reset();
 
-    auto elem = bus.mreqRdMap[address + (isM1 ? Bus::ELEMENTS_MREQ_RD_BASE : 0)];
-    return elem.callback(elem.data, bus.getMreqRdLayer(), address, isM1);
-}
-
-void Machine::onCpuMreqWr(void* data, uint16_t address, uint8_t value) {
-    auto self = static_cast<Machine*>(data);
-    auto& bus = self->bus;
-
-    auto elem = bus.mreqWrMap[address];
-    elem.callback(elem.data, bus.getMreqWrLayer(), address, value);
-}
-
-uint8_t Machine::onCpuIorqRd(void* data, uint16_t port) {
-    auto self = static_cast<Machine*>(data);
-    auto& bus = self->bus;
-
-    auto elem = bus.iorqRdMap[port];
-    return elem.callback(elem.data, bus.getIorqRdLayer(), port);
-}
-
-void Machine::onCpuIorqWr(void* data, uint16_t port, uint8_t value) {
-    auto self = static_cast<Machine*>(data);
-    auto& bus = self->bus;
-
-    auto elem = bus.iorqWrMap[port];
-    elem.callback(elem.data, bus.getIorqWrLayer(), port, value);
-}
-
-uint8_t Machine::onCpuIorqM1(void* /* data */) {
-    // TODO: unstable data bus
-    return 0xFF;
-}
-
-void Machine::onCpuPutAddress(void* /* data */, uint16_t /* address */, uint_fast32_t /* cycles */) {
+    for (auto& device : attachedDevices) {
+        device->onReset();
+    }
 }
 
 }

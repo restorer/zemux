@@ -38,12 +38,12 @@
 
 namespace zemux {
 
-class Machine final : private NonCopyable {
+class Machine final : public BusOwner, private NonCopyable {
 public:
 
-    Z80Chip cpu;
     ChronometerNarrow cpuChronometer { 1, 1 };
     Bus bus;
+    Z80Chip cpu;
 
     VideoSurface videoSurface;
     SoundDesk soundDesk;
@@ -53,10 +53,14 @@ public:
 
     void renderFrame();
 
+    void onBusReconfigure() override;
+    void onBusReset() override;
+
 private:
 
     std::map<int, std::unique_ptr<Device>> deviceMap;
     std::map<int, EventListener*> eventListenerMap;
+    std::vector<Device*> attachedDevices;
 
     // Pentagon:
     uint32_t ulaLineTotalTicks = 224;
@@ -92,15 +96,7 @@ private:
 
     uint32_t ulaLineVisibleTicks = ulaLineTotalTicks - ulaHBlankTicks;
 
-    void prepareDevice(Device::DeviceKind kind, std::unique_ptr<Device> device);
-    void reconfigure();
-
-    static uint8_t onCpuMreqRd(void* data, uint16_t address, bool isM1);
-    static void onCpuMreqWr(void* data, uint16_t address, uint8_t value);
-    static uint8_t onCpuIorqRd(void* data, uint16_t port);
-    static void onCpuIorqWr(void* data, uint16_t port, uint8_t value);
-    static uint8_t onCpuIorqM1(void* data);
-    static void onCpuPutAddress(void* data, uint16_t address, uint_fast32_t cycles);
+    void brazeDevice(Device::DeviceKind kind, std::unique_ptr<Device> device);
 };
 
 }

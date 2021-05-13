@@ -25,11 +25,11 @@
  * THE SOFTWARE.
  */
 
+#include <cstdint>
+#include <zemux_core/force_inline.h>
 #include "bus.h"
 #include "device.h"
 #include "event.h"
-#include <zemux_core/force_inline.h>
-#include <cstdint>
 
 namespace zemux {
 

@@ -46,7 +46,7 @@ EventOutput TrDosDevice::onEvent(uint32_t type, EventInput input) {
             return EventOutput { .isHandled = true };
 
         case EventResetToTrDos:
-            bus->performReset();
+            bus->requestReset();
 
             if (bus->memoryDevice != nullptr) {
                 bus->memoryDevice->enableBasic48Rom();

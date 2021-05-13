@@ -29,7 +29,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <zemux_core/force_inline.h>
+#include "force_inline.h"
 
 namespace zemux {
 

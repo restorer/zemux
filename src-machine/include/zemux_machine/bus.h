@@ -25,22 +25,21 @@
  * THE SOFTWARE.
  */
 
-#include "event.h"
 #include <cstdint>
 #include <memory>
 #include <array>
 #include <vector>
 #include <zemux_core/non_copyable.h>
-#include <zemux_core/force_inline.h>
 #include <zemux_core/chronometer.h>
+#include "event.h"
 
 namespace zemux {
 
 class Z80Chip;
-class Tape;
 class Device;
 class MemoryDevice;
 class ExtPortDevice;
+class Tape;
 
 struct BusMreqRdElement {
     uint8_t (* callback)(void* data, int mreqRdLayer, uint16_t address, bool isM1);
@@ -60,6 +59,18 @@ struct BusIorqRdElement {
 struct BusIorqWrElement {
     void (* callback)(void* data, int iorqWrLayer, uint16_t port, uint8_t value);
     void* data;
+};
+
+class BusOwner {
+public:
+
+    virtual void onBusReconfigure() = 0;
+    virtual void onBusReset() = 0;
+
+protected:
+
+    constexpr BusOwner() = default;
+    virtual ~BusOwner() = default;
 };
 
 class Bus final : private NonCopyable {
@@ -93,45 +104,38 @@ public:
     std::array<std::unique_ptr<BusIorqRdElement[]>, LAYERS_IORQ_RD> iorqRdMapLayers;
     std::array<std::unique_ptr<BusIorqWrElement[]>, LAYERS_IORQ_WR> iorqWrMapLayers;
 
-    std::vector<Device*> attachedDevices;
-
+    Z80Chip* cpu = nullptr;
     EventEmitter* hostEmitter = nullptr;
     MemoryDevice* memoryDevice = nullptr;
     ExtPortDevice* extPortDevice = nullptr;
     Tape* tape = nullptr;
 
-    Bus(Z80Chip* cpu, ChronometerNarrow* cpuChronometer);
+    Bus(BusOwner* owner, ChronometerNarrow* cpuChronometer);
     ~Bus() = default;
 
     uint32_t getFrameTicksPassed();
-    void setCpuClockRatio(int rate);
-    void performReconfigure();
-    void performReset();
+    void setCpuClockRatio(int ratio);
+    void requestReconfigure();
+    void requestReset();
 
     void toggleMreqRdOverlay(int mreqRdOverlay, bool isEnabled);
     void toggleMreqWrOverlay(int mreqWrOverlay, bool isEnabled);
     void toggleIorqRdOverlay(int iorqRdOverlay, bool isEnabled);
     void toggleIorqWrOverlay(int iorqWrOverlay, bool isEnabled);
 
-    ZEMUX_FORCE_INLINE int getMreqRdLayer() {
-        return mreqRdLayer;
-    }
+    void onMachineReconfigure(std::vector<Device*>& devices);
+    void onMachineReset();
 
-    ZEMUX_FORCE_INLINE int getMreqWrLayer() {
-        return mreqWrLayer;
-    }
-
-    ZEMUX_FORCE_INLINE int getIorqRdLayer() {
-        return iorqRdLayer;
-    }
-
-    ZEMUX_FORCE_INLINE int getIorqWrLayer() {
-        return iorqWrLayer;
-    }
+    static uint8_t onCpuMreqRd(void* data, uint16_t address, bool isM1);
+    static void onCpuMreqWr(void* data, uint16_t address, uint8_t value);
+    static uint8_t onCpuIorqRd(void* data, uint16_t port);
+    static void onCpuIorqWr(void* data, uint16_t port, uint8_t value);
+    static uint8_t onCpuIorqM1(void* data);
+    static void onCpuPutAddress(void* data, uint16_t address, uint_fast32_t cycles);
 
 private:
 
-    Z80Chip* cpu;
+    BusOwner* owner;
     ChronometerNarrow* cpuChronometer;
 
     int mreqRdLayer;
@@ -139,12 +143,10 @@ private:
     int iorqRdLayer;
     int iorqWrLayer;
 
-    void resetLayers();
-
-    static uint8_t onMreqRdFallback(void* /* data */, int /* mreqRdLayer */, uint16_t /* address */, bool /* isM1 */);
-    static void onMreqWrFallback(void* /* data */, int /* mreqWrLayer */, uint16_t /* address */, uint8_t /* value */);
-    static uint8_t onIorqRdFallback(void* data, int /* iorqRdLayer */, uint16_t /* port */);
-    static void onIorqWrFallback(void* /* data */, int /* iorqWrLayer */, uint16_t /* port */, uint8_t /* value */);
+    static uint8_t onFallbackMreqRd(void* /* data */, int /* mreqRdLayer */, uint16_t /* address */, bool /* isM1 */);
+    static void onFallbackMreqWr(void* /* data */, int /* mreqWrLayer */, uint16_t /* address */, uint8_t /* value */);
+    static uint8_t onFallbackIorqRd(void* data, int /* iorqRdLayer */, uint16_t /* port */);
+    static void onFallbackIorqWr(void* /* data */, int /* iorqWrLayer */, uint16_t /* port */, uint8_t /* value */);
 };
 
 ZEMUX_FORCE_INLINE int busLayerWithoutOverlay(int layer, int lmask, int umask) {

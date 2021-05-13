@@ -25,12 +25,12 @@
  * THE SOFTWARE.
  */
 
-#include <zemux_core/sound.h>
-#include <zemux_core/non_copyable.h>
-#include <zemux_core/force_inline.h>
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <zemux_core/sound.h>
+#include <zemux_core/non_copyable.h>
+#include <zemux_core/force_inline.h>
 
 namespace zemux {
 

@@ -25,9 +25,9 @@
  * THE SOFTWARE.
  */
 
+#include <zemux_core/non_copyable.h>
 #include "bus.h"
 #include "device.h"
-#include <zemux_core/non_copyable.h>
 
 namespace zemux {
 

@@ -25,13 +25,13 @@
  * THE SOFTWARE.
  */
 
+#include <cstdint>
+#include <memory>
+#include <zemux_core/non_copyable.h>
+#include <zemux_core/force_inline.h>
 #include "bus.h"
 #include "device.h"
 #include "event.h"
-#include <zemux_core/non_copyable.h>
-#include <zemux_core/force_inline.h>
-#include <cstdint>
-#include <memory>
 
 namespace zemux {
 

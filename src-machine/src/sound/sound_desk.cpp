@@ -117,8 +117,8 @@ void SoundDesk::onFrameFinished(uint32_t ticks) {
     Sample* samplePtr = samples.get();
     uint32_t* ratioPtr = volumes.get();
 
-    for (auto i = frameMinPosition; i--; ++samplePtr, ++ratioPtr) {
-        auto ratio = std::min(SoundDeskJack::VOLUME_MAX, *ratioPtr);
+    for (uint32_t i = frameMinPosition; i--; ++samplePtr, ++ratioPtr) {
+        uint32_t ratio = std::min(SoundDeskJack::VOLUME_MAX, *ratioPtr);
 
         samplePtr->left /= ratio;
         samplePtr->right /= ratio;

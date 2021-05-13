@@ -25,9 +25,9 @@
  * THE SOFTWARE.
  */
 
-#include <mutex>
 #include "z80_chip.h"
 #include "z80_chip_core.h"
+#include <mutex>
 
 namespace zemux {
 

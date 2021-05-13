@@ -25,18 +25,18 @@
  * THE SOFTWARE.
  */
 
-#include "bus.h"
-#include "device.h"
-#include "event.h"
-#include "sound/sound_desk.h"
-#include "sound/sound_resampler.h"
+#include <cstdint>
+#include <memory>
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/force_inline.h>
 #include <zemux_core/container.h>
 #include <zemux_core/sound.h>
 #include <zemux_integrated/ay_chip.h>
-#include <cstdint>
-#include <memory>
+#include "bus.h"
+#include "device.h"
+#include "event.h"
+#include "sound/sound_desk.h"
+#include "sound/sound_resampler.h"
 
 namespace zemux {
 

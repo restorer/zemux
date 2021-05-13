@@ -29,9 +29,9 @@
  * created under public domain license by SMT, jan.2006
  */
 
+#include "ay_chip.h"
 #include <utility>
 #include <algorithm>
-#include "ay_chip.h"
 
 static const uint16_t VOLUME_TABLES[][32] = {
         { // AY

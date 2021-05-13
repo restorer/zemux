@@ -25,9 +25,9 @@
  * THE SOFTWARE.
  */
 
+#include <zemux_core/force_inline.h>
 #include "bus.h"
 #include "event.h"
-#include <zemux_core/force_inline.h>
 
 namespace zemux {
 

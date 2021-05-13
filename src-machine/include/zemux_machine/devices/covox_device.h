@@ -25,12 +25,12 @@
  * THE SOFTWARE.
  */
 
+#include <zemux_core/non_copyable.h>
+#include <zemux_core/sound.h>
 #include "bus.h"
 #include "device.h"
 #include "sound/sound_desk.h"
 #include "sound/sound_resampler.h"
-#include <zemux_core/non_copyable.h>
-#include <zemux_core/sound.h>
 
 namespace zemux {
 

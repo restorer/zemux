@@ -90,7 +90,7 @@ EventOutput ZxmDevice::onEvent(uint32_t type, EventInput input) {
 
             if ((updateMask & Configuration::UpdateMode) && config->mode != mode) {
                 mode = config->mode;
-                bus->performReconfigure();
+                bus->requestReconfigure();
             }
 
             return EventOutput { .isHandled = true };

@@ -25,8 +25,8 @@
  * THE SOFTWARE.
  */
 
-#include <cstdint>
 #include "tape_tap.h"
+#include <cstdint>
 
 static uintmax_t MAX_TAP_SIZE = 1024 * 1024 * 16;
 

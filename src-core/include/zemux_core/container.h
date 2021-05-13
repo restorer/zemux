@@ -25,12 +25,12 @@
  * THE SOFTWARE.
  */
 
-#include "non_copyable.h"
-#include "force_inline.h"
 #include <cstddef>
 #include <utility>
 #include <new>
 #include <stdexcept>
+#include "non_copyable.h"
+#include "force_inline.h"
 
 namespace zemux {
 

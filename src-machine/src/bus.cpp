@@ -31,7 +31,7 @@
 
 namespace zemux {
 
-Bus::Bus(Z80Chip* cpu, ChronometerNarrow* cpuChronometer) : cpu { cpu }, cpuChronometer { cpuChronometer } {
+Bus::Bus(BusOwner* owner, ChronometerNarrow* cpuChronometer) : owner { owner }, cpuChronometer { cpuChronometer } {
     for (int i = 0; i < LAYERS_MREQ_RD; ++i) {
         mreqRdMapLayers[i].reset(new BusMreqRdElement[ELEMENTS_MREQ_RD_FULL]);
     }
@@ -48,97 +48,23 @@ Bus::Bus(Z80Chip* cpu, ChronometerNarrow* cpuChronometer) : cpu { cpu }, cpuChro
         iorqWrMapLayers[i].reset(new BusIorqWrElement[ELEMENTS_IORQ_WR]);
     }
 
-    resetLayers();
+    onMachineReset();
 }
 
 uint32_t Bus::getFrameTicksPassed() {
     return cpuChronometer->getSrcTicksPassed() + cpuChronometer->dstToSrcCeil(cpu->getTstate());
 }
 
-void Bus::setCpuClockRatio(int /* rate */) {
+void Bus::setCpuClockRatio(int ratio) {
+    cpuChronometer->setClockRatioFixedSrc(ratio);
 }
 
-void Bus::performReconfigure() {
-    for (int layer = 0; layer < LAYERS_MREQ_RD; ++layer) {
-        auto layerMap = mreqRdMapLayers[layer].get();
-
-        for (int index = 0; index < ELEMENTS_MREQ_RD_FULL; ++index) {
-            layerMap[index] = BusMreqRdElement { .callback = &Bus::onMreqRdFallback, .data = nullptr };
-        }
-    }
-
-    for (int layer = 0; layer < LAYERS_MREQ_WR; ++layer) {
-        auto layerMap = mreqWrMapLayers[layer].get();
-
-        for (int index = 0; index < ELEMENTS_MREQ_WR; ++index) {
-            layerMap[index] = BusMreqWrElement { .callback = &Bus::onMreqWrFallback, .data = nullptr };
-        }
-    }
-
-    for (int layer = 0; layer < LAYERS_IORQ_RD; ++layer) {
-        auto layerMap = iorqRdMapLayers[layer].get();
-
-        for (int index = 0; index < ELEMENTS_IORQ_RD; ++index) {
-            layerMap[index] = BusIorqRdElement { .callback = &Bus::onIorqRdFallback, .data = this };
-        }
-    }
-
-    for (int layer = 0; layer < LAYERS_IORQ_WR; ++layer) {
-        auto layerMap = iorqWrMapLayers[layer].get();
-
-        for (int index = 0; index < ELEMENTS_IORQ_WR; ++index) {
-            layerMap[index] = BusIorqWrElement { .callback = &Bus::onIorqWrFallback, .data = nullptr };
-        }
-    }
-
-    for (auto it = attachedDevices.begin(); it != attachedDevices.end(); ++it) {
-        auto device = *it;
-
-        for (int layer = 0; layer < LAYERS_MREQ_RD; ++layer) {
-            auto layerMap = mreqRdMapLayers[layer].get();
-
-            for (int index = 0; index < ELEMENTS_MREQ_RD_FULL; ++index) {
-                layerMap[index] = device->onConfigureMreqRd(
-                        layerMap[index],
-                        layer,
-                        index & Bus::ELEMENTS_MREQ_RD_BASE_MASK,
-                        index >= Bus::ELEMENTS_MREQ_RD_BASE);
-            }
-        }
-
-        for (int layer = 0; layer < LAYERS_MREQ_WR; ++layer) {
-            auto layerMap = mreqWrMapLayers[layer].get();
-
-            for (int index = 0; index < ELEMENTS_MREQ_WR; ++index) {
-                layerMap[index] = device->onConfigureMreqWr(layerMap[index], layer, index);
-            }
-        }
-
-        for (int layer = 0; layer < LAYERS_IORQ_RD; ++layer) {
-            auto layerMap = iorqRdMapLayers[layer].get();
-
-            for (int index = 0; index < ELEMENTS_IORQ_RD; ++index) {
-                layerMap[index] = device->onConfigureIorqRd(layerMap[index], layer, index);
-            }
-        }
-
-        for (int layer = 0; layer < LAYERS_IORQ_WR; ++layer) {
-            auto layerMap = iorqWrMapLayers[layer].get();
-
-            for (int index = 0; index < ELEMENTS_IORQ_WR; ++index) {
-                layerMap[index] = device->onConfigureIorqWr(layerMap[index], layer, index);
-            }
-        }
-    }
+void Bus::requestReconfigure() {
+    owner->onBusReconfigure();
 }
 
-void Bus::performReset() {
-    resetLayers();
-    cpu->reset();
-
-    for (auto it = attachedDevices.begin(); it != attachedDevices.end(); ++it) {
-        (*it)->onReset();
-    }
+void Bus::requestReset() {
+    owner->onBusReset();
 }
 
 void Bus::toggleMreqRdOverlay(int mreqRdOverlay, bool isEnabled) {
@@ -181,7 +107,79 @@ void Bus::toggleIorqWrOverlay(int iorqWrOverlay, bool isEnabled) {
     iorqWrMap = iorqWrMapLayers[iorqWrOverlay].get();
 }
 
-void Bus::resetLayers() {
+void Bus::onMachineReconfigure(std::vector<Device*>& devices) {
+    for (int layer = 0; layer < LAYERS_MREQ_RD; ++layer) {
+        auto layerMap = mreqRdMapLayers[layer].get();
+
+        for (int index = 0; index < ELEMENTS_MREQ_RD_FULL; ++index) {
+            layerMap[index] = BusMreqRdElement { .callback = &Bus::onFallbackMreqRd, .data = nullptr };
+        }
+    }
+
+    for (int layer = 0; layer < LAYERS_MREQ_WR; ++layer) {
+        auto layerMap = mreqWrMapLayers[layer].get();
+
+        for (int index = 0; index < ELEMENTS_MREQ_WR; ++index) {
+            layerMap[index] = BusMreqWrElement { .callback = &Bus::onFallbackMreqWr, .data = nullptr };
+        }
+    }
+
+    for (int layer = 0; layer < LAYERS_IORQ_RD; ++layer) {
+        auto layerMap = iorqRdMapLayers[layer].get();
+
+        for (int index = 0; index < ELEMENTS_IORQ_RD; ++index) {
+            layerMap[index] = BusIorqRdElement { .callback = &Bus::onFallbackIorqRd, .data = this };
+        }
+    }
+
+    for (int layer = 0; layer < LAYERS_IORQ_WR; ++layer) {
+        auto layerMap = iorqWrMapLayers[layer].get();
+
+        for (int index = 0; index < ELEMENTS_IORQ_WR; ++index) {
+            layerMap[index] = BusIorqWrElement { .callback = &Bus::onFallbackIorqWr, .data = nullptr };
+        }
+    }
+
+    for (auto& device : devices) {
+        for (int layer = 0; layer < LAYERS_MREQ_RD; ++layer) {
+            auto layerMap = mreqRdMapLayers[layer].get();
+
+            for (int index = 0; index < ELEMENTS_MREQ_RD_FULL; ++index) {
+                layerMap[index] = device->onConfigureMreqRd(
+                        layerMap[index],
+                        layer,
+                        index & Bus::ELEMENTS_MREQ_RD_BASE_MASK,
+                        index >= Bus::ELEMENTS_MREQ_RD_BASE);
+            }
+        }
+
+        for (int layer = 0; layer < LAYERS_MREQ_WR; ++layer) {
+            auto layerMap = mreqWrMapLayers[layer].get();
+
+            for (int index = 0; index < ELEMENTS_MREQ_WR; ++index) {
+                layerMap[index] = device->onConfigureMreqWr(layerMap[index], layer, index);
+            }
+        }
+
+        for (int layer = 0; layer < LAYERS_IORQ_RD; ++layer) {
+            auto layerMap = iorqRdMapLayers[layer].get();
+
+            for (int index = 0; index < ELEMENTS_IORQ_RD; ++index) {
+                layerMap[index] = device->onConfigureIorqRd(layerMap[index], layer, index);
+            }
+        }
+
+        for (int layer = 0; layer < LAYERS_IORQ_WR; ++layer) {
+            auto layerMap = iorqWrMapLayers[layer].get();
+
+            for (int index = 0; index < ELEMENTS_IORQ_WR; ++index) {
+                layerMap[index] = device->onConfigureIorqWr(layerMap[index], layer, index);
+            }
+        }
+    }
+}
+
+void Bus::onMachineReset() {
     mreqRdLayer = 0;
     mreqWrLayer = 0;
     iorqRdLayer = 0;
@@ -193,19 +191,52 @@ void Bus::resetLayers() {
     iorqWrMap = iorqWrMapLayers[0].get();
 }
 
-uint8_t Bus::onMreqRdFallback(void* /* data */, int /* mreqRdLayer */, uint16_t /* address */, bool /* isM1 */) {
+uint8_t Bus::onFallbackMreqRd(void* /* data */, int /* mreqRdLayer */, uint16_t /* address */, bool /* isM1 */) {
     return 0xFF;
 }
 
-void Bus::onMreqWrFallback(void* /* data */, int /* mreqWrLayer */, uint16_t /* address */, uint8_t /* value */) {
+void Bus::onFallbackMreqWr(void* /* data */, int /* mreqWrLayer */, uint16_t /* address */, uint8_t /* value */) {
 }
 
-uint8_t Bus::onIorqRdFallback(void* /* data */, int /* iorqRdLayer */, uint16_t /* port */) {
+uint8_t Bus::onFallbackIorqRd(void* /* data */, int /* iorqRdLayer */, uint16_t /* port */) {
     // TODO: port #FF
     return 0xFF;
 }
 
-void Bus::onIorqWrFallback(void* /* data */, int /* iorqWrLayer */, uint16_t /* port */, uint8_t /* value */) {
+void Bus::onFallbackIorqWr(void* /* data */, int /* iorqWrLayer */, uint16_t /* port */, uint8_t /* value */) {
+}
+
+uint8_t Bus::onCpuMreqRd(void* data, uint16_t address, bool isM1) {
+    auto self = static_cast<Bus*>(data);
+    auto elem = self->mreqRdMap[address + (isM1 ? ELEMENTS_MREQ_RD_BASE : 0)];
+    return elem.callback(elem.data, self->mreqRdLayer, address, isM1);
+}
+
+void Bus::onCpuMreqWr(void* data, uint16_t address, uint8_t value) {
+    auto self = static_cast<Bus*>(data);
+    auto elem = self->mreqWrMap[address];
+    elem.callback(elem.data, self->mreqWrLayer, address, value);
+}
+
+uint8_t Bus::onCpuIorqRd(void* data, uint16_t port) {
+    auto self = static_cast<Bus*>(data);
+    auto elem = self->iorqRdMap[port];
+    return elem.callback(elem.data, self->iorqRdLayer, port);
+}
+
+void Bus::onCpuIorqWr(void* data, uint16_t port, uint8_t value) {
+    auto self = static_cast<Bus*>(data);
+    auto elem = self->iorqWrMap[port];
+    elem.callback(elem.data, self->iorqWrLayer, port, value);
+}
+
+uint8_t Bus::onCpuIorqM1(void* /* data */) {
+    // TODO: unstable data bus
+    return 0xFF;
+}
+
+void Bus::onCpuPutAddress(void* /* data */, uint16_t /* address */, uint_fast32_t /* cycles */) {
+    // TODO: slow memory
 }
 
 }

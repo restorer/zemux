@@ -131,7 +131,7 @@ static void testPulses(zemux::Tape& tape, zemux::DataReader& pulsesReader, uint6
         if (isJustAfterRewind) {
             // Rewind may set position with jitter, so give it a chance to normalize.
 
-            for (auto tuneMicros = STEP_WIDE_TOLERANCE_MICROS; tuneMicros > 0; --tuneMicros) {
+            for (uint32_t tuneMicros = STEP_WIDE_TOLERANCE_MICROS; tuneMicros > 0; --tuneMicros) {
                 if (tape.getVolumeBit() == volumeBit) {
                     break;
                 }

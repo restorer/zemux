@@ -25,8 +25,8 @@
  * THE SOFTWARE.
  */
 
-#include <algorithm>
 #include <cstdint>
+#include <algorithm>
 #include <zemux_core/config.h>
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/force_inline.h>

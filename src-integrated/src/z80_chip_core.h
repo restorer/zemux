@@ -25,9 +25,9 @@
  * THE SOFTWARE.
  */
 
+#include "z80_chip.h"
 #include <zemux_core/non_copyable.h>
 #include <zemux_core/force_inline.h>
-#include "z80_chip.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnusedGlobalDeclarationInspection"
